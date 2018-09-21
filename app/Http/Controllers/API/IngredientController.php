@@ -82,15 +82,15 @@ class IngredientController extends Controller
      */
     public function destroy($id)
     {
-//        $ingredient = auth()->user()->ingredients()->find($id);
-//        $ingredientName = $ingredient->name;
-//
-//        if ($ingredient->delete()) {
-//            $message = 'Ingredient ' . $ingredientName . ' has been deleted';
-//            return response()->json(['message' => $message]);
-//        }
+        $ingredient = auth()->user()->ingredients()->find($id);
+        $ingredientName = $ingredient->name;
 
-        return response()->json(['message' => 'Deleting ingredients is forbidden']);
+        if ($ingredient->delete()) {
+            $message = 'Ingredient ' . $ingredientName . ' has been deleted';
+            return response()->json(['message' => $message]);
+        }
+
+        return response()->json(['message' => 'Deleting ingredients is forbidden, maybe it is used in recipes or refrigerator']);
 
     }
 }

@@ -39,8 +39,7 @@ class Ingredient extends Model
             ->join('measures', 'ingredients.measure_id', '=', 'measures.id')
             ->where('user_id', auth()->user()->id)
             ->orWhere('user_id', null)
-            ->orderBy('user_id', 'desc')
-            ->orderBy('ingredient')
+             ->orderBy('ingredient')
             ->get();
     }
 

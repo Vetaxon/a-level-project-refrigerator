@@ -1,4 +1,4 @@
-<p align="center">Refrigerator API</p>
+<p>Refrigerator API</p>
 
 <p>An instruction for BackEnd</p>
 <ul>
@@ -123,57 +123,3 @@ Url: /ingredients/id<br>
 Method: DELETE<br> 
 Header: {Accept: application/json, Authorization: Bearer ghhdjd...}<br>
 </p>
-
-<p>RECIPES<p/>
-
-<p>
-Url: /recipes<br>
-Method: GET<br> 
-Header: {Accept: application/json, Authorization: Bearer ghhdjd...}<br>
-</p>
-
-<p>
-Url: /recipes/id<br>
-Method: GET<br> 
-Header: {Accept: application/json, Authorization: Bearer ghhdjd...}<br>
-</p>
-
-<p>
-Url: /recipes<br>
-Method: POST<br> 
-Header: {Content-Type: application/json, Accept: application/json, Authorization: Bearer ghhdjd...}<br>
-Body: {}
-</p>
-
-<p>
-Url: /recipes/id<br>
-Method: PUT<br> 
-Header: {Content-Type: application/json, Accept: application/json, Authorization: Bearer ghhdjd...}<br>
-Body: {}
-</p>
-
-<p>
-Url: /recipes/id<br>
-Method: DELETE<br> 
-Header: {Accept: application/json, Authorization: Bearer ghhdjd...}<br>
-</p>
-
-
-
-
-
-
-
-
-
-
-
-
-
-<p></p>
-
-
-<p></p>
-<p></p>
-<p></p>
-

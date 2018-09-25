@@ -23,9 +23,9 @@ Route::group(['middleware' => 'api', 'prefix' => 'auth'], function () {
     Route::post('login', 'API\AuthController@login');
     Route::post('register', 'API\AuthController@register');
     Route::put('user', 'API\AuthController@update');
-    Route::delete('user', 'API\AuthController@update');
+    Route::delete('user', 'API\AuthController@destroy');
     Route::put('user/password', 'API\AuthController@changePassword');
-    Route::post('logout', 'API\AuthController@logout');
+    Route::get('logout', 'API\AuthController@logout');
     Route::post('refresh', 'API\AuthController@refresh');
 
 
@@ -71,20 +71,6 @@ Route::group(['middleware' => 'auth:api'], function () {
 
 });
 
-
-/*
- * API Route group for user's ingredients in refrigerator
- */
-
-Route::group(['middleware' => 'auth:api', 'prefix' => 'refrigerator'], function () {
-
-    Route::get('ingredients', 'API\RefrigeratorController@index');
-    Route::get('ingredients/{ingredient}', 'API\RefrigeratorController@show')->where('id', '[0-9]+');
-    Route::post('ingredients', 'API\RefrigeratorController@store');
-    Route::put('ingredients/{ingredient}', 'API\RefrigeratorController@update')->where('id', '[0-9]+');
-    Route::delete('ingredients/{ingredient}', 'API\RefrigeratorController@destroy')->where('id', '[0-9]+');
-
-});
 
 /*
  * API Route group for user's ingredients in refrigerator

@@ -2,11 +2,12 @@
 
 namespace App\Http\Controllers\API;
 
-use App\Http\Requests\UpdateRequest;
 use App\User;
 use App\Http\Requests\LoginRequest;
+use App\Http\Requests\UpdateRequest;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\RegisterRequest;
+
 
 class AuthController extends Controller
 {
@@ -29,19 +30,21 @@ class AuthController extends Controller
 
     public function register(RegisterRequest $request)
     {
-        $user = User::create([
-            'name' => $request->name,
-            'email' => $request->email,
-            'password' => bcrypt($request->password),
-        ]);
+        try {
+            $user = User::create([
+                'name' => $request->name,
+                'email' => $request->email,
+                'password' => bcrypt($request->password),
+            ]);
 
-        if (!$user)
-            return response()->json(['error' => 'Registration is failed'], 401);;
+        } catch (\Exception $exception) {
+            return response()->json(['error' => $exception->getMessage()], 422);
+        }
 
         $credentials = collect($request)->only(['email', 'password'])->toArray();
 
         if (!$token = auth()->attempt($credentials)) {
-            return response()->json(['error' => 'Unauthorized'], 401);
+            return response()->json(['error' => 'Unauthorized'], 422);
         }
 
         return $this->respondWithToken($token, $user);
@@ -58,11 +61,15 @@ class AuthController extends Controller
 
     public function update(UpdateRequest $request)
     {
-        if ($user = auth()->user()->fill($request->all())->save())
-            return $this->user();
+        try {
+            if ($user = auth()->user()->update($request->all())) {
+                return $this->user();
+            }
+            return response()->json(['error' => 'Updating is failed'], 422);
 
-        return response()->json(['error' => 'Updating is failed'], 401);
-
+        } catch (\Exception $exception) {
+            return response()->json(['error' => $exception->getMessage()], 422);
+        }
     }
 
     /**
@@ -73,10 +80,16 @@ class AuthController extends Controller
 
     public function changePassword(UpdateRequest $request)
     {
-        if ($user = auth()->user()->update(['password' => bcrypt($request->password)]))
-            return response()->json(['message' => 'Password updated']);
+        try {
+            if ($user = auth()->user()->update(['password' => bcrypt($request->password)])) {
+                return response()->json(['message' => 'Password updated']);
+            }
 
-        return response()->json(['error' => 'Updating is failed'], 401);
+            return response()->json(['error' => 'Updating is failed'], 422);
+
+        } catch (\Exception $exception) {
+            return response()->json(['error' => $exception->getMessage()], 422);
+        }
     }
 
 
@@ -86,27 +99,37 @@ class AuthController extends Controller
 
     public function destroy()
     {
-        if (User::find(auth()->user()->id)->delete())
-            return response()->json(['message' => 'User has been deleted']);
+        try {
+            if (User::find(auth()->user()->id)->delete()) {
+                return response()->json(['message' => 'User has been deleted']);
+            }
 
-        return response()->json(['error' => 'Deleting is failed'], 401);
+            return response()->json(['error' => 'Deleting user is failed'], 422);
+
+        } catch (\Exception $exception) {
+            return response()->json(['error' => $exception->getMessage()], 422);
+        }
     }
 
 
     /**
      * Get a JWT via given credentials.
      *
+     * @param LoginRequest $request
      * @return \Illuminate\Http\JsonResponse
      */
     public function login(LoginRequest $request)
     {
-        $credentials = $request->only(['email', 'password']);
 
-        if (!$token = auth()->attempt($credentials)) {
+        if (!$token = auth()->attempt($request->only(['email', 'password']))) {
             return response()->json(['error' => 'Invalid credentials'], 401);
         }
 
-        return $this->respondWithToken($token);
+        if ($user = auth()->user()) {
+            return $this->respondWithToken($token, $user);
+        }
+
+        return response()->json(['error' => 'Something went wrong, sorry!'], 403);
     }
 
 
@@ -117,8 +140,11 @@ class AuthController extends Controller
      */
     public function user()
     {
-        return response()->json(auth()->user());
-
+        try {
+            return response()->json(auth()->user());
+        } catch (\Exception $exception) {
+            return response()->json(['error' => $exception->getMessage()]);
+        }
     }
 
 
@@ -129,7 +155,11 @@ class AuthController extends Controller
      */
     public function logout()
     {
-        auth()->logout();
+        try {
+            auth()->logout();
+        } catch (\Exception $exception) {
+            return response()->json(['error' => $exception->getMessage()]);
+        }
 
         return response()->json(['message' => 'Successfully logged out']);
     }
@@ -142,7 +172,11 @@ class AuthController extends Controller
      */
     public function refresh()
     {
-        return $this->respondWithToken(auth()->refresh());
+        try {
+            return $this->respondWithToken(auth()->refresh(), $this->user());
+        } catch (\Exception $exception) {
+            return response()->json(['error' => $exception->getMessage()]);
+        }
     }
 
 
@@ -153,21 +187,19 @@ class AuthController extends Controller
      *
      * @return \Illuminate\Http\JsonResponse
      */
-    protected function respondWithToken($token, $user = false)
+    protected function respondWithToken($token, $user)
     {
-        if ($user) {
+        try {
             return response()->json([
                 'user' => $user,
                 'access_token' => $token,
                 'token_type' => 'bearer',
-                'expires_in' => auth()->factory()->getTTL() * 60 * 24 * 30
+                'expires_in' => auth()->factory()->getTTL() * 60
             ]);
+
+        } catch (\Exception $exception) {
+            return response()->json(['error' => $exception->getMessage()], 401);
         }
 
-        return response()->json([
-            'access_token' => $token,
-            'token_type' => 'bearer',
-            'expires_in' => auth()->factory()->getTTL() * 60 * 24 * 30
-        ]);
     }
 }

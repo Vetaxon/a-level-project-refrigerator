@@ -2,9 +2,8 @@
 
 namespace App;
 
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
-use phpDocumentor\Reflection\Types\Null_;
+use Illuminate\Database\Eloquent\Model;
 
 class Ingredient extends Model
 {
@@ -39,7 +38,8 @@ class Ingredient extends Model
             ->join('measures', 'ingredients.measure_id', '=', 'measures.id')
             ->where('user_id', auth()->user()->id)
             ->orWhere('user_id', null)
-             ->orderBy('ingredient')
+            ->orderBy('user_id', 'desc')
+            ->orderBy('ingredient')
             ->get();
     }
 
@@ -57,6 +57,5 @@ class Ingredient extends Model
             ->orWhere([['user_id', null], ['ingredients.id', $id]])
             ->get();
     }
-
 
 }

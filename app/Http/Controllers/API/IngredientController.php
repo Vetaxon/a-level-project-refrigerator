@@ -2,10 +2,9 @@
 
 namespace App\Http\Controllers\API;
 
-use App\Http\Requests\IngredientRequest;
 use App\Ingredient;
-use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\IngredientRequest;
 
 class IngredientController extends Controller
 {
@@ -16,9 +15,11 @@ class IngredientController extends Controller
      */
     public function index()
     {
-        if ($ingredients = Ingredient::getAllIngredientsForUser())
-            return response()->json($ingredients);
-
+        try {
+            return response()->json(Ingredient::getAllIngredientsForUser());
+        } catch (\Exception $exception) {
+            return response()->json(['error' => $exception->getMessage()], 422);
+        }
     }
 
 
@@ -33,11 +34,15 @@ class IngredientController extends Controller
         $newIngredient = $request->all();
         $newIngredient ['user_id'] = auth()->user()->id;
 
-        if ($createNewIngredient = Ingredient::create($newIngredient)) {
-            $message = 'Ingredient ' . $request->name . ' has been stored';
-            return response()->json(['message' => $message]);
-        }
+        try {
+            return response()->json([
+                'message' => 'Ingredient ' . $request->name . ' has been stored',
+                'ingredient' => Ingredient::create($newIngredient)
+            ]);
 
+        } catch (\Exception $exception) {
+            return response()->json(['error' => $exception->getMessage()], 422);
+        }
     }
 
 
@@ -49,9 +54,18 @@ class IngredientController extends Controller
      */
     public function show($id)
     {
-        if ($ingredient = Ingredient::getIngredientByIdForUser($id))
-            return response()->json($ingredient);
+        try {
 
+            if (count($ingredient = Ingredient::getIngredientByIdForUser($id)) > 0) {
+                return response()->json($ingredient);
+            }
+
+            return response()->json(['error' => 'Ingredient was not found for current user'], 422);
+
+        } catch (\Exception $exception) {
+
+            return response()->json(['error' => $exception->getMessage()], 422);
+        }
     }
 
 
@@ -64,13 +78,21 @@ class IngredientController extends Controller
      */
     public function update(IngredientRequest $request, $id)
     {
-        $ingredient = auth()->user()->ingredients()->find($id)->fill($request->all())->save();
+        $ingredient = $ingredient = auth()->user()->ingredients()->find($id);
 
-        if ($ingredient) {
-            $message = 'Ingredient ' . $request->name . ' has been updated';
-            return response()->json(['message' => $message]);
+        if (!$ingredient) {
+            return response()->json(['error' => 'Ingredient was not found for current user'], 422);
         }
 
+        try {
+            $ingredient->fill($request->all())->save();
+        } catch (\Exception $exception) {
+            return response()->json(['error' => $exception->getMessage()], 422);
+        }
+
+        if ($ingredient) {
+            return $this->show($id);
+        }
     }
 
 
@@ -83,14 +105,19 @@ class IngredientController extends Controller
     public function destroy($id)
     {
         $ingredient = auth()->user()->ingredients()->find($id);
-        $ingredientName = $ingredient->name;
 
-        if ($ingredient->delete()) {
-            $message = 'Ingredient ' . $ingredientName . ' has been deleted';
-            return response()->json(['message' => $message]);
+        if (!$ingredient) {
+            return response()->json(['error' => 'Ingredient was not found for current user'], 422);
         }
 
-        return response()->json(['message' => 'Deleting ingredients is forbidden, maybe it is used in recipes or refrigerator']);
+        try {
+            $ingredient->delete();
+        } catch (\Exception $exception) {
+            return response()->json([
+                'error' => 'Deleting ingredients is forbidden, maybe it is used in recipes or in refrigerator'
+            ], 422);
+        }
 
+        return response()->json(['message' => 'Ingredient has been deleted']);
     }
 }

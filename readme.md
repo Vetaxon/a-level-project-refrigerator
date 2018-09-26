@@ -96,7 +96,7 @@ Method: POST<br>
 Header: {Content-Type: application/json, Accept: application/json, Authorization: Bearer ghhdjd...}<br>
 Body: {
       	"name":"juice",
-      	"measure_id":"1"
+      	"measure":"l"
       }
 </p>
 
@@ -105,18 +105,11 @@ Url: /ingredients/id<br>
 Method: PUT<br> 
 Header: {Content-Type: application/json, Accept: application/json, Authorization: Bearer ghhdjd...}<br>
 Body: {
-      	"name":"juice"      	
+      	"name":"juice new",
+      	"measure":"l"      	
       }
 </p>
 
-<p>
-Url: /ingredients/id<br>
-Method: PUT<br> 
-Header: {Content-Type: application/json, Accept: application/json, Authorization: Bearer ghhdjd...}<br>
-Body: {
-      	"measure_id":"2"      	
-      }
-</p>
 
 <p>
 Url: /ingredients/id<br>

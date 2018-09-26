@@ -24,26 +24,28 @@ class IngredientRequest extends FormRequest
      */
     public function rules(Request $request)
     {
+        /**
+         * Rules for store a new ingredient by user.
+         *
+         */
 
         if ($request->isMethod('post')) {
             return [
-                'name' => 'required|string|max:255|unique:ingredients,name',
-                'measure_id' => 'required|integer|exists:measures,id',
+                'name' => 'required|string|max:255|unique:ingredients,name,NULL,id,user_id,' . auth()->user()->id,
+                'measure' => 'required|string|max:100',
             ];
         }
 
-        if ($request->isMethod('put') and $request->has('name')) {
+        /**
+         * Rules for update a new ingredient by user.
+         *
+         */
+
+        if ($request->isMethod('put')) {
 
             return [
-                'name' => 'string|max:255|unique:ingredients,name',
-                'measure_id' => 'integer|exists:measures,id',
-            ];
-        }
-
-        if ($request->isMethod('put') and !$request->has('name')) {
-
-            return [
-                'measure_id' => 'integer|exists:measures,id',
+                'name' => 'string|max:255|unique:ingredients,name,NULL,id,user_id,' . auth()->user()->id,
+                'measure' => 'string|max:100',
             ];
         }
 

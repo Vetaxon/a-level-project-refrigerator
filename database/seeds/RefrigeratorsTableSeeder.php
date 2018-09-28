@@ -12,12 +12,19 @@ class RefrigeratorsTableSeeder extends Seeder
      */
     public function run()
     {
-        for($i=1; $i<=16; $i++)
-        {
+        for ($i = 1; $i <= 9; $i++) {
             Refrigerator::create([
-                'user_id' => ceil($i/4),
+                'user_id' => 1,
                 'ingredient_id' => $i,
-                'value' => mt_rand(1, 100),
+                'amount' => '50 g',
+            ]);
+        }
+
+        for ($i = 10; $i <= 16; $i++) {
+            Refrigerator::create([
+                'user_id' => 2,
+                'ingredient_id' => $i,
+                'amount' => '50 g',
             ]);
         }
     }

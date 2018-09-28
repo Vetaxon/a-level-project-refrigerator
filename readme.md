@@ -73,12 +73,6 @@ Header: {Content-Type: application/json, Accept: application/json, Authorization
 <p>INGREDIENTS<p/>
 
 <p>
-Url: /measures<br>
-Method: GET<br> 
-Header: {Accept: application/json}<br>
-</p>
-
-<p>
 Url: /ingredients<br>
 Method: GET<br> 
 Header: {Accept: application/json, Authorization: Bearer ghhdjd...}<br>
@@ -95,8 +89,7 @@ Url: /ingredients<br>
 Method: POST<br> 
 Header: {Content-Type: application/json, Accept: application/json, Authorization: Bearer ghhdjd...}<br>
 Body: {
-      	"name":"juice",
-      	"measure":"l"
+      	"name":"juice"      	
       }
 </p>
 
@@ -105,8 +98,7 @@ Url: /ingredients/id<br>
 Method: PUT<br> 
 Header: {Content-Type: application/json, Accept: application/json, Authorization: Bearer ghhdjd...}<br>
 Body: {
-      	"name":"juice new",
-      	"measure":"l"      	
+      	"name":"juice new"	
       }
 </p>
 

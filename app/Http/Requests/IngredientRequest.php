@@ -32,7 +32,6 @@ class IngredientRequest extends FormRequest
         if ($request->isMethod('post')) {
             return [
                 'name' => 'required|string|max:255|unique:ingredients,name,NULL,id,user_id,' . auth()->user()->id,
-                'measure' => 'required|string|max:100',
             ];
         }
 
@@ -45,7 +44,6 @@ class IngredientRequest extends FormRequest
 
             return [
                 'name' => 'string|max:255|unique:ingredients,name,NULL,id,user_id,' . auth()->user()->id,
-                'measure' => 'string|max:100',
             ];
         }
 

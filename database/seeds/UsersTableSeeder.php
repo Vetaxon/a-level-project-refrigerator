@@ -13,7 +13,6 @@ class UsersTableSeeder extends Seeder
      */
     public function run()
     {
-        //User::truncate();
 
         User::create([
             'name' => 'admin',
@@ -21,12 +20,13 @@ class UsersTableSeeder extends Seeder
             'password' => Hash::make('admin'),
         ]);
 
-        for($i=1; $i<=3; $i++) {
-            User::create([
-                'name' => 'user' . $i,
-                'email' => 'user' . $i . '@test.com',
-                'password' => Hash::make('user' . $i),
-            ]);
-        }
+
+        User::create([
+            'name' => 'user2',
+            'email' => 'user2@test.com',
+            'password' => Hash::make('user2'),
+        ]);
+
+
     }
 }

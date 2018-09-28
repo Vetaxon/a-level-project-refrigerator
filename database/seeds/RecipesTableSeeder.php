@@ -14,15 +14,24 @@ class RecipesTableSeeder extends Seeder
     {
         $faker = \Faker\Factory::create();
 
-
-        //Recipe::truncate();
-        for($i=1; $i<=8; $i++)
+        for($i=1; $i<=3; $i++)
         {
             Recipe::create([
-                'name' => 'рецепт' . $i,
+                'name' => 'Общий рецепт №' . $i,
                 'text' => $faker->text,
-                'user_id' => ceil($i/2),
             ]);
         }
+
+        for($i=1; $i<=3; $i++)
+        {
+           Recipe::create([
+                'name' => 'зецепт пользователя admin' . $i,
+                'text' => $faker->text,
+                'user_id' => 1
+            ]);
+
+        }
+
+
     }
 }

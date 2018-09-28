@@ -13,8 +13,8 @@ class DatabaseSeeder extends Seeder
      */
     public function run()
     {
+        $this->call(TruncateDB::class);
         $this->call(UsersTableSeeder::class);
-        $this->call(MeasuresTableSeeder::class);
         $this->call(IngredientsTableSeeder::class);
         $this->call(RecipesTableSeeder::class);
         $this->call(RecipeIngredientTableSeeder::class);

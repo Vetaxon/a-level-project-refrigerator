@@ -8,20 +8,22 @@ use App\Http\Requests\IngredientRequest;
 
 class IngredientController extends Controller
 {
+
+    protected $getParameters = ['id', 'name'];
+
+
     /**
      * Display all ingredients that belongs to user with default(null) ingredients.
      *
      * @return \Illuminate\Http\JsonResponse
+     *
+     *
      */
     public function index()
     {
         try {
 
-            $userIngredients = auth()->user()->ingredients()->orderBy('name')->get(['id', 'name', 'measure']);
-
-            $generalIngredients = Ingredient::where('user_id', null)->orderBy('name')->get(['id', 'name', 'measure']);
-
-            return response()->json(['ingredients' => $userIngredients->merge($generalIngredients)]);
+            return response()->json(['ingredients' => Ingredient::getAllUsersIngredient($this->getParameters)]);
 
         } catch (\Exception $exception) {
 
@@ -48,7 +50,7 @@ class IngredientController extends Controller
         try {
             return response()->json([
                 'message' => 'Ingredient ' . $request->name . ' has been stored',
-                'ingredient' => Ingredient::create($newIngredient)->only(['id', 'name', 'measure'])
+                'ingredient' => Ingredient::create($newIngredient)->only($this->getParameters)
             ]);
 
         } catch (\Exception $exception) {
@@ -67,17 +69,17 @@ class IngredientController extends Controller
     public function show($id)
     {
         try {
-
-            if (count($ingredient = auth()->user()->ingredients()->find($id)->only(['id', 'name', 'measure'])) > 0) {
-                return response()->json(['ingredient' => $ingredient]);
-            }
-
-            return response()->json(['error' => 'Ingredient was not found for current user'], 422);
-
+            $ingredient = Ingredient::getUsersIngredientById($id);
         } catch (\Exception $exception) {
 
             return response()->json(['error' => $exception->getMessage()], 422);
         }
+
+        if ($ingredient) {
+            return response()->json(['ingredient' => $ingredient->only($this->getParameters)]);
+        }
+
+        return response()->json(['error' => 'Ingredient was not found for current user'], 422);
     }
 
 
@@ -101,12 +103,12 @@ class IngredientController extends Controller
         }
 
         try {
-            $ingredient->fill($request->all())->save();
+            $updatedIngredient = $ingredient->fill($request->all())->save();
         } catch (\Exception $exception) {
             return response()->json(['error' => $exception->getMessage()], 422);
         }
 
-        if ($ingredient) {
+        if ($updatedIngredient) {
             return $this->show($id);
         }
     }
@@ -128,13 +130,13 @@ class IngredientController extends Controller
 
         try {
             $ingredient->delete();
+
         } catch (\Exception $exception) {
-            return response()->json([
-                'error' => 'Deleting ingredients is forbidden, maybe it is used in recipes or in refrigerator'
-            ], 422);
+
+            return response()->json(['error' => $exception->getMessage()], 422);
         }
 
-        return response()->json(['message' => 'Ingredient has been deleted']);
+        return response()->json(['message' => 'Ingredient ' . $ingredient->name . ' has been deleted']);
     }
 
     /**
@@ -152,6 +154,5 @@ class IngredientController extends Controller
         }
 
         return false;
-
     }
 }

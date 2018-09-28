@@ -10,10 +10,6 @@ class Recipe extends Model
         'name', 'text', 'user_id',
     ];
 
-    public function ingredients()
-    {
-        return $this->belongsToMany('App\Ingredient', 'recipe_ingredient')->withPivot('value');
-    }
 
     public function user()
     {

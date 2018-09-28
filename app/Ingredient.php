@@ -10,6 +10,8 @@ class Ingredient extends Model
         'name', 'user_id',
     ];
 
+//    protected $hidden = ['pivot'];
+
 
     public function user()
     {

@@ -15,4 +15,15 @@ class Recipe extends Model
     {
         return $this->belongsTo('App\User');
     }
+
+    public function recipeIngredients()
+    {
+        return $this->hasMany('App\RecipeIngredient');
+    }
+
+    public function ingredients()
+    {
+        return $this->belongsToMany('App\Ingredient', 'recipe_ingredient')->withPivot('amount');
+
+    }
 }

@@ -2,13 +2,14 @@
 
 namespace App\Http\Controllers\API;
 
-use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\RecipeRequest;
 use App\Recipe;
 
 class RecipeController extends Controller
 {
+    protected $getParameters = ['user_id', 'name', 'text'];
+
     /**
      * Display a listing of the resource.
      *
@@ -31,7 +32,17 @@ class RecipeController extends Controller
      */
     public function store(RecipeRequest $request)
     {
-        //
+        try {
+            $resultAll = $request->all();
+            $resultAll ['user_id'] = auth()->user()->id;
+
+            return response()->json([
+                'message' => 'Recipe ' . $request->name . ' has been stored',
+                'recipe' => Recipe::create($resultAll)->only($this->getParameters)
+            ]);
+        } catch (\Exception $exception) {
+            return response()->json(['error' => $exception->getMessage()], 422);
+        }
     }
 
     /**
@@ -45,7 +56,9 @@ class RecipeController extends Controller
         try {
             $recipe = (array)Recipe::getUserRecipeById($id);
             $ingredients = Recipe::getUserRecipeIngredientsById($id);
-            if ($recipe) $recipe['ingredients'] = $ingredients;
+            if ($recipe) {
+                $recipe['ingredients'] = $ingredients;
+            }
             return response()->json($recipe);
         } catch (\Exception $exception) {
             return response()->json(['error' => $exception->getMessage()], 422);
@@ -59,10 +72,20 @@ class RecipeController extends Controller
      * @param  int $id
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, $id)
+    public function update(RecipeRequest $request, $id)
     {
-        $recipe = auth()->user()->recipes()->find($id);
-        return response()->json($recipe);
+        try {
+            $recipe = auth()->user()->recipes()->find($id);
+            if ($recipe && $recipe->fill($request->only($this->getParameters))->save()) {
+                return response()->json([
+                    'message' => 'Recipe ' . $request->name . ' has been updated',
+                    'recipe' => $request->only($this->getParameters)
+                ]);
+            }
+            return response()->json(['error' => 'No available recipe by given id'], 422);
+        } catch (\Exception $exception) {
+            return response()->json(['error' => $exception->getMessage()], 422);
+        }
     }
 
     /**
@@ -73,13 +96,14 @@ class RecipeController extends Controller
      */
     public function destroy($id)
     {
-        try{
-            $result = Recipe::deleteUserRecipeById($id);
-            if ($result) {
-                return response()->json(['message' => 'Recipe ' . $result->name . ' has been deleted']);
+        try {
+            $recipe = auth()->user()->recipes()->find($id);
+            if ($recipe) {
+                $recipe->delete();
+                return response()->json(['message' => 'Recipe ' . $recipe->name . ' has been deleted']);
             }
-            return response()->json(['error' => 'Recipe was not found by given id'], 422);
-        } catch (\Exception $exception){
+            return response()->json(['error' => 'No available recipe by given id'], 422);
+        } catch (\Exception $exception) {
             return response()->json(['error' => $exception->getMessage()], 422);
         }
     }

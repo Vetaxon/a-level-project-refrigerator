@@ -61,17 +61,4 @@ class Recipe extends Model
             ->oRwhere([['recipes.user_id', null], ['recipes.id', $id]])
             ->first();
     }
-
-    /**
-     * @param $id
-     * @return mixed
-     */
-    public static function deleteUserRecipeById($id)
-    {
-        $recipe = auth()->user()->recipes()->find($id);
-        if ($recipe) {
-            $recipe->delete();
-        }
-        return $recipe;
-    }
 }

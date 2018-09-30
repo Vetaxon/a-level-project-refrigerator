@@ -20,7 +20,9 @@ class RefrigeratorRecipeController extends Controller
         $recipes = Recipe::with('ingredients')
             ->where('recipes.user_id', null)
             ->orWhere('recipes.user_id', auth()->id())
-            ->get(['pivot']);
+            ->get();
+
+
 
 
 

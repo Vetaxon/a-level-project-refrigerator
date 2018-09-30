@@ -4,6 +4,7 @@ namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
 
 class IngredientRequest extends FormRequest
 {
@@ -31,7 +32,14 @@ class IngredientRequest extends FormRequest
 
         if ($request->isMethod('post')) {
             return [
-                'name' => 'required|string|max:255|unique:ingredients,name,NULL,id,user_id,' . auth()->user()->id,
+                'name' => [
+                    'required',
+                    'string',
+                    'max:255',
+                    Rule::unique('ingredients')->where(function ($query) {
+                        $query->where('user_id', auth()->id())->orWhere('user_id', null);
+                    }),
+                ]
             ];
         }
 
@@ -43,7 +51,13 @@ class IngredientRequest extends FormRequest
         if ($request->isMethod('put')) {
 
             return [
-                'name' => 'string|max:255|unique:ingredients,name,NULL,id,user_id,' . auth()->user()->id,
+                'name' => [
+                    'string',
+                    'max:255',
+                    Rule::unique('ingredients')->where(function ($query) {
+                        $query->where('user_id', auth()->id())->orWhere('user_id', null);
+                    }),
+                ]
             ];
         }
 

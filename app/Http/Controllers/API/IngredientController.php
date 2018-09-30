@@ -40,10 +40,6 @@ class IngredientController extends Controller
      */
     public function store(IngredientRequest $request)
     {
-        if ($validate = $this->validateNameForNullUser($request)) {
-            return response()->json($validate, 422);
-        }
-
         $newIngredient = $request->all();
         $newIngredient ['user_id'] = auth()->user()->id;
 
@@ -92,10 +88,6 @@ class IngredientController extends Controller
      */
     public function update(IngredientRequest $request, $id)
     {
-        if ($validate = $this->validateNameForNullUser($request)) {
-            return response()->json($validate, 422);
-        }
-
         $ingredient = $ingredient = auth()->user()->ingredients()->find($id);
 
         if (!$ingredient) {
@@ -139,20 +131,4 @@ class IngredientController extends Controller
         return response()->json(['message' => 'Ingredient ' . $ingredient->name . ' has been deleted']);
     }
 
-    /**
-     * Validate $request->name for exists for default user(null)
-     * @param $request
-     * @return array|bool
-     */
-    protected function validateNameForNullUser($request)
-    {
-
-        if (Ingredient::where('user_id', null)->where('name', $request->name)->first()) {
-            return [
-                'message' => 'The given data was invalid.',
-                'errors' => ['name' => ['The name has already been taken']]];
-        }
-
-        return false;
-    }
 }

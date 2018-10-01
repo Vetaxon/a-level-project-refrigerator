@@ -5,6 +5,7 @@ namespace App\Http\Requests;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Http\Request;
 
+
 class RecipeRequest extends FormRequest
 {
     /**
@@ -24,18 +25,23 @@ class RecipeRequest extends FormRequest
      */
     public function rules(Request $request)
     {
+
         if ($request->isMethod('post')) {
             return [
                 'name' => 'required|string|max:255',
-                'text' => 'required|string|max:65535',
+                'text' => 'required|string|max:255',
+                'ingredients' => 'required|array'
             ];
         }
 
         if ($request->isMethod('put')) {
             return [
-                'name' => 'required|string|max:255',
-                'text' => 'required|string|max:65535',
+                'name' => 'string|max:255',
+                'text' => 'string|max:255',
+                'ingredients' => 'array'
             ];
         }
+
+
     }
 }

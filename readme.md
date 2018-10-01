@@ -1,5 +1,5 @@
 <p>Refrigerator API</p>
-
+<hr>
 <p>An instruction for BackEnd</p>
 <ul>
 <li>clone repo</li>
@@ -13,9 +13,10 @@
 </ul>
 
 <p>Do not forget to add into .gitignore: .env  .idea/ vendor/ .gitignore  and other custom files or dirs.</p>
-
+<br>
+<hr>
 <p>API Documentation for FrontEnd</p>
-<p>http://refrigerator-alevel.tk<p/>
+<p>http://refrigerator-alevel.tk/api<p/>
 <p>USER<p/>
 
 <p>
@@ -108,3 +109,61 @@ Url: /ingredients/id<br>
 Method: DELETE<br> 
 Header: {Accept: application/json, Authorization: Bearer ghhdjd...}<br>
 </p>
+
+<p>RECIPES<p/>
+
+<p>
+Url: /recipes<br>
+Method: GET<br> 
+Header: {Accept: application/json, Authorization: Bearer ghhdjd...}<br>
+</p>
+
+<p>
+Url: /recipes/id<br>
+Method: GET<br> 
+Header: {Accept: application/json, Authorization: Bearer ghhdjd...}<br>
+</p>
+
+<p>
+Url: /recipes<br>
+Method: POST<br> 
+Header: {Content-Type: application/json, Accept: application/json, Authorization: Bearer ghhdjd...}<br>
+Body: {
+      	"name":"рецепт тест",
+      	"text":"ddddddddddddddd",
+      	"ingredients":[
+      		{"juice":"1 шт"},
+      		{"морковь":"1 шт"},
+      		{"вода":"1 л"},
+      		{"сода":" 1 г"}
+      	]	
+      }
+</p>
+
+<p>
+Url: /recipes/id<br>
+Method: PUT<br> 
+Header: {Content-Type: application/json, Accept: application/json, Authorization: Bearer ghhdjd...}<br>
+Body: {
+      	"name":"рецепт тест",
+      	"text":"ddddddddddddddd",
+      	"ingredients":[
+      		{"juice":"1 l"},
+      		{"морковь":"1 шт"},
+      		{"вода":"1 л"},
+      		{"сода":" 1 г"}
+      	]	
+      }
+<br>
+Fields "name", "text", "ingredients" are not required
+</p>
+
+
+<p>
+Url: /recipes/id<br>
+Method: DELETE<br> 
+Header: {Accept: application/json, Authorization: Bearer ghhdjd...}<br>
+</p>
+
+<p>REFRIGERATORS<p/>
+<p>Coming soon...</p>

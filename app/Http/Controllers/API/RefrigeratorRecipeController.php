@@ -15,9 +15,19 @@ class RefrigeratorRecipeController extends Controller
      */
     public function index()
     {
-        $userRefrigerator = Refrigerator::where('user_id', 1)->get();
+        $userRefrigerator = auth()->user()->refrigerators()->get();
 
-        $recipes = Recipe::with('ingredients')->get();
+        $recipes = Recipe::with('ingredients')
+            ->where('recipes.user_id', null)
+            ->orWhere('recipes.user_id', auth()->id())
+            ->get();
+
+
+
+
+
+
+        return response()->json($recipes);
 
 
         echo "<pre>";

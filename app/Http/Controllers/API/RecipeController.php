@@ -5,106 +5,141 @@ namespace App\Http\Controllers\API;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\RecipeRequest;
 use App\Recipe;
+use Illuminate\Http\Response;
 
 class RecipeController extends Controller
 {
-    protected $getParameters = ['user_id', 'name', 'text'];
+
+    const PAGINATE_NUM = 9;
 
     /**
-     * Display a listing of the resource.
+     * Display all recipes that belongs to user or default(null) user.
      *
-     * @return \Illuminate\Http\Response
+     * @return \Illuminate\Http\JsonResponse
      */
     public function index()
     {
         try {
-            return response()->json(Recipe::getUserAllRecipes());
+            return response()->json(Recipe::getAllRecipesForUser()->paginate(self::PAGINATE_NUM));
         } catch (\Exception $exception) {
-            return response()->json(['error' => $exception->getMessage()], 422);
+            return response()->json(['error' => $exception->getMessage()]);
         }
     }
 
     /**
-     * Store a newly created resource in storage.
+     * Store a newly created recipe for user in storage.
      *
-     * @param  \Illuminate\Http\Request $request
-     * @return \Illuminate\Http\Response
+     * @param RecipeRequest $request
+     * @return Response \Illuminate\Http\JsonResponse
      */
     public function store(RecipeRequest $request)
     {
         try {
-            $resultAll = $request->all();
-            $resultAll ['user_id'] = auth()->user()->id;
 
-            return response()->json([
-                'message' => 'Recipe ' . $request->name . ' has been stored',
-                'recipe' => Recipe::create($resultAll)->only($this->getParameters)
+            $newRecipe = Recipe::create([
+                'name' => $request->name,
+                'text' => $request->text,
+                'user_id' => auth()->id()
             ]);
+
+            if (Recipe::storeIngredientsForRecipe($newRecipe, $request->ingredients)) {
+                return $this->show($newRecipe->id);
+            }
+
+
         } catch (\Exception $exception) {
+
             return response()->json(['error' => $exception->getMessage()], 422);
         }
     }
 
     /**
-     * Display the specified resource.
+     * Display the specified recipe if it is available for user.
      *
      * @param  int $id
-     * @return \Illuminate\Http\Response
+     * @return Response \Illuminate\Http\JsonResponse
      */
     public function show($id)
     {
         try {
-            $recipe = (array)Recipe::getUserRecipeById($id);
-            $ingredients = Recipe::getUserRecipeIngredientsById($id);
-            if ($recipe) {
-                $recipe['ingredients'] = $ingredients;
+            if ($recipe = Recipe::getRecipeByIdForUser($id)) {
+                return response()->json(['recipe' => $recipe]);
             }
-            return response()->json($recipe);
+
+            return response()->json(['error' => 'Recipe was not found for current user'], 422);
+
         } catch (\Exception $exception) {
-            return response()->json(['error' => $exception->getMessage()], 422);
+            return response()->json(['error' => $exception->getMessage()]);
         }
+
     }
 
+
     /**
-     * Update the specified resource in storage.
+     * Update the specified recipe for user in storage.
      *
-     * @param  \Illuminate\Http\Request $request
+     * @param RecipeRequest $request
      * @param  int $id
-     * @return \Illuminate\Http\Response
+     * @return Response \Illuminate\Http\JsonResponse
      */
     public function update(RecipeRequest $request, $id)
     {
         try {
-            $recipe = auth()->user()->recipes()->find($id);
-            if ($recipe && $recipe->fill($request->only($this->getParameters))->save()) {
-                return response()->json([
-                    'message' => 'Recipe ' . $request->name . ' has been updated',
-                    'recipe' => $request->only($this->getParameters)
-                ]);
+
+            if (!$recipe = Recipe::getRecipeByIdForUser($id)) {
+                return response()->json(['error' => 'Recipe was not found for current user'], 422);
             }
-            return response()->json(['error' => 'No available recipe by given id'], 422);
+
+            if ($request->has('name') and $recipe->name != $request->name) {
+                $recipe->fill(['name' => $request->name]);
+            }
+
+            if ($request->has('text')) {
+                $recipe->fill(['text' => $request->text]);
+            }
+
+            $recipe->save();
+
+            if (!$request->ingredients) {
+                return $this->show($recipe->id);
+            }
+
+            $recipe->ingredients()->detach();
+
+            if (Recipe::storeIngredientsForRecipe($recipe, $request->ingredients)) {
+                return $this->show($recipe->id);
+            }
+
+
         } catch (\Exception $exception) {
+
             return response()->json(['error' => $exception->getMessage()], 422);
         }
     }
 
     /**
-     * Remove the specified resource from storage.
+     * Remove the specified user's recipe from storage.
      *
      * @param  int $id
-     * @return \Illuminate\Http\Response
+     * @return Response \Illuminate\Http\JsonResponse
      */
     public function destroy($id)
     {
         try {
-            $recipe = auth()->user()->recipes()->find($id);
-            if ($recipe) {
-                $recipe->delete();
+            if (!$recipe = Recipe::getRecipeByIdForUser($id)) {
+                return response()->json(['error' => 'Recipe was not found for current user'], 422);
+            }
+
+            if ($recipe->delete()) {
                 return response()->json(['message' => 'Recipe ' . $recipe->name . ' has been deleted']);
             }
-            return response()->json(['error' => 'No available recipe by given id'], 422);
+
         } catch (\Exception $exception) {
+
             return response()->json(['error' => $exception->getMessage()], 422);
         }
+
     }
+
+
 }

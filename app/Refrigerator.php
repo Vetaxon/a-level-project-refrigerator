@@ -14,4 +14,9 @@ class Refrigerator extends Model
     {
         return $this->belongsTo('App\User');
     }
+
+    public function ingredients()
+    {
+        return $this->hasOne('App\Ingredient');
+    }
 }

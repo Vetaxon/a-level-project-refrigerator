@@ -63,25 +63,25 @@ class RecipeIngredientTableSeeder extends Seeder
         ]);
 
         RecipeIngredient::create([
-            'recipe_id' => 4,
+            'recipe_id' => 5,
             'ingredient_id' => 3,
             'amount' => '40'
         ]);
 
         RecipeIngredient::create([
-            'recipe_id' => 4,
+            'recipe_id' => 5,
             'ingredient_id' => 4,
             'amount' => '30'
         ]);
 
         RecipeIngredient::create([
-            'recipe_id' => 4,
+            'recipe_id' => 6,
             'ingredient_id' => 5,
             'amount' => '40'
         ]);
 
         RecipeIngredient::create([
-            'recipe_id' => 4,
+            'recipe_id' => 6,
             'ingredient_id' => 6,
             'amount' => '30'
         ]);

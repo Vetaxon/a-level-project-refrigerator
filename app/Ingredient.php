@@ -25,6 +25,14 @@ class Ingredient extends Model
      * @param $parameters of attributes to return
      * @return mixed
      */
+    public function recipes()
+    {
+        return $this->belongsToMany('App\Recipe', 'recipe_ingredient')
+            ->withPivot('amount')
+            ->withPivot('created_at')
+            ->withPivot('updated_at');
+    }
+
     public static function getAllUsersIngredient($parameters)
     {
         $userIngredients = auth()->user()->ingredients()->orderBy('name')->get($parameters);

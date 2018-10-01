@@ -2,10 +2,12 @@
 
 namespace App;
 
-use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\Pivot;
 
-class Refrigerator extends Model
+class Refrigerator extends Pivot
 {
+    protected $table = 'refrigerators';
+
     protected $fillable = [
         'user_id', 'ingredient_id', 'amount',
     ];

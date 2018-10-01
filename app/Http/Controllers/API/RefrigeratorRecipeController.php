@@ -3,68 +3,66 @@
 namespace App\Http\Controllers\API;
 
 use App\Recipe;
-use App\Refrigerator;
 use App\Http\Controllers\Controller;
+use Illuminate\Http\Response;
 
 class RefrigeratorRecipeController extends Controller
 {
+
+    const PAGINATE_RECIPES = 9;
+
+
     /**
-     * Display a listing of the resource.
+     * Get all recommended recipes for user according to refrigerator's ingredients.
      *
-     * @return \Illuminate\Http\Response
+     * @return Response \Illuminate\Http\JsonResponse
      */
     public function index()
     {
-        $userRefrigerator = auth()->user()->refrigerators()->get();
+        try {
 
-        $recipes = Recipe::with('ingredients')
-            ->where('recipes.user_id', null)
-            ->orWhere('recipes.user_id', auth()->id())
-            ->get();
+            $refrigerator = auth()->user()->refrigerators()->get();
+            $recipes = Recipe::getAllRecipesForUser()->get();
+
+            $recommendedRecipes = Recipe::getRecipesByMultipleIds($this->getRecommendedRecipesdIds($recipes, $refrigerator))
+                ->paginate(self::PAGINATE_RECIPES);
+
+            return response()->json($recommendedRecipes);
+
+        } catch (\Exception $exception) {
+            return response()->json(['error' => $exception->getMessage()], $exception->getCode());
+        }
+
+    }
 
 
-
-
-
-
-        return response()->json($recipes);
-
-
-        echo "<pre>";
-        dump($userRefrigerator);
-        echo "<pre>";
-        dump($recipes);
-
+    /**
+     * Get get id's array of all recommended recipes for user due to ingredients in refrigerator
+     * @param $recipes - all recipes available for user
+     * @param $refrigerator - user's ingredients in a refrigerator
+     * @return array
+     */
+    protected function getRecommendedRecipesdIds($recipes, $refrigerator): array
+    {
         foreach ($recipes as $recipe) {
 
-            $recipeIngredientCount = count($recipe['ingredients']) . '<br>';
-
+            $recipeIngredientCount = count($recipe['ingredients']);
             $ingredientMatches = 0;
 
             foreach ($recipe['ingredients'] as $recipeIngredient) {
-
-                foreach ($userRefrigerator as $refrigeratorIngredient) {
-
-                    if ($recipeIngredient['id'] == $refrigeratorIngredient['ingredient_id']
-                        and $recipeIngredient['pivot']['value'] <= $refrigeratorIngredient['value']) {
-
+                foreach ($refrigerator as $refrigeratorIngredient) {
+                    if ($recipeIngredient['id'] == $refrigeratorIngredient['ingredient_id']) {
                         $ingredientMatches++;
                     }
                 }
             }
 
             if ($recipeIngredientCount == $ingredientMatches) {
-
-                $recommendedRecipes[] = $recipe;
+                $recommendedRecipesIds[] = $recipe['id'];
             }
         }
 
-        echo "<pre>";
-        dump($recommendedRecipes);
-
-        return response()->json($recommendedRecipes);
-
+        return $recommendedRecipesIds;
     }
-
 
 }

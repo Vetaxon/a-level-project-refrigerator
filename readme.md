@@ -116,6 +116,7 @@ Header: {Accept: application/json, Authorization: Bearer ghhdjd...}<br>
 Url: /recipes<br>
 Method: GET<br> 
 Header: {Accept: application/json, Authorization: Bearer ghhdjd...}<br>
+Api route to get all vavilable recipes for user(not recommended)
 </p>
 
 <p>
@@ -167,3 +168,10 @@ Header: {Accept: application/json, Authorization: Bearer ghhdjd...}<br>
 
 <p>REFRIGERATORS<p/>
 <p>Coming soon...</p>
+
+<p>
+Url: /refrigerator/recipes<br>
+Method: GET<br> 
+Header: {Accept: application/json, Authorization: Bearer ghhdjd...}<br>
+Api route to get recommended recipes for user (paginated by 9)
+</p>

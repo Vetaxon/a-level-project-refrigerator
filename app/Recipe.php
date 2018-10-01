@@ -87,21 +87,26 @@ class Recipe extends Model
     {
         foreach ($ingredients as $ingredient) {
 
-            $validateIngredient['name'] = key($ingredient);
+            $validateIngredient['name'] = trim(key($ingredient));
+
+            if(self::validateIngredientName($validateIngredient)->fails()){
+                return false;
+            }
+
             $amount = array_values($ingredient)[0];
-            $validator = self::validateIngredientsExists($validateIngredient);
+            $validatorExistsName = self::validateIngredientsExists($validateIngredient);
 
             //Create a new ingredient if it does not exist for user and put it in recipe
-            if ($validator->fails()) {
+            if ($validatorExistsName->fails()) {
 
                 $validateIngredient['user_id'] = auth()->id();
-                $newIngredient = Ingredient::create($validateIngredient);
+                $newIngredient = auth()->user()->ingredients()->create($validateIngredient);
+
                 $recipe->ingredients()->attach([$newIngredient->id => ['amount' => $amount]]);
 
             } else { // If an ingredient is available for user put it in a recipe
 
-                $ingredientExistingId = Ingredient::where('name', $validateIngredient['name'])
-                    ->where('user_id', auth()->id())->orWhere('user_id', null)->first()->id;
+                $ingredientExistingId = Ingredient::getIngredientIdByName($validateIngredient);
 
                 $recipe->ingredients()->attach([$ingredientExistingId => ['amount' => $amount]]);
             }
@@ -109,6 +114,20 @@ class Recipe extends Model
 
         return true;
 
+    }
+
+    /**Get recipes by multiple ids
+     * @param $ids
+     * @return Recipe|\Illuminate\Database\Eloquent\Builder
+     */
+    public static function getRecipesByMultipleIds($ids)
+    {
+        return self::with([
+            'ingredients' => function ($query) {
+                return $query->select(['id', 'name', 'amount']);
+            }])
+            ->select(['id', 'name', 'text'])
+            ->whereIn('recipes.id', $ids);
     }
 
     /**
@@ -124,6 +143,18 @@ class Recipe extends Model
                     $query->where('user_id', auth()->id())->orWhere('user_id', null);
                 }),
             ]
+        ]);
+    }
+
+
+    /**
+     * @param $ingredient
+     * @return mixed
+     */
+    protected static function validateIngredientName($ingredient)
+    {
+        return Validator::make($ingredient, [
+            'name' => 'required|string|max:255'
         ]);
     }
 

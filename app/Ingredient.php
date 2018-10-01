@@ -43,19 +43,33 @@ class Ingredient extends Model
     {
         $userIngredients = collect(auth()->user()->ingredients()->find($id));
 
-        if(!$userIngredients->isEmpty()){
+        if (!$userIngredients->isEmpty()) {
 
             return $userIngredients;
         }
 
         $generalIngredients = collect(Ingredient::where('user_id', null)->where('id', $id)->get());
 
-        if(!$generalIngredients->isEmpty()){
+        if (!$generalIngredients->isEmpty()) {
             return $generalIngredients;
         }
 
         return false;
 
+    }
+
+
+    /**Get Ingredient id by name for user
+     * @param $ingredient
+     * @return mixed
+     */
+    public static function getIngredientIdByName($ingredient)
+    {
+        return Ingredient::where('name', $ingredient['name'])
+            ->where('user_id', auth()->id())
+            ->orWhere('user_id', null)
+            ->first()
+            ->id;
     }
 
 }

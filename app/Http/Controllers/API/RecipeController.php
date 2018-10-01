@@ -3,17 +3,15 @@
 namespace App\Http\Controllers\API;
 
 use App\Http\Requests\RecipeRequest;
-use App\Ingredient;
-use App\RecipeIngredient;
 use App\Http\Controllers\Controller;
 use App\Recipe;
 use Illuminate\Http\Response;
-use Illuminate\Support\Facades\Validator;
-use Illuminate\Validation\Rule;
-
 
 class RecipeController extends Controller
 {
+
+    const PAGINATE_NUM = 9;
+
     /**
      * Display all recipes that belongs to user or default(null) user.
      *
@@ -22,10 +20,7 @@ class RecipeController extends Controller
     public function index()
     {
         try {
-            $recipes = Recipe::getAllRecipesForUser(auth()->id());
-
-            return response()->json(['recipes' => Recipe::transformRecipe($recipes)]);
-
+            return response()->json(Recipe::getAllRecipesForUser()->paginate(self::PAGINATE_NUM));
         } catch (\Exception $exception) {
             return response()->json(['error' => $exception->getMessage()]);
         }
@@ -47,7 +42,7 @@ class RecipeController extends Controller
                 'user_id' => auth()->id()
             ]);
 
-            if ($this->storeIngredientsForRecipe($newRecipe, $request->ingredients)) {
+            if (Recipe::storeIngredientsForRecipe($newRecipe, $request->ingredients)) {
                 return $this->show($newRecipe->id);
             }
 
@@ -67,8 +62,8 @@ class RecipeController extends Controller
     public function show($id)
     {
         try {
-            if ($recipe = Recipe::getRecipeByIdForUser(auth()->id(), $id)) {
-                return response()->json(['recipe' => Recipe::transformRecipe([$recipe])]);
+            if ($recipe = Recipe::getRecipeByIdForUser($id)) {
+                return response()->json(['recipe' => $recipe]);
             }
 
             return response()->json(['error' => 'Recipe was not found for current user'], 422);
@@ -91,16 +86,16 @@ class RecipeController extends Controller
     {
         try {
 
-            if (!$recipe = Recipe::getRecipeByIdForUser(auth()->id(), $id)) {
+            if (!$recipe = Recipe::getRecipeByIdForUser($id)) {
                 return response()->json(['error' => 'Recipe was not found for current user'], 422);
             }
 
             if ($request->has('name') and $recipe->name != $request->name) {
-                $updateRecipe = $recipe->fill(['name' => $request->name]);
+                $recipe->fill(['name' => $request->name]);
             }
 
             if ($request->has('text')) {
-                $updateRecipe = $recipe->fill(['text' => $request->text]);
+                $recipe->fill(['text' => $request->text]);
             }
 
             $recipe->save();
@@ -109,9 +104,9 @@ class RecipeController extends Controller
                 return $this->show($recipe->id);
             }
 
-            RecipeIngredient::where('recipe_id', $recipe->id)->delete();
+            $recipe->ingredients()->detach();
 
-            if ($this->storeIngredientsForRecipe($recipe, $request->ingredients)) {
+            if (Recipe::storeIngredientsForRecipe($recipe, $request->ingredients)) {
                 return $this->show($recipe->id);
             }
 
@@ -130,71 +125,21 @@ class RecipeController extends Controller
      */
     public function destroy($id)
     {
-        try{
-            if (!$recipe = Recipe::getRecipeByIdForUser(auth()->id(), $id)) {
+        try {
+            if (!$recipe = Recipe::getRecipeByIdForUser($id)) {
                 return response()->json(['error' => 'Recipe was not found for current user'], 422);
             }
 
-            if ($recipe->delete()){
+            if ($recipe->delete()) {
                 return response()->json(['message' => 'Recipe ' . $recipe->name . ' has been deleted']);
             }
 
-        }catch (\Exception $exception){
+        } catch (\Exception $exception) {
 
             return response()->json(['error' => $exception->getMessage()], 422);
         }
 
     }
 
-    /**
-     * Validate ingredient if exist in ingredients and available for user
-     * @param $ingredient
-     * @return mixed
-     */
-    protected function validateIngredientsExists($ingredient)
-    {
-        return Validator::make($ingredient, [
-            'name' => [
-                Rule::exists('ingredients')->where(function ($query) {
-                    $query->where('user_id', auth()->id())->orWhere('user_id', null);
-                }),
-            ]
-        ]);
-    }
-
-    /**
-     *
-     * Store ingredients for recipes in recipe_ingredient table after storing new ingredients for user if does not exists
-     * @param $recipe
-     * @param $ingredients
-     * @return bool
-     */
-    protected function storeIngredientsForRecipe($recipe, $ingredients)
-    {
-        foreach ($ingredients as $ingredient) {
-
-            $validateIngredient['name'] = key($ingredient);
-            $amount = array_values($ingredient)[0];
-            $validator = $this->validateIngredientsExists($validateIngredient);
-
-            //Create a new ingredient if it does not exist for user and put it in recipe
-            if ($validator->fails()) {
-
-                $validateIngredient['user_id'] = auth()->id();
-                $newIngredient = Ingredient::create($validateIngredient);
-                $recipe->ingredients()->attach([$newIngredient->id => ['amount' => $amount]]);
-
-            } else { // If an ingredient is available for user put it in a recipe
-
-                $ingredientExistingId = Ingredient::where('name', $validateIngredient['name'])
-                    ->where('user_id', auth()->id())->orWhere('user_id', null)->first()->id;
-
-                $recipe->ingredients()->attach([$ingredientExistingId => ['amount' => $amount]]);
-            }
-        }
-
-        return true;
-
-    }
 
 }

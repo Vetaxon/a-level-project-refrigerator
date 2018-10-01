@@ -3,6 +3,8 @@
 namespace App;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Validator;
+use Illuminate\Validation\Rule;
 
 class Recipe extends Model
 {
@@ -23,74 +25,106 @@ class Recipe extends Model
 
     public function ingredients()
     {
-        return $this->belongsToMany('App\Ingredient', 'recipe_ingredient')->withPivot('amount');
+        return $this->belongsToMany('App\Ingredient', 'recipe_ingredient')
+            ->withPivot('amount');
 
     }
 
     /**
-     * @param $user_id
-     * @return array of all recipes available for user
+     * @return Recipe|\Illuminate\Database\Eloquent\Builder
      */
-    public static function getAllRecipesForUser($user_id)
+    public static function getAllRecipesForUser()
     {
-        return Recipe::with('ingredients')
+        return self::with([
+            'ingredients' => function ($query) {
+                return $query->select(['id', 'name', 'amount']);
+            }])
+            ->select(['id', 'name', 'text'])
             ->where('recipes.user_id', null)
-            ->orWhere('recipes.user_id', $user_id)
-            ->get();
-
+            ->orWhere('recipes.user_id', auth()->id());
     }
 
     /**Get a recipe by id if it is available for user
-     * @param $user_id
+     *
      * @param $id
      * @return Recipe|Recipe[]|bool|\Illuminate\Database\Eloquent\Builder|\Illuminate\Database\Eloquent\Builder[]|\Illuminate\Database\Eloquent\Collection|Model|null
      */
-    public static function getRecipeByIdForUser($user_id, $id)
+    public static function getRecipeByIdForUser($id)
     {
-        $recipesRaw = Recipe::with('ingredients')->find($id);
+        $recipe =  self::with([
+            'ingredients' => function ($query) {
+                return $query->select(['id', 'name', 'amount']);
+            }])
+            ->select(['id', 'name', 'text'])
+            ->find($id);
 
-        if (collect($recipesRaw)->isEmpty()) {
+        if (collect($recipe)->isEmpty()) {
             return false;
         }
 
-        if ($recipesRaw->user_id == null) {
-            return $recipesRaw;
+        if ($recipe->user_id == null) {
+            return $recipe;
         }
 
-        if ($recipesRaw->user_id == $user_id) {
-            return $recipesRaw;
+        if ($recipe->user_id == auth()->id()) {
+            return $recipe;
         }
 
         return false;
 
     }
 
-    /**Prepare recipes for response
-     * @param $recipesRaw
-     * @return array
+
+    /**
+     *
+     * Store ingredients for recipes in recipe_ingredient table after storing new ingredients for user if does not exists
+     * @param $recipe
+     * @param $ingredients
+     * @return bool
      */
-    public static function transformRecipe($recipesRaw)
+    public static function storeIngredientsForRecipe($recipe, $ingredients)
     {
-        return collect($recipesRaw)->map(function ($item) {
+        foreach ($ingredients as $ingredient) {
 
-            $recipe = [
-                'id' => $item->id,
-                'name' => $item->name,
-                'text' => $item->text
-            ];
+            $validateIngredient['name'] = key($ingredient);
+            $amount = array_values($ingredient)[0];
+            $validator = self::validateIngredientsExists($validateIngredient);
 
-            foreach ($item->ingredients as $ingredient) {
+            //Create a new ingredient if it does not exist for user and put it in recipe
+            if ($validator->fails()) {
 
-                $recipe['ingredients'][] = [
-                    'id' => $ingredient->id,
-                    'name' => $ingredient->name,
-                    'amount' => $ingredient->pivot->amount,
-                ];
+                $validateIngredient['user_id'] = auth()->id();
+                $newIngredient = Ingredient::create($validateIngredient);
+                $recipe->ingredients()->attach([$newIngredient->id => ['amount' => $amount]]);
+
+            } else { // If an ingredient is available for user put it in a recipe
+
+                $ingredientExistingId = Ingredient::where('name', $validateIngredient['name'])
+                    ->where('user_id', auth()->id())->orWhere('user_id', null)->first()->id;
+
+                $recipe->ingredients()->attach([$ingredientExistingId => ['amount' => $amount]]);
             }
+        }
 
-            return $recipe;
+        return true;
 
-        })->all();
     }
+
+    /**
+     * Validate ingredient if exist in ingredients and available for user
+     * @param $ingredient
+     * @return mixed
+     */
+    protected static function validateIngredientsExists($ingredient)
+    {
+        return Validator::make($ingredient, [
+            'name' => [
+                Rule::exists('ingredients')->where(function ($query) {
+                    $query->where('user_id', auth()->id())->orWhere('user_id', null);
+                }),
+            ]
+        ]);
+    }
+
 
 }

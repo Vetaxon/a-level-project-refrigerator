@@ -10,6 +10,7 @@ class RecipeIngredient extends Pivot
         'recipe_id', 'ingredient_id', 'amount',
     ];
 
+
     public function ingredients()
     {
         return $this->hasOne('App\Ingredient');

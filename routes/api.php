@@ -79,10 +79,10 @@ Route::group(['middleware' => 'auth:api'], function () {
 Route::group(['middleware' => 'auth:api', 'prefix' => 'refrigerator'], function () {
 
     Route::get('ingredients', 'API\RefrigeratorController@index');
-    Route::get('ingredients/{ingredient}', 'API\RefrigeratorController@show')->where('id', '[0-9]+');
+    Route::get('ingredients/{ingredient}', 'API\RefrigeratorController@show');
     Route::post('ingredients', 'API\RefrigeratorController@store');
-    Route::put('ingredients/{ingredient}', 'API\RefrigeratorController@update')->where('id', '[0-9]+');
-    Route::delete('ingredients/{ingredient}', 'API\RefrigeratorController@destroy')->where('id', '[0-9]+');
+    Route::put('ingredients/{ingredient}', 'API\RefrigeratorController@update');
+    Route::delete('ingredients/{ingredient}', 'API\RefrigeratorController@destroy');
 
 
     // API Route for recommended recipes for user according to ingredients and its values  in refrigerator

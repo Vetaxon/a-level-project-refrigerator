@@ -2,13 +2,16 @@
 
 namespace App;
 
-use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\Pivot;
 
-class Refrigerator extends Model
+class Refrigerator extends Pivot
 {
+    protected $table = 'refrigerators';
+
     protected $fillable = [
         'user_id', 'ingredient_id', 'amount',
     ];
+<<<<<<< HEAD
 
     public function user()
     {
@@ -20,3 +23,6 @@ class Refrigerator extends Model
         return $this->hasOne('App\Ingredient');
     }
 }
+=======
+}
+>>>>>>> a9871f56cbdabacbcb5c6eddba75ecca6a293202

@@ -21,7 +21,7 @@ class RefrigeratorRecipeController extends Controller
     {
         try {
 
-            $refrigerator = auth()->user()->refrigerators()->get();
+            $refrigerator = auth()->user()->refrigeratorIngredients()->get()->toArray();
             $recipes = Recipe::getAllRecipesForUser()->get();
 
             $recommendedRecipes = Recipe::getRecipesByMultipleIds($this->getRecommendedRecipesdIds($recipes, $refrigerator))
@@ -42,7 +42,7 @@ class RefrigeratorRecipeController extends Controller
      * @param $refrigerator - user's ingredients in a refrigerator
      * @return array
      */
-    protected function getRecommendedRecipesdIds($recipes, $refrigerator): array
+    protected function getRecommendedRecipesdIds($recipes, $refrigerator)
     {
         foreach ($recipes as $recipe) {
 
@@ -51,7 +51,7 @@ class RefrigeratorRecipeController extends Controller
 
             foreach ($recipe['ingredients'] as $recipeIngredient) {
                 foreach ($refrigerator as $refrigeratorIngredient) {
-                    if ($recipeIngredient['id'] == $refrigeratorIngredient['ingredient_id']) {
+                    if ($recipeIngredient['id'] == $refrigeratorIngredient['id']) {
                         $ingredientMatches++;
                     }
                 }

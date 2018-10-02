@@ -167,7 +167,47 @@ Header: {Accept: application/json, Authorization: Bearer ghhdjd...}<br>
 </p>
 
 <p>REFRIGERATORS<p/>
-<p>Coming soon...</p>
+
+<p>
+Url: /refrigerator/ingredients<br>
+Method: GET<br> 
+Header: {Accept: application/json, Authorization: Bearer ghhdjd...}<br>
+User's ingredients in the refrigerator
+</p>
+
+<p>
+Url: /refrigerator/ingredients/id<br>
+Method: GET<br> 
+Header: {Accept: application/json, Authorization: Bearer ghhdjd...}<br>
+User's ingredient by id
+</p>
+
+<p>
+Url: /refrigerator/ingredients<br>
+Method: POST<br> 
+Header: {Content-Type: application/json, Accept: application/json, Authorization: Bearer ghhdjd...}<br>
+Body: {
+      	"ingredient_id":"12",
+      	"amount":"40 g"
+      }
+</p>
+
+<p>
+Url: /refrigerator/ingredients/id<br>
+Method: PUT<br> 
+Header: {Content-Type: application/json, Accept: application/json, Authorization: Bearer ghhdjd...}<br>
+Body: {      	
+      	"amount":"40 ff"
+      }
+</p>
+
+
+<p>
+Url: /refrigerator/ingredients/id<br>
+Method: DELETE<br> 
+Header: {Accept: application/json, Authorization: Bearer ghhdjd...}<br>
+Delete user's ingredient from refrigerator
+</p>
 
 <p>
 Url: /refrigerator/recipes<br>

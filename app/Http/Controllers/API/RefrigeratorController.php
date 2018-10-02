@@ -7,6 +7,7 @@ use App\Http\Requests\UpdateRefrigeratorRequest;
 use App\Ingredient;
 use App\Refrigerator;
 use App\Http\Controllers\Controller;
+use http\Env\Response;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
 
@@ -33,11 +34,14 @@ class RefrigeratorController extends Controller
     {
         $request->merge(['user_id' => Auth::user()->id]);
         Validator::make($request->all(), ['ingredient_id' => 'unique_with:refrigerators,user_id',])->validate();
+        $user = Auth::user();
+        $ingredient = Ingredient::find($request->ingredient_id);
 
-        if (Refrigerator::create($request->toArray())->save()) {
-            return response()->json(["message" => "Saved successfully"], 201);
+        if ($user->owns($ingredient) || $ingredient->user_id === null) {
+            $user->refrigeratorIngredients()->attach($ingredient, ['amount' => $request->amount]);
+            return response()->json($this->formatIngredient($user->refrigeratorIngredients->find($request->ingredient_id)));
         }
-        return response()->json(["error" => "Save error!"], 500);
+        return response()->json(['error' => 'Current user can not do this!'], 403);
     }
 
     /**
@@ -65,14 +69,13 @@ class RefrigeratorController extends Controller
     public function update(UpdateRefrigeratorRequest $request, Ingredient $ingredient)
     {
         if ((!$ingredient = Auth::user()->refrigeratorIngredients->find($ingredient))) {
-            return response()->json(['error' => 'Ingredient not found in refrigerator!'], 404);
+            return response()->json(['error' => 'Current user can not do this!'], 403);
         }
-
-        $ingredient->pivot->amount = $request->amount;
-        if ($ingredient->pivot->save()) {
-            return response()->json(['message' => 'Successfully updated']);
-        }
-        return response()->json(['error' => 'Update error!'], 500);
+            $ingredient->pivot->amount = $request->amount;
+            if ($ingredient->pivot->save()) {
+                return response()->json($this->formatIngredient($ingredient));
+            }
+            return response()->json(['error' => 'Update error!'], 500);
     }
 
     /**

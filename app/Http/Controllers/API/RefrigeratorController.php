@@ -15,7 +15,7 @@ use Illuminate\Support\Facades\Validator;
 class RefrigeratorController extends Controller
 {
     /**
-     * Display a listing of the resource.
+     * Display a listing of ingredients in user refrigerator.
      *
      * @return \Illuminate\Http\Response
      */
@@ -25,7 +25,7 @@ class RefrigeratorController extends Controller
     }
 
     /**
-     * Store a newly created resource in storage.
+     * Store ingredient in user's refrigerator.
      *
      * @param  \Illuminate\Http\Request $request
      * @return \Illuminate\Http\Response
@@ -45,7 +45,7 @@ class RefrigeratorController extends Controller
     }
 
     /**
-     * Display the specified resource.
+     * Display the specified ingredient of user's refrigerator.
      *
      * @param Ingredient $ingredient
      * @return \Illuminate\Http\Response
@@ -60,7 +60,7 @@ class RefrigeratorController extends Controller
 
 
     /**
-     * Update the specified resource in storage.
+     * Update amount of the specified ingredient in user's refrigerator.
      *
      * @param UpdateRefrigeratorRequest $request
      * @param Ingredient $ingredient
@@ -79,7 +79,7 @@ class RefrigeratorController extends Controller
     }
 
     /**
-     * Remove the specified resource from storage.
+     * Remove the specified ingredient from refrigerator.
      *
      * @param Ingredient $ingredients
      * @return \Illuminate\Http\Response
@@ -93,6 +93,10 @@ class RefrigeratorController extends Controller
         return response()->json(['error' => 'There is no such ingredient in refrigerator!'], 404);
     }
 
+    /**
+     * Get's all user's ingredient and return them in array
+     * @return \Generator|void
+     */
     protected function getFormatIngredients()
     {
         $ingredients = Auth::user()->refrigeratorIngredients;
@@ -105,6 +109,11 @@ class RefrigeratorController extends Controller
         }
     }
 
+    /**
+     * Formating the specified ingredient and return an array
+     * @param Ingredient $ingredient
+     * @return array
+     */
     protected function formatIngredient(Ingredient $ingredient)
     {
         return [

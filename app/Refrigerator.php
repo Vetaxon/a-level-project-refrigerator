@@ -11,7 +11,7 @@ class Refrigerator extends Pivot
     protected $fillable = [
         'user_id', 'ingredient_id', 'amount',
     ];
-<<<<<<< HEAD
+
 
     public function user()
     {
@@ -22,7 +22,6 @@ class Refrigerator extends Pivot
     {
         return $this->hasOne('App\Ingredient');
     }
+
 }
-=======
-}
->>>>>>> a9871f56cbdabacbcb5c6eddba75ecca6a293202
+

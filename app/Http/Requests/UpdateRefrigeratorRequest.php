@@ -25,7 +25,7 @@ class UpdateRefrigeratorRequest extends FormRequest
     public function rules()
     {
         return [
-            'amount' => 'required|integer|min:1',
+            'amount' => 'required|string',
         ];
     }
 }

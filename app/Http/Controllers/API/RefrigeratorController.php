@@ -7,6 +7,7 @@ use App\Http\Requests\UpdateRefrigeratorRequest;
 use App\Ingredient;
 use App\Refrigerator;
 use App\Http\Controllers\Controller;
+use http\Env\Response;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
 
@@ -14,7 +15,7 @@ use Illuminate\Support\Facades\Validator;
 class RefrigeratorController extends Controller
 {
     /**
-     * Display a listing of the resource.
+     * Display a listing of ingredients in user refrigerator.
      *
      * @return \Illuminate\Http\Response
      */
@@ -24,7 +25,7 @@ class RefrigeratorController extends Controller
     }
 
     /**
-     * Store a newly created resource in storage.
+     * Store ingredient in user's refrigerator.
      *
      * @param  \Illuminate\Http\Request $request
      * @return \Illuminate\Http\Response
@@ -33,15 +34,18 @@ class RefrigeratorController extends Controller
     {
         $request->merge(['user_id' => Auth::user()->id]);
         Validator::make($request->all(), ['ingredient_id' => 'unique_with:refrigerators,user_id',])->validate();
+        $user = Auth::user();
+        $ingredient = Ingredient::find($request->ingredient_id);
 
-        if (Refrigerator::create($request->toArray())->save()) {
-            return response()->json(["message" => "Saved successfully"], 201);
+        if ($user->owns($ingredient) || $ingredient->user_id === null) {
+            $user->refrigeratorIngredients()->attach($ingredient, ['amount' => $request->amount]);
+            return response()->json($this->formatIngredient($user->refrigeratorIngredients->find($request->ingredient_id)));
         }
-        return response()->json(["error" => "Save error!"], 500);
+        return response()->json(['error' => 'Current user can not do this!'], 403);
     }
 
     /**
-     * Display the specified resource.
+     * Display the specified ingredient of user's refrigerator.
      *
      * @param Ingredient $ingredient
      * @return \Illuminate\Http\Response
@@ -56,7 +60,7 @@ class RefrigeratorController extends Controller
 
 
     /**
-     * Update the specified resource in storage.
+     * Update amount of the specified ingredient in user's refrigerator.
      *
      * @param UpdateRefrigeratorRequest $request
      * @param Ingredient $ingredient
@@ -65,18 +69,17 @@ class RefrigeratorController extends Controller
     public function update(UpdateRefrigeratorRequest $request, Ingredient $ingredient)
     {
         if ((!$ingredient = Auth::user()->refrigeratorIngredients->find($ingredient))) {
-            return response()->json(['error' => 'Ingredient not found in refrigerator!'], 404);
+            return response()->json(['error' => 'Current user can not do this!'], 403);
         }
-
-        $ingredient->pivot->amount = $request->amount;
-        if ($ingredient->pivot->save()) {
-            return response()->json(['message' => 'Successfully updated']);
-        }
-        return response()->json(['error' => 'Update error!'], 500);
+            $ingredient->pivot->amount = $request->amount;
+            if ($ingredient->pivot->save()) {
+                return response()->json($this->formatIngredient($ingredient));
+            }
+            return response()->json(['error' => 'Update error!'], 500);
     }
 
     /**
-     * Remove the specified resource from storage.
+     * Remove the specified ingredient from refrigerator.
      *
      * @param Ingredient $ingredients
      * @return \Illuminate\Http\Response
@@ -90,6 +93,10 @@ class RefrigeratorController extends Controller
         return response()->json(['error' => 'There is no such ingredient in refrigerator!'], 404);
     }
 
+    /**
+     * Get's all user's ingredient and return them in array
+     * @return \Generator|void
+     */
     protected function getFormatIngredients()
     {
         $ingredients = Auth::user()->refrigeratorIngredients;
@@ -102,6 +109,11 @@ class RefrigeratorController extends Controller
         }
     }
 
+    /**
+     * Formating the specified ingredient and return an array
+     * @param Ingredient $ingredient
+     * @return array
+     */
     protected function formatIngredient(Ingredient $ingredient)
     {
         return [

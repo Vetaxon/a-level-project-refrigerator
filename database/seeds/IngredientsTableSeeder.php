@@ -14,60 +14,60 @@ class IngredientsTableSeeder extends Seeder
     {
 
         Ingredient::create([
-            'name' => 'морковь',
+            'name' => 'Mорковь',
             'user_id' => 1,
         ]);
         Ingredient::create([
-            'name' => 'мука',
+            'name' => 'Mука',
             'user_id' => 1,
         ]);
         Ingredient::create([
-            'name' => 'вода',
+            'name' => 'Вода',
         ]);
         Ingredient::create([
-            'name' => 'сахар',
+            'name' => 'Сахар',
             'user_id' => 1,
         ]);
         Ingredient::create([
-            'name' => 'сыр',
+            'name' => 'Сыр',
         ]);
         Ingredient::create([
-            'name' => 'яблоко',
+            'name' => 'Яблоко',
             'user_id' => 1,
         ]);
         Ingredient::create([
-            'name' => 'лук',
+            'name' => 'Лук',
             'user_id' => 1,
         ]);
         Ingredient::create([
-            'name' => 'подсолничное масло',
+            'name' => 'Подсолничное Масло',
         ]);
         Ingredient::create([
-            'name' => 'уксус',
+            'name' => 'Уксус',
         ]);
         Ingredient::create([
-            'name' => 'сода',
+            'name' => 'Сода',
             'user_id' => 2,
         ]);
         Ingredient::create([
-            'name' => 'соль',
+            'name' => 'Соль',
             'user_id' => 2,
         ]);
         Ingredient::create([
-            'name' => 'перец',
+            'name' => 'Серец',
             'user_id' => 2,
         ]);
         Ingredient::create([
-            'name' => 'говядина',
+            'name' => 'Говядина',
         ]);
         Ingredient::create([
-            'name' => 'свинина',
+            'name' => 'Свинина',
         ]);
         Ingredient::create([
-            'name' => 'баранина',
+            'name' => 'Баранина',
         ]);
         Ingredient::create([
-            'name' => 'курятина',
+            'name' => 'Курятина',
             'user_id' => 2,
         ]);
     }

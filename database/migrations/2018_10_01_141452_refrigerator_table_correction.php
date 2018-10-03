@@ -20,8 +20,8 @@ class RefrigeratorTableCorrection extends Migration
             $table->integer('ingredient_id')->unsigned();
             $table->string('amount', 70)->default(null);
             $table->primary(['user_id', 'ingredient_id']);
-            $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade')->onUpdate('cascade');
-            $table->foreign('ingredient_id')->references('id')->on('ingredients')->onDelete('restrict')->onUpdate('cascade');
+            $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
+            $table->foreign('ingredient_id')->references('id')->on('ingredients')->onDelete('cascade');
             $table->timestamps();
 
         });

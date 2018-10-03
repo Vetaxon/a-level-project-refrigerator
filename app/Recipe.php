@@ -87,9 +87,10 @@ class Recipe extends Model
     {
         foreach ($ingredients as $ingredient) {
 
-            $validateIngredient['name'] = trim(key($ingredient));
+            $ingredientName = key($ingredient);
+            $validateIngredient['name'] = ucfirst(strtolower($ingredientName));
 
-            if(self::validateIngredientName($validateIngredient)->fails()){
+            if (self::validateIngredientName($validateIngredient)->fails()) {
                 return false;
             }
 

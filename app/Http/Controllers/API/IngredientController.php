@@ -40,7 +40,7 @@ class IngredientController extends Controller
      */
     public function store(IngredientRequest $request)
     {
-        $newIngredient = $request->all();
+        $newIngredient['name'] = ucfirst(strtolower($request->name));
         $newIngredient ['user_id'] = auth()->user()->id;
 
         try {
@@ -95,7 +95,10 @@ class IngredientController extends Controller
         }
 
         try {
-            $updatedIngredient = $ingredient->fill($request->all())->save();
+
+            $updatedIngredient['name'] = ucfirst(strtolower($request->name));
+            $ingredient->fill($updatedIngredient)->save();
+
         } catch (\Exception $exception) {
             return response()->json(['error' => $exception->getMessage()], 422);
         }

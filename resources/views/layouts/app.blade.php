@@ -12,6 +12,9 @@
 
     <!-- Styles -->
     <link href="{{ asset('css/app.css') }}" rel="stylesheet">
+    <link href="{{ asset('bootstrap-social-gh-pages/bootstrap-social.css') }}" rel="stylesheet">
+    <link href="{{ asset('bootstrap-social-gh-pages/assets/css/font-awesome.css') }}" rel="stylesheet">
+
 </head>
 <body>
     <div id="app">

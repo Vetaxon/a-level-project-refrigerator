@@ -47,17 +47,6 @@ Route::group(['middleware' => 'auth:api'], function () {
 
 
 /*
- * API Route group for measures of ingredients
- */
-
-Route::group(['middleware' => 'api'], function () {
-
-    Route::get('measures', 'API\MeasureController@index');
-
-});
-
-
-/*
  * API Route group for ALL! private user's and public recipes
  */
 

@@ -17,4 +17,7 @@ Route::get('/', function () {
 });
 
 
-//Route::get('/', 'API\RefrigeratorRecipeController@index');
+
+Auth::routes();
+
+Route::get('/home', 'HomeController@index')->name('home');

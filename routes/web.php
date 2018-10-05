@@ -17,10 +17,10 @@ Route::get('/', function () {
 });
 
 Route::get('/login/{social}', 'Auth\LoginController@socialLogin')
-    ->where('social', 'twitter|facebook|linkedin|google|github|bitbucket');
+    ->where('social', 'facebook|google|github');
 
 Route::get('/login/{social}/callback', 'Auth\LoginController@handleProviderCallback')
-    ->where('social', 'twitter|facebook|linkedin|google|github|bitbucket');
+    ->where('social', 'facebook|google|github');
 
 
 Auth::routes();

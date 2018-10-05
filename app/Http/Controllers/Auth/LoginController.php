@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Foundation\Auth\AuthenticatesUsers;
 use Illuminate\Support\Facades\Auth;
 use Socialite;
+use App\Socialite as SocialiteUser;
 use App\User;
 
 class LoginController extends Controller
@@ -74,21 +75,13 @@ class LoginController extends Controller
 
         $userSocial = Socialite::driver($social)->user();
 
-        dump($userSocial);
+        $findUserSocial = SocialiteUser::getUserBySocials($social, $userSocial);
 
-//        $user = User::where(['email' => $userSocial->getEmail()])->first();
-//
-//        if ($user) {
-//
-//            Auth::login($user);
-//
-//            return redirect()->action('HomeController@index');
-//
-//        } else {
-//
-//            return view('auth.register', ['name' => $userSocial->getName(), 'email' => $userSocial->getEmail()]);
-//
-//        }
+        $user = $findUserSocial ? User::find($findUserSocial->user_id) : User::createNewUserSocialite($social, $userSocial);
 
+        $this->guard()->login($user, true);
+
+        return redirect('home');
     }
+
 }

@@ -13,8 +13,9 @@ class UserSocialiteChange extends Migration
      */
     public function up()
     {
-        Schema::table('user', function (Blueprint $table) {
-            //
+        Schema::table('users', function (Blueprint $table) {
+            $table->string('email')->nullable()->change();
+            $table->string('password')->nullable()->change();
         });
     }
 
@@ -25,8 +26,9 @@ class UserSocialiteChange extends Migration
      */
     public function down()
     {
-        Schema::table('user', function (Blueprint $table) {
-            //
+        Schema::table('users', function (Blueprint $table) {
+            $table->string('email')->change();
+            $table->string('password')->change();
         });
     }
 }

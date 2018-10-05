@@ -18,7 +18,7 @@ class User extends Authenticatable implements JWTSubject
      * @var array
      */
     protected $fillable = [
-        'name', 'email', 'password',
+        'name', 'email', 'password', 'remember_token'
     ];
 
     /**
@@ -49,7 +49,6 @@ class User extends Authenticatable implements JWTSubject
     }
 
 
-
     /**
      * Get the identifier that will be stored in the subject claim of the JWT.
      *
@@ -69,4 +68,36 @@ class User extends Authenticatable implements JWTSubject
     {
         return [];
     }
+
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function socialites()
+    {
+        return $this->hasMany('App\Socialite');
+    }
+
+    /**
+     * @param $userSocial
+     * @param $social
+     * @return User
+     */
+    public static function createNewUserSocialite($social, $userSocial)
+    {
+        $newUser = new self();
+
+        $newUser->email = $userSocial->getEmail() ? $userSocial->getEmail() : null;
+        $newUser->password = bcrypt(str_random(70));
+        $newUser->name = $userSocial->getName() ? $userSocial->getName() : $userSocial->getNickname();
+        $newUser->save();
+
+        $newUser->socialites()->create([
+            'provider' => $social,
+            'provider_id' => $userSocial->getId()
+
+        ]);
+
+        return $newUser;
+    }
+
 }

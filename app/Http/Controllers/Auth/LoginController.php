@@ -75,9 +75,15 @@ class LoginController extends Controller
 
         $userSocial = Socialite::driver($social)->user();
 
-        $findUserSocial = SocialiteUser::getUserBySocials($social, $userSocial);
+        $userFind = User::where('email', $userSocial->getEmail())->first();
 
-        $user = $findUserSocial ? User::find($findUserSocial->user_id) : User::createNewUserSocialite($social, $userSocial);
+        $user = $userFind ? $userFind : User::createNewUserSocialite($userSocial, $social);
+
+        $userProviders = $user->socialites()->pluck('provider')->toArray();
+
+        if(!in_array($social, $userProviders)){
+            User::createUserSocialite($user,  $userSocial, $social);
+        }
 
         $this->guard()->login($user, true);
 

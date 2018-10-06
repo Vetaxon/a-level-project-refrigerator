@@ -82,22 +82,21 @@ class User extends Authenticatable implements JWTSubject
      * @param $social
      * @return User
      */
-    public static function createNewUserSocialite($social, $userSocial)
+    public static function createNewUserSocialite($userSocial, $social)
     {
-        $newUser = new self();
+        return self::create([
+            'email' => $userSocial->getEmail(),
+            'name' => $userSocial->getName() ? $userSocial->getName() : $userSocial->getNickname(),
+            'password' => bcrypt(str_random(70)),
+        ]);
+    }
 
-        $newUser->email = $userSocial->getEmail() ? $userSocial->getEmail() : null;
-        $newUser->password = bcrypt(str_random(70));
-        $newUser->name = $userSocial->getName() ? $userSocial->getName() : $userSocial->getNickname();
-        $newUser->save();
-
-        $newUser->socialites()->create([
+    public static function createUserSocialite($user, $userSocial, $social)
+    {
+        return $user->socialites()->create([
             'provider' => $social,
             'provider_id' => $userSocial->getId()
-
         ]);
-
-        return $newUser;
     }
 
 }

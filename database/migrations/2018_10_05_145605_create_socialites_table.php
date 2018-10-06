@@ -16,7 +16,7 @@ class CreateSocialitesTable extends Migration
         Schema::create('socialites', function (Blueprint $table) {
             $table->integer('user_id')->unsigned();
             $table->string('provider', 70);
-            $table->integer('provider_id');
+            $table->string('provider_id');
             $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
             $table->timestamps();
         });

@@ -17,24 +17,4 @@ class Socialite extends Model
     ];
 
 
-    /**
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
-     */
-    public function users()
-    {
-        return $this->belongsTo('App\User', 'user_id', 'id');
-    }
-
-    /**
-     * @param $social
-     * @param $userSocial
-     * @return mixed
-     */
-    public static function getUserBySocials($social, $userSocial)
-    {
-        return self::where([
-            'provider' => $social,
-            'provider_id' => $userSocial->getId()])
-            ->first();
-    }
 }

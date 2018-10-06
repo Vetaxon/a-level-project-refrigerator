@@ -20,7 +20,7 @@ class RecipeController extends Controller
     public function index()
     {
         try {
-            return response()->json(Recipe::getAllRecipesForUser()->paginate(self::PAGINATE_NUM));
+            return response()->json(Recipe::getAllRecipesForUser(auth()->id())->paginate(self::PAGINATE_NUM));
         } catch (\Exception $exception) {
             return response()->json(['error' => $exception->getMessage()]);
         }
@@ -36,13 +36,9 @@ class RecipeController extends Controller
     {
         try {
 
-            $newRecipe = Recipe::create([
-                'name' => $request->name,
-                'text' => $request->text,
-                'user_id' => auth()->id()
-            ]);
+            $newRecipe = Recipe::createRecipe($request, auth()->id());
 
-            if (Recipe::storeIngredientsForRecipe($newRecipe, $request->ingredients)) {
+            if (Recipe::storeIngredientsForRecipe($newRecipe, $request->ingredients, auth()->user())) {
                 return $this->show($newRecipe->id);
             }
 
@@ -62,7 +58,7 @@ class RecipeController extends Controller
     public function show($id)
     {
         try {
-            if ($recipe = Recipe::getRecipeByIdForUser($id)) {
+            if ($recipe = Recipe::getRecipeByIdForUser($id, auth()->id())) {
                 return response()->json(['recipe' => $recipe]);
             }
 
@@ -86,7 +82,7 @@ class RecipeController extends Controller
     {
         try {
 
-            if (!$recipe = Recipe::getRecipeByIdForUser($id)) {
+            if (!$recipe = Recipe::getRecipeByIdForUser($id, auth()->id())) {
                 return response()->json(['error' => 'Recipe was not found for current user'], 422);
             }
 
@@ -106,7 +102,7 @@ class RecipeController extends Controller
 
             $recipe->ingredients()->detach();
 
-            if (Recipe::storeIngredientsForRecipe($recipe, $request->ingredients)) {
+            if (Recipe::storeIngredientsForRecipe($recipe, $request->ingredients, auth()->user())) {
                 return $this->show($recipe->id);
             }
 
@@ -126,7 +122,7 @@ class RecipeController extends Controller
     public function destroy($id)
     {
         try {
-            if (!$recipe = Recipe::getRecipeByIdForUser($id)) {
+            if (!$recipe = Recipe::getRecipeByIdForUser($id, auth()->id())) {
                 return response()->json(['error' => 'Recipe was not found for current user'], 422);
             }
 

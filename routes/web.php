@@ -25,4 +25,24 @@ Route::get('/login/{social}/callback', 'Auth\LoginController@handleProviderCallb
 
 Auth::routes();
 
-Route::get('/home', 'HomeController@index')->name('home');
+Route::get('/home', 'Dashboard\HomeController@index')->name('home');
+
+Route::group(['middleware' => 'auth:web', 'prefix' => 'dashboard'], function () {
+
+
+    Route::get('/users', 'Dashboard\UserController@index')->name('dashboard.users');
+
+
+    Route::get('recipes', 'Dashboard\RecipeController@index')->name('dashboard.recipes');
+    Route::get('recipes/{recipe}', 'Dashboard\RecipeController@show');
+
+
+    Route::get('/ingredients', 'Dashboard\IngredientController@index')->name('dashboard.ingredients');
+
+    Route::get('/rules', 'Dashboard\RuleController@index')->name('dashboard.rules');
+
+    Route::get('/analytics', 'Dashboard\AnalyticController@index')->name('dashboard.analytics');
+
+});
+
+

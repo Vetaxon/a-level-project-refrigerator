@@ -71,7 +71,7 @@ class Ingredient extends Model
      * @param $ingredient
      * @return mixed
      */
-    public static function getIngredientIdByName($ingredient)
+    public static function getIngredientIdByName($ingredient, $user_id = null)
     {
         return Ingredient::where('name', $ingredient['name'])
             ->where('user_id', auth()->id())

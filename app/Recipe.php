@@ -34,7 +34,7 @@ class Recipe extends Model
     /**
      * @return Recipe|\Illuminate\Database\Eloquent\Builder
      */
-    public static function getAllRecipesForUser()
+    public static function getAllRecipesForUser($user_id = null)
     {
         return self::with([
             'ingredients' => function ($query) {
@@ -42,7 +42,7 @@ class Recipe extends Model
             }])
             ->select(['id', 'name', 'text'])
             ->where('recipes.user_id', null)
-            ->orWhere('recipes.user_id', auth()->id());
+            ->orWhere('recipes.user_id', $user_id);
     }
 
     /**Get a recipe by id if it is available for user
@@ -50,7 +50,7 @@ class Recipe extends Model
      * @param $id
      * @return Recipe|Recipe[]|bool|\Illuminate\Database\Eloquent\Builder|\Illuminate\Database\Eloquent\Builder[]|\Illuminate\Database\Eloquent\Collection|Model|null
      */
-    public static function getRecipeByIdForUser($id)
+    public static function getRecipeByIdForUser($id, $user_id = null)
     {
         $recipe = self::with([
             'ingredients' => function ($query) {
@@ -63,11 +63,7 @@ class Recipe extends Model
             return false;
         }
 
-        if ($recipe->user_id == null) {
-            return $recipe;
-        }
-
-        if ($recipe->user_id == auth()->id()) {
+        if ($recipe->user_id == null or $recipe->user_id == $user_id) {
             return $recipe;
         }
 
@@ -83,7 +79,7 @@ class Recipe extends Model
      * @param $ingredients
      * @return bool
      */
-    public static function storeIngredientsForRecipe($recipe, $ingredients)
+    public static function storeIngredientsForRecipe($recipe, $ingredients, $user = null)
     {
         foreach ($ingredients as $ingredient) {
 
@@ -94,20 +90,22 @@ class Recipe extends Model
                 return false;
             }
 
+            $user_id = (!$user == null) ? $user->id : null;
+
             $amount = array_values($ingredient)[0];
-            $validatorExistsName = self::validateIngredientsExists($validateIngredient);
+            $validatorExistsName = self::validateIngredientsExists($validateIngredient, $user_id);
 
             //Create a new ingredient if it does not exist for user and put it in recipe
             if ($validatorExistsName->fails()) {
 
-                $validateIngredient['user_id'] = auth()->id();
-                $newIngredient = auth()->user()->ingredients()->create($validateIngredient);
+                $validateIngredient['user_id'] = $user->id;
+                $newIngredient = Ingredient::create($validateIngredient);
 
                 $recipe->ingredients()->attach([$newIngredient->id => ['amount' => $amount]]);
 
             } else { // If an ingredient is available for user put it in a recipe
 
-                $ingredientExistingId = Ingredient::getIngredientIdByName($validateIngredient);
+                $ingredientExistingId = Ingredient::getIngredientIdByName($validateIngredient, $user_id);
 
                 $recipe->ingredients()->attach([$ingredientExistingId => ['amount' => $amount]]);
             }
@@ -136,12 +134,12 @@ class Recipe extends Model
      * @param $ingredient
      * @return mixed
      */
-    protected static function validateIngredientsExists($ingredient)
+    protected static function validateIngredientsExists($ingredient, $user_id = null)
     {
         return Validator::make($ingredient, [
             'name' => [
-                Rule::exists('ingredients')->where(function ($query) {
-                    $query->where('user_id', auth()->id())->orWhere('user_id', null);
+                Rule::exists('ingredients')->where(function ($query) use ($user_id) {
+                    $query->where('user_id', $user_id)->orWhere('user_id', null);
                 }),
             ]
         ]);
@@ -159,50 +157,19 @@ class Recipe extends Model
         ]);
     }
 
-
     /**
+     * @param $request
+     * @param $user_id
      * @return mixed
      */
-    public static function getUserAllRecipes()
+    public static function createRecipe($request, $user_id)
     {
-        return DB::table('recipes')
-            ->select('recipes.id',
-                'recipes.name as recipe',
-                'recipes.text'
-            )
-            ->where('recipes.user_id', auth()->user()->id)
-            ->OrWhere('recipes.user_id', null)
-            ->orderBy('recipes.id')
-            ->get();
+        return self::create([
+            'name' => $request->name,
+            'text' => $request->text,
+            'user_id' => $user_id
+        ]);
     }
 
-    /**
-     * @param $id
-     * @return mixed
-     */
-    public static function getUserRecipeIngredientsById($id)
-    {
-        return DB::table('recipe_ingredient')
-            ->select('recipe_ingredient.ingredient_id',
-                'ingredients.name',
-                'recipe_ingredient.amount')
-            ->join('ingredients', 'recipe_ingredient.ingredient_id', '=', 'ingredients.id')
-            ->where('recipe_ingredient.recipe_id', $id)
-            ->get();
-    }
 
-    /**
-     * @param $id
-     * @return mixed
-     */
-    public static function getUserRecipeById($id)
-    {
-        return DB::table('recipes')
-            ->select('recipes.id',
-                'recipes.name as recipe',
-                'recipes.text')
-            ->where([['recipes.user_id', auth()->user()->id], ['recipes.id', $id]])
-            ->oRwhere([['recipes.user_id', null], ['recipes.id', $id]])
-            ->first();
-    }
 }

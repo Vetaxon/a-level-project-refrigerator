@@ -30,6 +30,7 @@ class User extends Authenticatable implements JWTSubject
         'password', 'remember_token',
     ];
 
+
     public function recipes()
     {
         return $this->hasMany('App\Recipe');
@@ -43,11 +44,14 @@ class User extends Authenticatable implements JWTSubject
     public function refrigeratorIngredients()
     {
         return $this->belongsToMany('App\Ingredient', 'refrigerators')
-            ->withPivot('amount')
-            ->withPivot('created_at')
-            ->withPivot('updated_at');
+            ->select(['id', 'name', 'amount']);
+
     }
 
+    public function refrigerators()
+    {
+        return $this->hasMany('App\Refrigerator');
+    }
 
     /**
      * Get the identifier that will be stored in the subject claim of the JWT.
@@ -91,12 +95,37 @@ class User extends Authenticatable implements JWTSubject
         ]);
     }
 
+    /**
+     * @param $user
+     * @param $userSocial
+     * @param $social
+     * @return mixed
+     */
     public static function createUserSocialite($user, $userSocial, $social)
     {
         return $user->socialites()->create([
             'provider' => $social,
             'provider_id' => $userSocial->getId()
         ]);
+    }
+
+    /**
+     * @return User|\Illuminate\Database\Eloquent\Builder
+     */
+    public static function getAllUsersWithCounts()
+    {
+        return self::with(['ingredients' => function ($query) {
+            return $query->selectRaw('user_id, count(*) as count')->groupBy('user_id');
+        }])
+            ->with(['recipes' => function ($query) {
+                return $query->selectRaw('user_id, count(*) as count')->groupBy('user_id');
+            }])
+            ->with(['refrigerators' => function ($query) {
+                return $query->selectRaw('user_id, count(*) as count')->groupBy('user_id');
+            }])
+            ->with(['socialites' => function ($query) {
+                return $query->selectRaw('*');
+            }]);
     }
 
 }

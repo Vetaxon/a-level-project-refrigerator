@@ -171,5 +171,15 @@ class Recipe extends Model
         ]);
     }
 
+    public static function getRecipeWithIngredientsByUser($user_id)
+    {
+        return self::with([
+            'ingredients' => function ($query) {
+                return $query->select(['id', 'name', 'amount']);
+            }])
+            ->select(['id', 'name', 'text'])
+            ->where('recipes.user_id', $user_id);
+    }
+
 
 }

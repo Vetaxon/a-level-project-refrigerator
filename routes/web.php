@@ -27,21 +27,28 @@ Auth::routes();
 
 Route::get('/home', 'Dashboard\HomeController@index')->name('home');
 
-Route::group(['middleware' => 'auth:web', 'prefix' => 'dashboard'], function () {
+Route::group(['middleware' => 'auth:web', 'prefix' => 'dashboard', 'as' => 'dashboard.'], function () {
+
+    Route::group(['prefix' => 'users', 'as' => 'user.'], function () {
+
+        Route::get('/', 'Dashboard\UserController@index')->name('index');
+        Route::get('/{user}/ingredients', 'Dashboard\UserController@showIngredientsByUser')->name('ingredients');
+        Route::get('/{user}/recipes', 'Dashboard\UserController@showRecipesByUser')->name('recipes');
+        Route::get('/{user}/refrigerator', 'Dashboard\UserController@showRefrigeratorsByUser')->name('refrigerators');
+        Route::post('/', 'Dashboard\UserController@storeUser')->name('store');
+        Route::put('/{user}', 'Dashboard\UserController@showRefrigeratorsByUser')->name('update');
+
+    });
+
+    Route::get('recipes', 'Dashboard\RecipeController@index')->name('recipes');
+//    Route::get('recipes/{recipe}', 'Dashboard\RecipeController@show');
 
 
-    Route::get('/users', 'Dashboard\UserController@index')->name('dashboard.users');
+    Route::get('/ingredients', 'Dashboard\IngredientController@index')->name('ingredients');
 
+    Route::get('/rules', 'Dashboard\RuleController@index')->name('rules');
 
-    Route::get('recipes', 'Dashboard\RecipeController@index')->name('dashboard.recipes');
-    Route::get('recipes/{recipe}', 'Dashboard\RecipeController@show');
-
-
-    Route::get('/ingredients', 'Dashboard\IngredientController@index')->name('dashboard.ingredients');
-
-    Route::get('/rules', 'Dashboard\RuleController@index')->name('dashboard.rules');
-
-    Route::get('/analytics', 'Dashboard\AnalyticController@index')->name('dashboard.analytics');
+    Route::get('/analytics', 'Dashboard\AnalyticController@index')->name('analytics');
 
 });
 

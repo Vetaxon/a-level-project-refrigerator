@@ -43,6 +43,9 @@ Route::group(['middleware' => 'auth:web', 'prefix' => 'dashboard', 'as' => 'dash
     Route::get('recipes', 'Dashboard\RecipeController@index')->name('recipes');
 //    Route::get('recipes/{recipe}', 'Dashboard\RecipeController@show');
 
+    Route::resource('/ingredients', 'Dashboard\IngredientController', ['except' => [
+        'edit', 'show'
+    ]]);
 
     Route::get('/ingredients', 'Dashboard\IngredientController@index')->name('ingredients');
 

@@ -5,7 +5,7 @@
     <div class="panel panel-default">
         <div class="panel-heading">
             <span>Users</span>
-            <button class="small">ADD</button>
+            <a href="{{ route('dashboard.user.new') }}" class="pull-right">Create a new user</a>
         </div>
 
 
@@ -25,10 +25,10 @@
             @foreach($users as $user)
                 <tr>
                     <th scope="row">{{ $user->id }}</th>
-                    <td>{{ $user->name }}</td>
+                    <td><a href="{{ route('dashboard.user.editName', ['user' => $user->id]) }}">{{ $user->name }}</a></td>
                     <td>
                         @if(isset($user->email))
-                            {{ $user->email }}
+                        <a href="{{ route('dashboard.user.editEmail', ['user' => $user->id]) }}">{{ $user->email }}</a>
                         @else {{ "-"  }}
                         @endif
                     </td>

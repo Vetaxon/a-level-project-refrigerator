@@ -63,12 +63,11 @@ class Recipe extends Model
             return false;
         }
 
-        if ($recipe->user_id == null or $recipe->user_id == $user_id) {
+        if ($recipe->user_id == null || $recipe->user_id == $user_id) {
             return $recipe;
         }
 
         return false;
-
     }
 
 

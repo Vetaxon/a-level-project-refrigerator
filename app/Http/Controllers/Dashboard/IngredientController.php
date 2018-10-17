@@ -33,12 +33,12 @@ class IngredientController extends Controller
     /**
      * Store a newly created ingredient in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
+     * @param  \Illuminate\Http\Request $request
      * @return \Illuminate\Http\Response
      */
     public function store(IngredientRequest $request)
     {
-        $request->merge(['user_id'=>null]);
+//        $request->merge(['user_id' => null]);
         $ingredient = new Ingredient($request->toArray());
         $ingredient->save();
         return back()->with('status', "Created new ingredient $ingredient->name");
@@ -48,7 +48,7 @@ class IngredientController extends Controller
      * DISABLED
      * Display the specified ingredient.
      *
-     * @param  int  $id
+     * @param  int $id
      * @return \Illuminate\Http\Response
      */
     public function show($id)
@@ -59,7 +59,7 @@ class IngredientController extends Controller
      * DISABLED
      * Show the form for editing the specified ingredient.
      *
-     * @param  int  $id
+     * @param  int $id
      * @return \Illuminate\Http\Response
      */
     public function edit($id)
@@ -69,8 +69,8 @@ class IngredientController extends Controller
     /**
      * Update the specified ingredient in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  int  $id
+     * @param  \Illuminate\Http\Request $request
+     * @param  int $id
      * @return \Illuminate\Http\Response
      */
     public function update(IngredientRequest $request, Ingredient $ingredient)
@@ -82,7 +82,7 @@ class IngredientController extends Controller
     /**
      * Remove the specified ingredient from storage.
      *
-     * @param  int  $id
+     * @param  int $id
      * @return \Illuminate\Http\Response
      */
     public function destroy($id)

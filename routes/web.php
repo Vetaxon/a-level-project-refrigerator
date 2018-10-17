@@ -32,11 +32,18 @@ Route::group(['middleware' => 'auth:web', 'prefix' => 'dashboard', 'as' => 'dash
     Route::group(['prefix' => 'users', 'as' => 'user.'], function () {
 
         Route::get('/', 'Dashboard\UserController@index')->name('index');
+
+        Route::get('/new', 'Dashboard\UserController@storeUserForm')->name('new');
+        Route::post('/store', 'Dashboard\UserController@store')->name('store');
+
+        Route::get('/editName/{user}', 'Dashboard\UserController@editName')->name('editName');
+        Route::get('/editEmail/{user}', 'Dashboard\UserController@editEmail')->name('editEmail');
+        Route::put('/update/{user}', 'Dashboard\UserController@update')->name('update');
+
         Route::get('/{user}/ingredients', 'Dashboard\UserController@showIngredientsByUser')->name('ingredients');
         Route::get('/{user}/recipes', 'Dashboard\UserController@showRecipesByUser')->name('recipes');
         Route::get('/{user}/refrigerator', 'Dashboard\UserController@showRefrigeratorsByUser')->name('refrigerators');
-        Route::post('/', 'Dashboard\UserController@storeUser')->name('store');
-        Route::put('/{user}', 'Dashboard\UserController@showRefrigeratorsByUser')->name('update');
+
 
     });
 

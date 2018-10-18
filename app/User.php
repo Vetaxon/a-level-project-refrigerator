@@ -44,6 +44,7 @@ class User extends Authenticatable implements JWTSubject
     public function refrigeratorIngredients()
     {
         return $this->belongsToMany('App\Ingredient', 'refrigerators')
+            ->withPivot('amount')
             ->select(['id', 'name', 'amount']);
 
     }

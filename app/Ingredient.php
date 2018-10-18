@@ -73,11 +73,10 @@ class Ingredient extends Model
      */
     public static function getIngredientIdByName($ingredient, $user_id = null)
     {
-        return Ingredient::where('name', $ingredient['name'])
-            ->where('user_id', auth()->id())
-            ->orWhere('user_id', null)
-            ->first()
-            ->id;
+        return self::where('name', $ingredient['name'])
+            ->where(function ($query) use ($user_id) {
+                return $query->whereNull('user_id')
+                    ->orWhere('user_id', $user_id);
+            })->first()->id;
     }
-
 }

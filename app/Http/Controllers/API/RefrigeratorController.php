@@ -5,9 +5,7 @@ namespace App\Http\Controllers\API;
 use App\Http\Requests\StoreRefrigeratorRequest;
 use App\Http\Requests\UpdateRefrigeratorRequest;
 use App\Ingredient;
-use App\Refrigerator;
 use App\Http\Controllers\Controller;
-use http\Env\Response;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
 
@@ -21,13 +19,13 @@ class RefrigeratorController extends Controller
      */
     public function index()
     {
-        return response()->json(iterator_to_array($this->getFormatIngredients()));
+        return response()->json(['ingredients' => auth()->user()->refrigeratorIngredients()->get()]);
     }
 
     /**
      * Store ingredient in user's refrigerator.
      *
-     * @param  \Illuminate\Http\Request $request
+     * @param StoreRefrigeratorRequest $request
      * @return \Illuminate\Http\Response
      */
     public function store(StoreRefrigeratorRequest $request)
@@ -39,9 +37,9 @@ class RefrigeratorController extends Controller
 
         if ($user->owns($ingredient) || $ingredient->user_id === null) {
             $user->refrigeratorIngredients()->attach($ingredient, ['amount' => $request->amount]);
-            return response()->json($this->formatIngredient($user->refrigeratorIngredients->find($request->ingredient_id)));
+            return $this->show($ingredient);
         }
-        return response()->json(['error' => 'Current user can not do this!'], 403);
+        return response()->json(['error' => 'The ingredient is not available for current user!'], 403);
     }
 
     /**
@@ -52,8 +50,8 @@ class RefrigeratorController extends Controller
      */
     public function show(Ingredient $ingredient)
     {
-        if ($ingredient = Auth::user()->refrigeratorIngredients->find($ingredient)) {
-            return response()->json($this->formatIngredient(Auth::user()->refrigeratorIngredients->find($ingredient)));
+        if ($ingredient = Auth::user()->refrigeratorIngredients()->find($ingredient->id)) {
+            return response()->json($ingredient);
         }
         return response()->json(['error' => 'There is no such ingredient in refrigerator!'], 404);
     }
@@ -69,19 +67,21 @@ class RefrigeratorController extends Controller
     public function update(UpdateRefrigeratorRequest $request, Ingredient $ingredient)
     {
         if ((!$ingredient = Auth::user()->refrigeratorIngredients->find($ingredient))) {
-            return response()->json(['error' => 'Current user can not do this!'], 403);
+            return response()->json(['error' => 'There is no such ingredient in refrigerator!'], 403);
         }
-            $ingredient->pivot->amount = $request->amount;
-            if ($ingredient->pivot->save()) {
-                return response()->json($this->formatIngredient($ingredient));
-            }
-            return response()->json(['error' => 'Update error!'], 500);
+
+        $ingredient->pivot->amount = $request->amount;
+
+        if ($ingredient->pivot->save()) {
+            return $this->show($ingredient);
+        }
+        return response()->json(['error' => 'Update error!'], 500);
     }
 
     /**
      * Remove the specified ingredient from refrigerator.
      *
-     * @param Ingredient $ingredients
+     * @param Ingredient $ingredient
      * @return \Illuminate\Http\Response
      */
     public function destroy(Ingredient $ingredient)
@@ -93,35 +93,4 @@ class RefrigeratorController extends Controller
         return response()->json(['error' => 'There is no such ingredient in refrigerator!'], 404);
     }
 
-    /**
-     * Get's all user's ingredient and return them in array
-     * @return \Generator|void
-     */
-    protected function getFormatIngredients()
-    {
-        $ingredients = Auth::user()->refrigeratorIngredients;
-        if (!($ingredients->count())) {
-            yield ['message' => 'The refrigerator is empty'];
-            return;
-        }
-        foreach ($ingredients as $ingredient) {
-            yield $this->formatIngredient($ingredient);
-        }
-    }
-
-    /**
-     * Formating the specified ingredient and return an array
-     * @param Ingredient $ingredient
-     * @return array
-     */
-    protected function formatIngredient(Ingredient $ingredient)
-    {
-        return [
-            'id' => $ingredient->id,
-            'name' => $ingredient->name,
-            'amount' => $ingredient->pivot->amount,
-            'created_at' => $ingredient->pivot->created_at->toArray()['formatted'],
-            'updated_at' => $ingredient->pivot->updated_at->toArray()['formatted'],
-        ];
-    }
 }

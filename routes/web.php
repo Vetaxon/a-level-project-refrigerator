@@ -48,7 +48,6 @@ Route::group(['middleware' => 'auth:web', 'prefix' => 'dashboard', 'as' => 'dash
     });
 
     Route::get('recipes', 'Dashboard\RecipeController@index')->name('recipes');
-//    Route::get('recipes/{recipe}', 'Dashboard\RecipeController@show');
 
     Route::resource('/ingredients', 'Dashboard\IngredientController', ['except' => [
         'edit', 'show'
@@ -62,4 +61,4 @@ Route::group(['middleware' => 'auth:web', 'prefix' => 'dashboard', 'as' => 'dash
 
 });
 
-
+Route::get('/test_mail', 'EmailController@testMail');

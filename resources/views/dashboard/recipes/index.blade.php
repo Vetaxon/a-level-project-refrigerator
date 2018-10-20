@@ -3,7 +3,10 @@
 @section('dashboard')
 
     <div class="panel panel-default">
-        <div class="panel-heading" style="">Recipes</div>
+        <div class="panel-heading" style="">
+            <span>Recipes</span>
+            <a href="{{ route('dashboard.recipes.create') }}" class="pull-right">Create a new recipe</a>
+        </div>
 
         @foreach($recipes as $recipe)
             <div class="row" style="padding: 10px">
@@ -23,7 +26,7 @@
                             @endforeach
                         </ul>
                         <div>
-                            <a href="{{route('dashboard.recipes')}}/{{$recipe->id}}">EDIT</a>
+                            <a href="{{route('dashboard.recipes.edit', ['$recipe' => $recipe->id])}}">EDIT</a>
                         </div>
                     </div>
                 </div>

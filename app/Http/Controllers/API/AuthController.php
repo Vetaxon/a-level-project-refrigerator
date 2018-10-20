@@ -2,11 +2,13 @@
 
 namespace App\Http\Controllers\API;
 
+use App\Mail\RegisterMail;
 use App\User;
 use App\Http\Requests\LoginRequest;
 use App\Http\Requests\UpdateRequest;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\RegisterRequest;
+use Illuminate\Support\Facades\Mail;
 
 
 class AuthController extends Controller
@@ -30,13 +32,14 @@ class AuthController extends Controller
 
     public function register(RegisterRequest $request)
     {
+        $message = 'Сongratulations on your registration in "refrigerator" project';
         try {
             $user = User::create([
                 'name' => $request->name,
                 'email' => $request->email,
                 'password' => bcrypt($request->password),
             ]);
-
+            Mail::to($user)->queue(new RegisterMail($user, $message));
         } catch (\Exception $exception) {
             return response()->json(['error' => $exception->getMessage()], 422);
         }

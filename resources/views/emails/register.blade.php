@@ -2,8 +2,7 @@
 <html>
 <head></head>
 <body style="background: black; color: white">
-<h1>Hello{{$user->name}}</h1>
-<a href="{{$user->email}}">Ссылка на мыло</a>
-<p>Data is: {{ $mailMessage }} </p>
+<h3>Hello {{$user->name}}</h3>
+<p>{{ $mailMessage }}</p>
 </body>
 </html>

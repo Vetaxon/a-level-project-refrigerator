@@ -65,12 +65,7 @@ class RegisterController extends Controller
      */
     protected function create(array $data)
     {
-        $message = 'Message of WEB register';
-//        return User::create([
-//            'name' => $data['name'],
-//            'email' => $data['email'],
-//            'password' => bcrypt($data['password']),
-//        ]);
+        $message = 'Сongratulations on your registration in "refrigerator" project. Еo obtain moderator rights, ask them from the administrator.';
         $user = User::create([
             'name' => $data['name'],
             'email' => $data['email'],

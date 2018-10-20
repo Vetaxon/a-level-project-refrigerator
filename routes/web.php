@@ -60,5 +60,3 @@ Route::group(['middleware' => 'auth:web', 'prefix' => 'dashboard', 'as' => 'dash
     Route::get('/analytics', 'Dashboard\AnalyticController@index')->name('analytics');
 
 });
-
-Route::get('/test_mail', 'EmailController@testMail');

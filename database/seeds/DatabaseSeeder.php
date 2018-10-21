@@ -1,11 +1,11 @@
 <?php
 
-use App\Ingredient;
-use App\Recipe;
 use Illuminate\Database\Seeder;
 
 class DatabaseSeeder extends Seeder
 {
+    const FILENAME = 'database/data/data.json';
+
     /**
      * Run the database seeds.
      *
@@ -15,9 +15,13 @@ class DatabaseSeeder extends Seeder
     {
         $this->call(TruncateDB::class);
         $this->call(UsersTableSeeder::class);
-        $this->call(IngredientsTableSeeder::class);
-        $this->call(RecipesTableSeeder::class);
-        $this->call(RecipeIngredientTableSeeder::class);
+        if (file_exists(self::FILENAME)) {
+            $this->call(AllRecipesDataFromJSONSeeder::class);
+        } else {
+            $this->call(IngredientsTableSeeder::class);
+            $this->call(RecipesTableSeeder::class);
+            $this->call(RecipeIngredientTableSeeder::class);
+        }
         $this->call(RefrigeratorsTableSeeder::class);
     }
 }

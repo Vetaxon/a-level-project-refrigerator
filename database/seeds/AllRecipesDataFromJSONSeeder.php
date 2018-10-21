@@ -35,6 +35,7 @@ class AllRecipesDataFromJSONSeeder extends Seeder
             Recipe::create([
                 'id' => $id,
                 'name' => $recipe->name,
+                'picture' => $recipe->image,
                 'text' => $recipeInstruction,
             ]);
 

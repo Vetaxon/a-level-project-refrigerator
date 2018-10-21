@@ -19,7 +19,7 @@ class RecipeController extends Controller
     public function index()
     {
         return view('dashboard.recipes.index')
-            ->withRecipes(Recipe::getAllRecipesForUser(null)->get());
+            ->withRecipes(Recipe::getAllRecipesForUser(null)->paginate(3));
     }
 
     /**

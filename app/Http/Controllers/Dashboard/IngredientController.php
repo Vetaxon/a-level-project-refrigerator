@@ -16,7 +16,7 @@ class IngredientController extends Controller
     public function index()
     {
         $ingredients = Ingredient::where('user_id', null)->paginate(5);
-        return view('dashboard.ingredients')->withIngredients($ingredients);
+        return view('dashboard.ingredients.index')->withIngredients($ingredients);
     }
 
 
@@ -27,13 +27,13 @@ class IngredientController extends Controller
      */
     public function create()
     {
-        return view('dashboard.ingredient_create');
+        return view('dashboard.ingredients.create');
     }
 
     /**
      * Store a newly created ingredient in storage.
      *
-     * @param  \Illuminate\Http\Request $request
+     * @param IngredientRequest $request
      * @return \Illuminate\Http\Response
      */
     public function store(IngredientRequest $request)
@@ -49,7 +49,7 @@ class IngredientController extends Controller
      * Display the specified ingredient.
      *
      * @param  int $id
-     * @return \Illuminate\Http\Response
+     * @return void
      */
     public function show($id)
     {
@@ -60,7 +60,7 @@ class IngredientController extends Controller
      * Show the form for editing the specified ingredient.
      *
      * @param  int $id
-     * @return \Illuminate\Http\Response
+     * @return void
      */
     public function edit($id)
     {
@@ -69,8 +69,8 @@ class IngredientController extends Controller
     /**
      * Update the specified ingredient in storage.
      *
-     * @param  \Illuminate\Http\Request $request
-     * @param  int $id
+     * @param IngredientRequest $request
+     * @param Ingredient $ingredient
      * @return \Illuminate\Http\Response
      */
     public function update(IngredientRequest $request, Ingredient $ingredient)

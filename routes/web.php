@@ -47,16 +47,21 @@ Route::group(['middleware' => 'auth:web', 'prefix' => 'dashboard', 'as' => 'dash
 
     });
 
-    Route::get('recipes', 'Dashboard\RecipeController@index')->name('recipes');
+    Route::resource('recipes', 'Dashboard\RecipeController');
+    Route::post('recipes/{recipe}/ingredient', 'Dashboard\RecipeController@addIngredient')->name('recipes.add.ingredient');
+    Route::delete('recipes/{recipe}/{ingredient}', 'Dashboard\RecipeController@deleteIngredient')->name('recipes.delete.ingredient');
+
 
     Route::resource('/ingredients', 'Dashboard\IngredientController', ['except' => [
         'edit', 'show'
     ]]);
 
-    Route::get('/ingredients', 'Dashboard\IngredientController@index')->name('ingredients');
+
 
     Route::get('/rules', 'Dashboard\RuleController@index')->name('rules');
 
     Route::get('/analytics', 'Dashboard\AnalyticController@index')->name('analytics');
 
 });
+
+

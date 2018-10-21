@@ -14,17 +14,16 @@ class RecipesTableSeeder extends Seeder
     {
         $faker = \Faker\Factory::create();
 
-        for($i=1; $i<=3; $i++)
-        {
+        for ($i = 1; $i <= 3; $i++) {
             Recipe::create([
                 'name' => 'Общий рецепт №' . $i,
                 'text' => $faker->text,
+                'picture' => asset('images/recipe-red-pepper-deviled-eggs.jpg'),
             ]);
         }
 
-        for($i=1; $i<=3; $i++)
-        {
-           Recipe::create([
+        for ($i = 1; $i <= 3; $i++) {
+            Recipe::create([
                 'name' => 'зецепт пользователя admin' . $i,
                 'text' => $faker->text,
                 'user_id' => 1

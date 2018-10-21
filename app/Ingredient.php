@@ -22,7 +22,6 @@ class Ingredient extends Model
 
     /**
      * Return all ingredients available for user
-     * @param $parameters of attributes to return
      * @return mixed
      */
     public function recipes()
@@ -33,13 +32,15 @@ class Ingredient extends Model
             ->withPivot('updated_at');
     }
 
-    public static function getAllUsersIngredient($parameters)
+    /**
+     * @param null $user_id
+     * @return mixed
+     */
+    public static function getAllUsersIngredient($user_id = null)
     {
-        $userIngredients = auth()->user()->ingredients()->orderBy('name')->get($parameters);
-
-        $generalIngredients = Ingredient::where('user_id', null)->orderBy('name')->get($parameters);
-
-        return $userIngredients->merge($generalIngredients);
+        return self::where('user_id', null)
+            ->orWhere('user_id', $user_id)
+            ->orderByDesc('created_at');
     }
 
     /**

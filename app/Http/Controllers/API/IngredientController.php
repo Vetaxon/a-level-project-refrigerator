@@ -23,7 +23,7 @@ class IngredientController extends Controller
     {
         try {
 
-            return response()->json(['ingredients' => Ingredient::getAllUsersIngredient($this->getParameters)]);
+            return response()->json(['ingredients' => Ingredient::getAllUsersIngredient(auth()->id())->get()]);
 
         } catch (\Exception $exception) {
 

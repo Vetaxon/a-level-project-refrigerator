@@ -8,6 +8,7 @@ use Illuminate\Database\Seeder;
 class AllRecipesDataFromJSONSeeder extends Seeder
 {
     const FILENAME = 'database/data/data.json';
+    const NEW_LINE = '<br>';
     private $ingredient_id = 1;
     private $ingredientsList = [];
 
@@ -24,14 +25,12 @@ class AllRecipesDataFromJSONSeeder extends Seeder
 
         foreach ($data as $recipe) {
 
-            echo ($recipe->id) . "\t";
-            echo ($recipe->name) . PHP_EOL;
-
             $recipeInstruction = '';
             $stepNumber = 1;
             $id = $recipe->id + 1;
+            echo "$id\t$recipe->name" . PHP_EOL;
             foreach ($recipe->recipeInstructions as $recipeInstructionStep) {
-                $recipeInstruction .= $stepNumber++ . ". $recipeInstructionStep<br>";
+                $recipeInstruction .= $stepNumber++ . ". $recipeInstructionStep" . self::NEW_LINE;
             }
             Recipe::create([
                 'id' => $id,
@@ -42,7 +41,6 @@ class AllRecipesDataFromJSONSeeder extends Seeder
 
             foreach ($recipe->recipeIngredient as $recipeIngredient) {
                 $ingredient_id = $this->seedUniqIngredientId($recipeIngredient->name);
-                echo "$id $ingredient_id $recipeIngredient->name \n";
                 RecipeIngredient::create([
                     'recipe_id' => $id,
                     'ingredient_id' => $ingredient_id,
@@ -56,13 +54,14 @@ class AllRecipesDataFromJSONSeeder extends Seeder
     }
 
     private function seedUniqIngredientId($name){
-        if(!isset($this->ingredientsList[md5($name)])) {
-            $this->ingredientsList[md5($name)] = $this->ingredient_id++;
+        $index = md5($name);
+        if(!isset($this->ingredientsList[$index])) {
+            $this->ingredientsList[$index] = $this->ingredient_id++;
             Ingredient::create([
-                'id' => $this->ingredientsList[md5($name)],
+                'id' => $this->ingredientsList[$index],
                 'name' => $name,
             ]);
         }
-        return $this->ingredientsList[md5($name)];
+        return $this->ingredientsList[$index];
     }
 }

@@ -38,7 +38,7 @@ class RecipeController extends Controller
 
             $newRecipe = Recipe::createRecipe($request, auth()->id());
 
-            if (Recipe::storeIngredientsForRecipe($newRecipe, $request->ingredients, auth()->user())) {
+            if (Recipe::storeIngredientsForRecipe($newRecipe, $request->ingredients, auth()->id())) {
                 return $this->show($newRecipe->id);
             }
 
@@ -102,7 +102,7 @@ class RecipeController extends Controller
 
             $recipe->ingredients()->detach();
 
-            if (Recipe::storeIngredientsForRecipe($recipe, $request->ingredients, auth()->user())) {
+            if (Recipe::storeIngredientsForRecipe($recipe, $request->ingredients, auth()->id())) {
                 return $this->show($recipe->id);
             }
 

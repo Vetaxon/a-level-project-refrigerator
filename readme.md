@@ -10,6 +10,8 @@
 <li>php artisan config:cache</li>
 <li>php artisan migrate</li>
 <li>php artisan db:seed</li>
+<li>php artisan storage:link</li>
+<li>php artisan queue:work</li>
 </ul>
 
 <p>Do not forget to add into .gitignore: .env  .idea/ vendor/ .gitignore  and other custom files or dirs.</p>

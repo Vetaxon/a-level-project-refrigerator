@@ -14,7 +14,7 @@ class AddPictutesRecipe extends Migration
     public function up()
     {
         Schema::table('recipes', function (Blueprint $table) {
-            $table->text('picture')->after('text');
+            $table->text('picture')->nullable()->after('text');
         });
     }
 

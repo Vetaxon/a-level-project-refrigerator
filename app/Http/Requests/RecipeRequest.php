@@ -29,7 +29,7 @@ class RecipeRequest extends FormRequest
         if ($request->isMethod('post')) {
             return [
                 'name' => 'required|string|max:255',
-                'text' => 'required|string|max:255',
+                'text' => 'required|string|max:2550',
                 'ingredients' => 'required|array'
             ];
         }
@@ -37,7 +37,7 @@ class RecipeRequest extends FormRequest
         if ($request->isMethod('put')) {
             return [
                 'name' => 'string|max:255',
-                'text' => 'string|max:255',
+                'text' => 'string|max:2550',
                 'ingredients' => 'array'
             ];
         }

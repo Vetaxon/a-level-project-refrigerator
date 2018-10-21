@@ -48,6 +48,8 @@ Route::group(['middleware' => 'auth:web', 'prefix' => 'dashboard', 'as' => 'dash
     });
 
     Route::resource('recipes', 'Dashboard\RecipeController');
+    Route::post('recipes/{recipe}/ingredient', 'Dashboard\RecipeController@addIngredient')->name('recipes.add.ingredient');
+    Route::delete('recipes/{recipe}/{ingredient}', 'Dashboard\RecipeController@deleteIngredient')->name('recipes.delete.ingredient');
 
 
     Route::resource('/ingredients', 'Dashboard\IngredientController', ['except' => [

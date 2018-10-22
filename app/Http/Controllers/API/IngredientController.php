@@ -9,7 +9,7 @@ use App\Http\Requests\IngredientRequest;
 class IngredientController extends Controller
 {
 
-    protected $getParameters = ['id', 'name'];
+    protected $getParameters = ['id', 'name', 'user_id'];
 
 
     /**
@@ -40,7 +40,7 @@ class IngredientController extends Controller
      */
     public function store(IngredientRequest $request)
     {
-        $newIngredient['name'] = ucfirst(strtolower($request->name));
+        $newIngredient['name'] = mb_convert_case($request->name, MB_CASE_TITLE, "UTF-8");
         $newIngredient ['user_id'] = auth()->user()->id;
 
         try {
@@ -65,7 +65,7 @@ class IngredientController extends Controller
     public function show($id)
     {
         try {
-            $ingredient = Ingredient::getUsersIngredientById($id);
+            $ingredient = Ingredient::getUsersIngredientById($id, auth()->id());
         } catch (\Exception $exception) {
 
             return response()->json(['error' => $exception->getMessage()], 422);
@@ -96,7 +96,7 @@ class IngredientController extends Controller
 
         try {
 
-            $updatedIngredient['name'] = ucfirst(strtolower($request->name));
+            $updatedIngredient['name'] = mb_convert_case($request->name, MB_CASE_TITLE, "UTF-8");
             $ingredient->fill($updatedIngredient)->save();
 
         } catch (\Exception $exception) {

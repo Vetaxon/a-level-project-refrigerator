@@ -13,7 +13,7 @@ class Recipe extends Model
         'name', 'text', 'user_id', 'picture'
     ];
 
-    protected static $selectParams = ['id', 'name', 'text', 'picture'];
+    protected static $selectParams = ['id', 'name', 'text', 'picture', 'user_id'];
 
 
     public function user()
@@ -55,22 +55,16 @@ class Recipe extends Model
      */
     public static function getRecipeByIdForUser($id, $user_id = null)
     {
-        $recipe = self::with([
+        return self::with([
             'ingredients' => function ($query) {
                 return $query->select(['id', 'name', 'amount']);
             }])
             ->select(self::$selectParams)
-            ->find($id);
-
-        if (collect($recipe)->isEmpty()) {
-            return false;
-        }
-
-        if ($recipe->user_id == null || $recipe->user_id == $user_id) {
-            return $recipe;
-        }
-
-        return false;
+            ->where('id', $id)
+            ->where(function ($query) use ($user_id) {
+                return $query->whereNull('user_id')
+                    ->orWhere('user_id', $user_id);
+            })->first();
     }
 
 

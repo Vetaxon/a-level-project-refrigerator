@@ -3,10 +3,11 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
+use App\Mail\RegisterMail;
 use Illuminate\Foundation\Auth\AuthenticatesUsers;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Mail;
 use Socialite;
-use App\Socialite as SocialiteUser;
 use App\User;
 
 class LoginController extends Controller
@@ -72,7 +73,6 @@ class LoginController extends Controller
 
     public function handleProviderCallback($social)
     {
-
         $userSocial = Socialite::driver($social)->user();
 
         $userFind = User::where('email', $userSocial->getEmail())->first();
@@ -84,6 +84,9 @@ class LoginController extends Controller
         if(!in_array($social, $userProviders)){
             User::createUserSocialite($user,  $userSocial, $social);
         }
+
+        $message = 'Сongratulations on your registration in "refrigerator" project. Еo obtain moderator rights, ask them from the administrator.';
+        Mail::to($user)->queue(new RegisterMail($user, $message));
 
         $this->guard()->login($user, true);
 

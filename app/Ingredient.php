@@ -48,23 +48,13 @@ class Ingredient extends Model
      * @param $id
      * @return bool|\Illuminate\Support\Collection
      */
-    public static function getUsersIngredientById($id)
+    public static function getUsersIngredientById($id, $user_id = null)
     {
-        $userIngredients = collect(auth()->user()->ingredients()->find($id));
-
-        if (!$userIngredients->isEmpty()) {
-
-            return $userIngredients;
-        }
-
-        $generalIngredients = collect(Ingredient::where('user_id', null)->where('id', $id)->get());
-
-        if (!$generalIngredients->isEmpty()) {
-            return $generalIngredients;
-        }
-
-        return false;
-
+        return self::where('id', $id)
+            ->where(function ($query) use ($user_id) {
+                return $query->whereNull('user_id')
+                    ->orWhere('user_id', $user_id);
+            })->first();
     }
 
 

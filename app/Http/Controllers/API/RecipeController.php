@@ -75,14 +75,14 @@ class RecipeController extends Controller
      * Update the specified recipe for user in storage.
      *
      * @param RecipeRequest $request
-     * @param  int $id
+     * @param Recipe $recipe
      * @return Response \Illuminate\Http\JsonResponse
      */
-    public function update(RecipeRequest $request, $id)
+    public function update(RecipeRequest $request, Recipe $recipe)
     {
         try {
 
-            if (!$recipe = Recipe::getRecipeByIdForUser($id, auth()->id())) {
+            if (!auth()->user()->owns($recipe)) {
                 return response()->json(['error' => 'Recipe was not found for current user'], 422);
             }
 
@@ -116,13 +116,13 @@ class RecipeController extends Controller
     /**
      * Remove the specified user's recipe from storage.
      *
-     * @param  int $id
+     * @param Recipe $recipe
      * @return Response \Illuminate\Http\JsonResponse
      */
-    public function destroy($id)
+    public function destroy(Recipe $recipe)
     {
         try {
-            if (!$recipe = Recipe::getRecipeByIdForUser($id, auth()->id())) {
+            if (!auth()->user()->owns($recipe)) {
                 return response()->json(['error' => 'Recipe was not found for current user'], 422);
             }
 

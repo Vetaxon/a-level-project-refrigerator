@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Dashboard;
 
+use App\Http\Requests\IngredientNullRecipeRequest;
 use App\Http\Requests\WebRecipeRequest;
 use App\Ingredient;
 use App\Recipe;
@@ -73,10 +74,10 @@ class RecipeController extends Controller
 
     /**Add an ingredient with amount to the specified recipe
      * @param Recipe $recipe
-     * @param Request $request
+     * @param IngredientNullRecipeRequest $request
      * @return \Illuminate\Http\Response
      */
-    public function addIngredient(Recipe $recipe, Request $request)
+    public function addIngredient(Recipe $recipe, IngredientNullRecipeRequest $request)
     {
         Recipe::storeOneIngredientForRecipe($recipe, $request->all());
 
@@ -136,7 +137,7 @@ class RecipeController extends Controller
      * return void
      * @param Recipe $recipe
      */
-    protected function deletePicture(Recipe $recipe): void
+    protected function deletePicture(Recipe $recipe)
     {
         $server_name = request()->server->get('HTTP_ORIGIN') . '/storage/';
         $picture_store = preg_replace("~$server_name~", '', $recipe->picture);

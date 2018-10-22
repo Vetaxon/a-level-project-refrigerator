@@ -15,8 +15,8 @@ class IngredientController extends Controller
      */
     public function index()
     {
-        $ingredients = Ingredient::where('user_id', null)->paginate(5);
-        return view('dashboard.ingredients.index')->withIngredients($ingredients);
+        return view('dashboard.ingredients.index')
+            ->withIngredients(Ingredient::getAllUsersIngredient()->paginate(5));
     }
 
 
@@ -38,9 +38,8 @@ class IngredientController extends Controller
      */
     public function store(IngredientRequest $request)
     {
-//        $request->merge(['user_id' => null]);
-        $ingredient = new Ingredient($request->toArray());
-        $ingredient->save();
+        $ingredient = Ingredient::create(['name' => mb_convert_case($request->name, MB_CASE_TITLE, "UTF-8")]);
+
         return back()->with('status', "Created new ingredient $ingredient->name");
     }
 
@@ -75,8 +74,9 @@ class IngredientController extends Controller
      */
     public function update(IngredientRequest $request, Ingredient $ingredient)
     {
-        $ingredient->fill($request->toArray())->save();
-        return back()->with('status', "Ingredient id= $ingredient->id ($ingredient->name) saved");
+        $ingredient->update(['name' => mb_convert_case($request->name, MB_CASE_TITLE, "UTF-8")]);
+
+        return back()->with('status', "Ingredient ($ingredient->name) updated");
     }
 
     /**
@@ -87,7 +87,7 @@ class IngredientController extends Controller
      */
     public function destroy($id)
     {
-        $ingredient = Ingredient::find($id);
+        $ingredient = Ingredient::getUsersIngredientById($id);
         $ingredient->delete();
         return back()->with('status', "Ingredient id= $id ($ingredient->name) deleted!");
     }

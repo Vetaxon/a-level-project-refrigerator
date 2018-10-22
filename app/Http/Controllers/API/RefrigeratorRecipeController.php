@@ -22,7 +22,7 @@ class RefrigeratorRecipeController extends Controller
         try {
 
             $refrigerator = auth()->user()->refrigeratorIngredients()->get()->toArray();
-            $recipes = Recipe::getAllRecipesForUser(auth()->id())->get();
+            $recipes = Recipe::getAllRecipesForUser(auth()->id())->get()->toArray();
 
             $recommendedRecipes = Recipe::getRecipesByMultipleIds($this->getRecommendedRecipesdIds($recipes, $refrigerator))
                 ->paginate(self::PAGINATE_RECIPES);
@@ -44,6 +44,8 @@ class RefrigeratorRecipeController extends Controller
      */
     protected function getRecommendedRecipesdIds($recipes, $refrigerator)
     {
+        $recommendedRecipesIds = [];
+
         foreach ($recipes as $recipe) {
 
             $recipeIngredientCount = count($recipe['ingredients']);

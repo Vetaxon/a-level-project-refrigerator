@@ -1,6 +1,6 @@
 
 window._ = require('lodash');
-
+require("vue2-animate/dist/vue2-animate.min.css");
 /**
  * We'll load jQuery and the Bootstrap jQuery plugin which provides support
  * for JavaScript based Bootstrap features such as modals and tabs. This
@@ -43,7 +43,15 @@ if (token) {
  * allows your team to easily build robust real-time web applications.
  */
 
-// import Echo from 'laravel-echo'
+
+import Echo from "laravel-echo";
+
+window.io = require("socket.io-client");
+
+window.Echo = new Echo({
+    broadcaster: "socket.io",
+    host: "http://127.0.0.1:8000:6001"
+});
 
 // window.Pusher = require('pusher-js');
 

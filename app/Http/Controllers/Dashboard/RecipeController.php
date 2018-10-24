@@ -153,4 +153,12 @@ class RecipeController extends Controller
         return asset('storage/' . $request->file('picture')
                 ->store('recipes', 'public'));
     }
+
+    /**
+     * @param Request $request
+     */
+    protected function addPictureIntervention(Request $request)
+    {
+
+    }
 }

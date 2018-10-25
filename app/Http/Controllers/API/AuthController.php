@@ -2,12 +2,13 @@
 
 namespace App\Http\Controllers\API;
 
+use App\Http\Requests\UpdateAuthRequest;
 use App\Mail\RegisterMail;
 use App\User;
 use App\Http\Requests\LoginRequest;
-use App\Http\Requests\UpdateRequest;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\RegisterRequest;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
 
 
@@ -27,6 +28,7 @@ class AuthController extends Controller
     /**
      * Register and Get a JWT.
      *
+     * @param RegisterRequest $request
      * @return \Illuminate\Http\JsonResponse
      */
 
@@ -41,7 +43,7 @@ class AuthController extends Controller
             ]);
             Mail::to($user)->queue(new RegisterMail($user, $message));
         } catch (\Exception $exception) {
-            return response()->json(['error' => $exception->getMessage()], 422);
+            return response()->json(['error' => $exception->getMessage()], $exception->getCode());
         }
 
         $credentials = collect($request)->only(['email', 'password'])->toArray();
@@ -57,41 +59,45 @@ class AuthController extends Controller
     /**
      * Update authenticated user
      *
-     * @param UpdateRequest $request
+     * @param UpdateAuthRequest $request
      *
      * @return \Illuminate\Http\JsonResponse
      */
 
-    public function update(UpdateRequest $request)
+    public function update(UpdateAuthRequest $request)
     {
         try {
-            if ($user = auth()->user()->update($request->all())) {
+            if ($user = auth()->user()->update($request->only(['name', 'email']))) {
                 return $this->user();
             }
             return response()->json(['error' => 'Updating is failed'], 422);
 
         } catch (\Exception $exception) {
-            return response()->json(['error' => $exception->getMessage()], 422);
+            return response()->json(['error' => $exception->getMessage()], $exception->getCode());
         }
     }
 
     /**
      * Change password for authenticated user
-     * @param UpdateRequest $request
+     * @param UpdateAuthRequest $request
      * @return \Illuminate\Http\JsonResponse
      */
 
-    public function changePassword(UpdateRequest $request)
+    public function changePassword(UpdateAuthRequest $request)
     {
         try {
-            if ($user = auth()->user()->update(['password' => bcrypt($request->password)])) {
-                return response()->json(['message' => 'Password updated']);
+
+            $user = auth()->user();
+
+            if (Hash::check($request->old_password, $user->password)) {
+                $user->update(['password' => bcrypt($request->password)]);
+                return response()->json(['message' => 'Password has been updated']);
             }
 
-            return response()->json(['error' => 'Updating is failed'], 422);
+            return response()->json(['error' => 'Invalid old password'], 422);
 
         } catch (\Exception $exception) {
-            return response()->json(['error' => $exception->getMessage()], 422);
+            return response()->json(['error' => $exception->getMessage()], $exception->getCode());
         }
     }
 
@@ -110,7 +116,7 @@ class AuthController extends Controller
             return response()->json(['error' => 'Deleting user is failed'], 422);
 
         } catch (\Exception $exception) {
-            return response()->json(['error' => $exception->getMessage()], 422);
+            return response()->json(['error' => $exception->getMessage()], $exception->getCode());
         }
     }
 
@@ -146,7 +152,7 @@ class AuthController extends Controller
         try {
             return response()->json(auth()->user());
         } catch (\Exception $exception) {
-            return response()->json(['error' => $exception->getMessage()]);
+            return response()->json(['error' => $exception->getMessage()], $exception->getCode());
         }
     }
 
@@ -161,7 +167,7 @@ class AuthController extends Controller
         try {
             auth()->logout();
         } catch (\Exception $exception) {
-            return response()->json(['error' => $exception->getMessage()]);
+            return response()->json(['error' => $exception->getMessage()], $exception->getCode());
         }
 
         return response()->json(['message' => 'Successfully logged out']);
@@ -178,7 +184,7 @@ class AuthController extends Controller
         try {
             return $this->respondWithToken(auth()->refresh(), $this->user());
         } catch (\Exception $exception) {
-            return response()->json(['error' => $exception->getMessage()]);
+            return response()->json(['error' => $exception->getMessage()], $exception->getCode());
         }
     }
 
@@ -201,8 +207,7 @@ class AuthController extends Controller
             ]);
 
         } catch (\Exception $exception) {
-            return response()->json(['error' => $exception->getMessage()], 401);
+            return response()->json(['error' => $exception->getMessage()], $exception->getCode());
         }
-
     }
 }

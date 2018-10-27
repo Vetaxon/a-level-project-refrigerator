@@ -2,9 +2,10 @@
 
 namespace App\Http\Controllers\API;
 
+use App\Events\ClientEvent;
+use App\Events\Messages\EventMessages;
 use App\Recipe;
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Response;
 
 class RefrigeratorRecipeController extends Controller
 {
@@ -19,20 +20,17 @@ class RefrigeratorRecipeController extends Controller
      */
     public function index()
     {
-        try {
+        $refrigerator = auth()->user()->refrigeratorIngredients()->get()->toArray();
+        $recipes = Recipe::getAllRecipesForUser(auth()->id())->get()->toArray();
+        
+        $recommendedRecipesIds = $this->getRecommendedRecipesdIds($recipes, $refrigerator);
 
-            $refrigerator = auth()->user()->refrigeratorIngredients()->get()->toArray();
-            $recipes = Recipe::getAllRecipesForUser(auth()->id())->get()->toArray();
+        $recommendedRecipes = Recipe::getRecipesByMultipleIds($recommendedRecipesIds)
+            ->paginate(self::PAGINATE_RECIPES);
 
-            $recommendedRecipes = Recipe::getRecipesByMultipleIds($this->getRecommendedRecipesdIds($recipes, $refrigerator))
-                ->paginate(self::PAGINATE_RECIPES);
+        ClientEvent::dispatch(EventMessages::userGetRecommendedRecipes(count($recommendedRecipesIds)));
 
-            return response()->json($recommendedRecipes);
-
-        } catch (\Exception $exception) {
-            return response()->json(['error' => $exception->getMessage()], $exception->getCode());
-        }
-
+        return response()->json($recommendedRecipes);
     }
 
 

@@ -18,12 +18,13 @@
             </div>
 
             <div class="col-md-2">
-                <div class="panel panel-default">
-                    <div class="panel-heading">Events</div>
-                    <div class="panel-heading">Events</div>
-                    <div class="panel-heading">Events</div>
-
+                <div class="card" >
+                    <div class="card-header">
+                        <p>EVENTS</p>
+                    </div>
+                    <event-message></event-message>
                 </div>
+
             </div>
         </div>
     </div>

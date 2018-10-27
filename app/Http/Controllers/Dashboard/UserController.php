@@ -15,7 +15,7 @@ class UserController extends Controller
     public function index()
     {
         return view('dashboard.users.index')
-            ->withUsers(User::getAllUsersWithCounts()->get());
+            ->withUsers(User::getAllUsersWithCounts()->paginate(20));
     }
 
     /**Show all ingredients for user

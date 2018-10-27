@@ -65,5 +65,12 @@
             @endforeach()
             </tbody>
         </table>
+        <div class="row" style="padding: 10px">
+            <div class="col-md-8">
+                <div class="card" style="padding: 10px">
+                    {{ $users->links() }}
+                </div>
+            </div>
+        </div>
     </div>
 @endsection

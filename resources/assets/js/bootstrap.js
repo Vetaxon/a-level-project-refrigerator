@@ -50,7 +50,7 @@ window.io = require("socket.io-client");
 
 window.Echo = new Echo({
     broadcaster: "socket.io",
-    host: "http://127.0.0.1:8000:6001"
+    host: window.location.hostname + ':6001'
 });
 
 // window.Pusher = require('pusher-js');

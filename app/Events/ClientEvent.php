@@ -10,7 +10,7 @@ use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Broadcasting\InteractsWithSockets;
 use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
 
-class RecipeClientEvent implements ShouldBroadcast
+class ClientEvent implements ShouldBroadcast
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
@@ -29,6 +29,6 @@ class RecipeClientEvent implements ShouldBroadcast
 
     public function broadcastOn()
     {
-        return new PrivateChannel('room.' . $this->message['room_id']);
+        return new Channel('events');
     }
 }

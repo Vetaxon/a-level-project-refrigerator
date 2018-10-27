@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers\API;
 
+use App\Events\ClientEvent;
+use App\Events\Messages\EventMessages;
 use App\Mail\RegisterMail;
 use App\User;
 use App\Http\Requests\LoginRequest;
@@ -16,7 +18,6 @@ class AuthController extends Controller
     /**
      * Create a new AuthController instance.
      *
-     * @return void
      */
     public function __construct()
     {
@@ -27,22 +28,22 @@ class AuthController extends Controller
     /**
      * Register and Get a JWT.
      *
+     * @param RegisterRequest $request
      * @return \Illuminate\Http\JsonResponse
      */
 
     public function register(RegisterRequest $request)
     {
         $message = 'Сongratulations on your registration in "refrigerator" project';
-        try {
-            $user = User::create([
-                'name' => $request->name,
-                'email' => $request->email,
-                'password' => bcrypt($request->password),
-            ]);
-            Mail::to($user)->queue(new RegisterMail($user, $message));
-        } catch (\Exception $exception) {
-            return response()->json(['error' => $exception->getMessage()], 422);
-        }
+
+        $user = User::create([
+            'name' => $request->name,
+            'email' => $request->email,
+            'password' => bcrypt($request->password),
+        ]);
+        
+        Mail::to($user)->queue(new RegisterMail($user, $message));        
+        ClientEvent::dispatch(EventMessages::userRegistered($user));
 
         $credentials = collect($request)->only(['email', 'password'])->toArray();
 
@@ -64,15 +65,10 @@ class AuthController extends Controller
 
     public function update(UpdateRequest $request)
     {
-        try {
-            if ($user = auth()->user()->update($request->all())) {
-                return $this->user();
-            }
-            return response()->json(['error' => 'Updating is failed'], 422);
-
-        } catch (\Exception $exception) {
-            return response()->json(['error' => $exception->getMessage()], 422);
+        if ($user = auth()->user()->update($request->all())) {
+            return $this->user();
         }
+        return response()->json(['error' => 'Updating is failed'], 422);
     }
 
     /**
@@ -83,16 +79,11 @@ class AuthController extends Controller
 
     public function changePassword(UpdateRequest $request)
     {
-        try {
-            if ($user = auth()->user()->update(['password' => bcrypt($request->password)])) {
-                return response()->json(['message' => 'Password updated']);
-            }
-
-            return response()->json(['error' => 'Updating is failed'], 422);
-
-        } catch (\Exception $exception) {
-            return response()->json(['error' => $exception->getMessage()], 422);
+        if ($user = auth()->user()->update(['password' => bcrypt($request->password)])) {
+            return response()->json(['message' => 'Password updated']);
         }
+        return response()->json(['error' => 'Updating is failed'], 422);
+
     }
 
 
@@ -102,16 +93,10 @@ class AuthController extends Controller
 
     public function destroy()
     {
-        try {
-            if (User::find(auth()->user()->id)->delete()) {
-                return response()->json(['message' => 'User has been deleted']);
-            }
-
-            return response()->json(['error' => 'Deleting user is failed'], 422);
-
-        } catch (\Exception $exception) {
-            return response()->json(['error' => $exception->getMessage()], 422);
+        if (User::find(auth()->user()->id)->delete()) {
+            return response()->json(['message' => 'User has been deleted']);
         }
+        return response()->json(['error' => 'Deleting user is failed'], 422);
     }
 
 
@@ -123,7 +108,6 @@ class AuthController extends Controller
      */
     public function login(LoginRequest $request)
     {
-
         if (!$token = auth()->attempt($request->only(['email', 'password']))) {
             return response()->json(['error' => 'Invalid credentials'], 401);
         }
@@ -143,11 +127,7 @@ class AuthController extends Controller
      */
     public function user()
     {
-        try {
-            return response()->json(auth()->user());
-        } catch (\Exception $exception) {
-            return response()->json(['error' => $exception->getMessage()]);
-        }
+        return response()->json(auth()->user());
     }
 
 
@@ -158,11 +138,7 @@ class AuthController extends Controller
      */
     public function logout()
     {
-        try {
-            auth()->logout();
-        } catch (\Exception $exception) {
-            return response()->json(['error' => $exception->getMessage()]);
-        }
+        auth()->logout();
 
         return response()->json(['message' => 'Successfully logged out']);
     }
@@ -175,11 +151,7 @@ class AuthController extends Controller
      */
     public function refresh()
     {
-        try {
-            return $this->respondWithToken(auth()->refresh(), $this->user());
-        } catch (\Exception $exception) {
-            return response()->json(['error' => $exception->getMessage()]);
-        }
+        return $this->respondWithToken(auth()->refresh(), $this->user());
     }
 
 
@@ -192,17 +164,11 @@ class AuthController extends Controller
      */
     protected function respondWithToken($token, $user)
     {
-        try {
-            return response()->json([
-                'user' => $user,
-                'access_token' => $token,
-                'token_type' => 'bearer',
-                'expires_in' => auth()->factory()->getTTL() * 60
-            ]);
-
-        } catch (\Exception $exception) {
-            return response()->json(['error' => $exception->getMessage()], 401);
-        }
-
+        return response()->json([
+            'user' => $user,
+            'access_token' => $token,
+            'token_type' => 'bearer',
+            'expires_in' => auth()->factory()->getTTL() * 60
+        ]);
     }
 }

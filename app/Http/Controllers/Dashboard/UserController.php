@@ -112,4 +112,17 @@ class UserController extends Controller
         }
 
     }
+
+
+    /**Delete the specified user
+     * @param User $user
+     * @return mixed
+     * @throws \Exception
+     */
+    public function deleteUser(User $user)
+    {
+        $user->delete();
+        return back()->withStatus("User $user->name has been deleted");
+
+    }
 }

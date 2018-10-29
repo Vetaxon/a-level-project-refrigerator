@@ -4,7 +4,7 @@
 
     <div class="panel panel-default">
         <div class="panel-heading" style="">
-            <span>Recipe</span>
+            <span style="font-weight: bold">A RECIPE</span>
             <a href="{{ route('dashboard.recipes.edit', ['recipe' => $recipe->id]) }}"
                class="card-link pull-right">Edit recipe</a>
         </div>

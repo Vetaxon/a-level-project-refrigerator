@@ -4,8 +4,8 @@
 
     <div class="panel panel-default">
         <div class="panel-heading">
-            <span>Create a new recipe</span>
-            <a href="{{ route('dashboard.recipes.index') }}" class="pull-right">Recipes</a>
+            <span style="font-weight: bold">CREATE A NEW RECIPE</span>
+            <a href="{{ route('dashboard.recipes.index') }}" class="pull-right">Go back</a>
         </div>
 
         <div class="row" style="padding: 10px">

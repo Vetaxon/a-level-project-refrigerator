@@ -43,6 +43,7 @@ Route::group(['middleware' => 'auth:web', 'prefix' => 'dashboard', 'as' => 'dash
         Route::get('/{user}/ingredients', 'Dashboard\UserController@showIngredientsByUser')->name('ingredients');
         Route::get('/{user}/recipes', 'Dashboard\UserController@showRecipesByUser')->name('recipes');
         Route::get('/{user}/refrigerator', 'Dashboard\UserController@showRefrigeratorsByUser')->name('refrigerators');
+        Route::get('/{user}/delete', 'Dashboard\UserController@deleteUser')->name('delete');
 
 
     });

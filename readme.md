@@ -62,6 +62,7 @@ Url: /auth/user/password<br>
 Method: PUT<br> 
 Header: {Content-Type: application/json, Accept: application/json, Authorization: Bearer ghhdjd...}<br>
 Body: {
+        "old_password":"oldpassword",
       	"password":"newpassword",
       	"password_confirmation":"newpassword"	
       }

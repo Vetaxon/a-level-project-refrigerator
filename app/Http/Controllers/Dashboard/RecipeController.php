@@ -9,9 +9,17 @@ use App\Recipe;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Storage;
+use Intervention\Image\Facades\Image;
 
 class RecipeController extends Controller
 {
+
+    protected $pathStorePictures = 'app/public/recipes/';
+
+    protected $pathPublicPictures = 'storage/recipes/';
+
+    protected $pictureFitSize = 380;
+
     /**
      * Display a listing of recipes.
      *
@@ -41,13 +49,11 @@ class RecipeController extends Controller
      */
     public function store(WebRecipeRequest $request)
     {
-        if ($request->has('picture')) {
-            $request->picture = $this->addPicture($request);
+        if ($file = $request->file('picture')) {
+            $request->picture = $this->addPictureIntervention($file);
         }
 
-        $recipe = Recipe::createRecipe($request);
-
-        return $this->show($recipe);
+        return $this->show(Recipe::createRecipe($request));
     }
 
     /**
@@ -107,11 +113,11 @@ class RecipeController extends Controller
         $recipe->name = $request->name;
         $recipe->text = $request->text;
 
-        if ($request->has('picture')) {
+        if ($file = $request->file('picture')) {
             if ($recipe->picture != null) {
                 $this->deletePicture($recipe);
             }
-            $recipe->picture = $this->addPicture($request);
+            $recipe->picture = $this->addPictureIntervention($file);
         }
 
         $recipe->save();
@@ -141,8 +147,10 @@ class RecipeController extends Controller
     {
         $server_name = request()->server->get('HTTP_ORIGIN') . '/storage/';
         $picture_store = preg_replace("~$server_name~", '', $recipe->picture);
+
         Storage::disk('public')->delete($picture_store);
     }
+
 
     /**Load a new picture in storage
      * @param Request $request
@@ -152,5 +160,31 @@ class RecipeController extends Controller
     {
         return asset('storage/' . $request->file('picture')
                 ->store('recipes', 'public'));
+    }
+
+    /**Load a new picture in storage within fit throw Intervention
+     * @param $file
+     * @return string
+     */
+    protected function addPictureIntervention($file)
+    {
+        $filename = str_random(30) . '.' . $file->getClientOriginalExtension();
+
+        if (!file_exists($this->getStoragePicturePath()))
+            mkdir($this->getStoragePicturePath(), 0777, true);
+
+        Image::make($file)
+            ->fit($this->pictureFitSize, $this->pictureFitSize)
+            ->save($this->getStoragePicturePath() . $filename);
+
+        return asset($this->pathPublicPictures . $filename);
+    }
+
+    /**
+     * @return string
+     */
+    protected function getStoragePicturePath()
+    {
+        return storage_path($this->pathStorePictures);
     }
 }

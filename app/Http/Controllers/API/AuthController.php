@@ -4,12 +4,13 @@ namespace App\Http\Controllers\API;
 
 use App\Events\ClientEvent;
 use App\Events\Messages\EventMessages;
+use App\Http\Requests\UpdateAuthRequest;
 use App\Mail\RegisterMail;
 use App\User;
 use App\Http\Requests\LoginRequest;
-use App\Http\Requests\UpdateRequest;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\RegisterRequest;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
 
 
@@ -41,8 +42,8 @@ class AuthController extends Controller
             'email' => $request->email,
             'password' => bcrypt($request->password),
         ]);
-        
-        Mail::to($user)->queue(new RegisterMail($user, $message));        
+
+        Mail::to($user)->queue(new RegisterMail($user, $message));
         ClientEvent::dispatch(EventMessages::userRegistered($user));
 
         $credentials = collect($request)->only(['email', 'password'])->toArray();
@@ -58,12 +59,12 @@ class AuthController extends Controller
     /**
      * Update authenticated user
      *
-     * @param UpdateRequest $request
+     * @param UpdateAuthRequest $request
      *
      * @return \Illuminate\Http\JsonResponse
      */
 
-    public function update(UpdateRequest $request)
+    public function update(UpdateAuthRequest $request)
     {
         if ($user = auth()->user()->update($request->all())) {
             return $this->user();
@@ -73,11 +74,11 @@ class AuthController extends Controller
 
     /**
      * Change password for authenticated user
-     * @param UpdateRequest $request
+     * @param UpdateAuthRequest $request
      * @return \Illuminate\Http\JsonResponse
      */
 
-    public function changePassword(UpdateRequest $request)
+    public function changePassword(UpdateAuthRequest $request)
     {
         if ($user = auth()->user()->update(['password' => bcrypt($request->password)])) {
             return response()->json(['message' => 'Password updated']);

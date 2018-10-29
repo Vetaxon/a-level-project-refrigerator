@@ -3,23 +3,28 @@
 return [
     'role_structure' => [
         'superadministrator' => [
+            'rules' => 'c,r,u,d',
             'users' => 'c,r,u,d',
-            'acl' => 'c,r,u,d',
-            'profile' => 'r,u'
+            'ingredients' => 'c,r,u,d',
+            'recipes' => 'c,r,u,d',
+            'analytics' => 'c,r,u,d',
         ],
         'administrator' => [
+            'rules' => 'c,r,u,d',
             'users' => 'c,r,u,d',
-            'profile' => 'r,u'
+            'ingredients' => 'c,r,u,d',
+            'recipes' => 'c,r,u,d',
+            'analytics' => 'c,r,u,d',
         ],
-        'user' => [
-            'profile' => 'r,u'
+        'moderator' => [
+            'rules' => 'c,r,u,d',
+            'users' => 'c,r,u,d',
+            'ingredients' => 'c,r,u,d',
+            'recipes' => 'c,r,u,d',
+            'analytics' => 'c,r,u,d',
         ],
     ],
-    'permission_structure' => [
-        'cru_user' => [
-            'profile' => 'c,r,u'
-        ],
-    ],
+    'permission_structure' => [],
     'permissions_map' => [
         'c' => 'create',
         'r' => 'read',

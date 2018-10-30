@@ -13,8 +13,8 @@
                 {{ session('status') }}
             </div>
         @endif
-
-        <table class="table table-bordered" style="text-align: center; vertical-align: inherit; font-size: small">
+        <div style="max-width: 100%; overflow: auto">
+        <table class="table table-bordered table-responsive"  style="text-align: center; vertical-align: inherit; font-size: small">
             <thead>
             <tr>
                 <th scope="col" style="text-align: center; vertical-align: inherit;">ID</th>
@@ -84,6 +84,7 @@
             @endforeach()
             </tbody>
         </table>
+        </div>
         <div class="row" style="padding: 10px">
             <div class="col-md-8">
                 <div class="card" style="padding: 10px">

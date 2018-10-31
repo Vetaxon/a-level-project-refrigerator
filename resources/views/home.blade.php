@@ -20,6 +20,7 @@
                     <div class="panel-heading"><a
                                 style="font-weight: {{ request()->route()->getName() === 'dashboard.analytics' ? 'bold' : '' }}"
                                 href="{{route('dashboard.analytics')}}">Analytics</a></div>
+                    <div class="panel-heading"><a href="{{route('dashboard.logs')}}">Logs</a></div>
 
                 </div>
             </div>

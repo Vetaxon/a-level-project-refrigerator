@@ -121,7 +121,7 @@ return [
     |
     */
 
-    'log' => env('APP_LOG', 'single'),
+    'log' => env('APP_LOG', 'daily'),
 
     'log_level' => env('APP_LOG_LEVEL', 'debug'),
 
@@ -170,6 +170,7 @@ return [
          */
         Barryvdh\Cors\ServiceProvider::class,
         Intervention\Image\ImageServiceProvider::class,
+        Rap2hpoutre\LaravelLogViewer\LaravelLogViewerServiceProvider::class,
         /*
          * Application Service Providers...
          */

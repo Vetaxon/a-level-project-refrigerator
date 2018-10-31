@@ -16,6 +16,7 @@
         "laravel/socialite": "^3.1",
         "laravel/tinker": "~1.0",
         "predis/predis": "^1.1",
+        "rap2hpoutre/laravel-log-viewer": "^0.22.1",
         "santigarcor/laratrust": "5.0.*",
         "tymon/jwt-auth": "1.0.0-rc.1"
     },

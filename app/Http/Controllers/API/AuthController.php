@@ -44,7 +44,10 @@ class AuthController extends Controller
         ]);
 
         Mail::to($user)->queue(new RegisterMail($user, $message));
-        ClientEvent::dispatch(EventMessages::userRegistered($user));
+
+        $message = EventMessages::userRegistered($user);
+        activity()->withProperties($message)->log('messages');
+        ClientEvent::dispatch($message);
 
         $credentials = collect($request)->only(['email', 'password'])->toArray();
 

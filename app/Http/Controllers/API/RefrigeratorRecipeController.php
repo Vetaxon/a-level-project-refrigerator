@@ -22,13 +22,15 @@ class RefrigeratorRecipeController extends Controller
     {
         $refrigerator = auth()->user()->refrigeratorIngredients()->get()->toArray();
         $recipes = Recipe::getAllRecipesForUser(auth()->id())->get()->toArray();
-        
+
         $recommendedRecipesIds = $this->getRecommendedRecipesdIds($recipes, $refrigerator);
 
         $recommendedRecipes = Recipe::getRecipesByMultipleIds($recommendedRecipesIds)
             ->paginate(self::PAGINATE_RECIPES);
 
-        ClientEvent::dispatch(EventMessages::userGetRecommendedRecipes(count($recommendedRecipesIds)));
+        $message = EventMessages::userGetRecommendedRecipes(count($recommendedRecipesIds));
+        activity()->withProperties($message)->log('messages');
+        ClientEvent::dispatch($message);
 
         return response()->json($recommendedRecipes);
     }

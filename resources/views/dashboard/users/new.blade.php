@@ -4,7 +4,7 @@
 
     <div class="panel panel-default">
         <div class="panel-heading">
-            <span>Users</span>
+            <span style="font-weight: bold">CREATE USER</span>
             <a href="{{ url()->previous() }}" class="pull-right">Go back</a>
         </div>
 
@@ -13,9 +13,6 @@
                 <div class="card" style="padding: 10px">
 
                     <div class="card-body">
-
-                        <div class="panel-heading">Create a new user</div>
-
                         <div class="panel-body">
                             <form class="form-horizontal" method="POST" action="{{ route('dashboard.user.store') }}">
                                 {{ csrf_field() }}

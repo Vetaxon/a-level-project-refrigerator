@@ -35,7 +35,11 @@ class RecipeController extends Controller
         $newRecipe = Recipe::createRecipe($request, auth()->id());
 
         if (Recipe::storeIngredientsForRecipe($newRecipe, $request->ingredients, auth()->id())) {
-            ClientEvent::dispatch(EventMessages::userAddRecipe($newRecipe));
+
+            $message = EventMessages::userAddRecipe($newRecipe);
+            activity()->withProperties($message)->log('messages');
+            ClientEvent::dispatch($message);
+
             return $this->show($newRecipe->id);
         }
     }

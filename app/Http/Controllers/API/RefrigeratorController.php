@@ -38,8 +38,13 @@ class RefrigeratorController extends Controller
         $ingredient = Ingredient::find($request->ingredient_id);
 
         if ($user->owns($ingredient) || $ingredient->user_id === null) {
+
             $user->refrigeratorIngredients()->attach($ingredient, ['amount' => $request->amount]);
-            ClientEvent::dispatch(EventMessages::userAddIngredInRefrig($ingredient));
+
+            $message = EventMessages::userAddIngredInRefrig($ingredient);
+            activity()->withProperties($message)->log('messages');
+            ClientEvent::dispatch($message);
+
             return $this->show($ingredient);
         }
         return response()->json(['error' => 'The ingredient is not available for current user!'], 403);

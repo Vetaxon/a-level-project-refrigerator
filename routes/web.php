@@ -58,6 +58,7 @@ Route::group(['middleware' => 'auth:web', 'prefix' => 'dashboard', 'as' => 'dash
     ]]);
 
     Route::get('logs', '\Rap2hpoutre\LaravelLogViewer\LogViewerController@index')->name('logs');
+    Route::get('modellogs', 'Dashboard\HomeController@modelLogs')->name('model_logs');
 
     Route::get('/rules', 'Dashboard\RuleController@index')->name('rules');
 

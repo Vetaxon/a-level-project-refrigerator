@@ -33,7 +33,9 @@
                     <div class="card-header">
                         <p>EVENTS</p>
                     </div>
+                    <div id="app">
                     <event-message></event-message>
+                    </div>
                 </div>
 
             </div>

@@ -37,9 +37,12 @@ class IngredientController extends Controller
     {
         $newIngredient['name'] = mb_convert_case($request->name, MB_CASE_TITLE, "UTF-8");
         $newIngredient ['user_id'] = auth()->user()->id;
-        
+
         $ingredient = Ingredient::create($newIngredient);
-        ClientEvent::dispatch(EventMessages::userAddIngredient($ingredient));
+
+        $message = EventMessages::userAddIngredient($ingredient);
+        activity()->withProperties($message)->log('messages');
+        ClientEvent::dispatch($message);
 
         return response()->json([
             'message' => 'Ingredient ' . $ingredient->name . ' has been stored',

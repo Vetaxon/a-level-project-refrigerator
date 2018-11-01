@@ -29,20 +29,6 @@ class HomeController extends Controller
 
     public function modelLogs()
     {
-        $activities = collect(Activity::where('description', 'messages')
-            ->orderBy('id', 'desc')
-            ->take(5)
-            ->get(['id', 'description', 'properties', 'created_at']))
-            ->map(function ($value) {
-                return collect($value)
-                    ->map(function($value){
-                        if(is_object($value)){
-                            return collect($value)->first();
-                        }
-                        return $value;
-                    });
-            })->toArray();
-
-        dump($activities);die();
+        
     }
 }

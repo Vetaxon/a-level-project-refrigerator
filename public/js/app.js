@@ -1450,7 +1450,7 @@ function load() {
 
   // If debug isn't set in LS, and we're in Electron, try to load $DEBUG
   if (!r && typeof process !== 'undefined' && 'env' in process) {
-    r = Object({"MIX_PUSHER_APP_CLUSTER":"mt1","MIX_PUSHER_APP_KEY":"","NODE_ENV":"development"}).DEBUG;
+    r = Object({"MIX_PUSHER_APP_KEY":"","MIX_PUSHER_APP_CLUSTER":"mt1","NODE_ENV":"development"}).DEBUG;
   }
 
   return r;
@@ -13140,9 +13140,9 @@ __webpack_require__(97);
  */
 
 try {
-    window.$ = window.jQuery = __webpack_require__(100);
+  window.$ = window.jQuery = __webpack_require__(100);
 
-    __webpack_require__(101);
+  __webpack_require__(101);
 } catch (e) {}
 
 /**
@@ -13164,9 +13164,9 @@ window.axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
 var token = document.head.querySelector('meta[name="csrf-token"]');
 
 if (token) {
-    window.axios.defaults.headers.common['X-CSRF-TOKEN'] = token.content;
+  window.axios.defaults.headers.common['X-CSRF-TOKEN'] = token.content;
 } else {
-    console.error('CSRF token not found: https://laravel.com/docs/csrf#csrf-x-csrf-token');
+  console.error('CSRF token not found: https://laravel.com/docs/csrf#csrf-x-csrf-token');
 }
 
 /**
@@ -13180,8 +13180,8 @@ if (token) {
 window.io = __webpack_require__(122);
 
 window.Echo = new __WEBPACK_IMPORTED_MODULE_0_laravel_echo___default.a({
-    broadcaster: "socket.io",
-    host: window.location.hostname + ':6002'
+  broadcaster: "socket.io",
+  host: window.location.hostname + ':6002'
 });
 
 // window.Pusher = require('pusher-js');
@@ -72536,7 +72536,7 @@ var content = __webpack_require__(268);
 if(typeof content === 'string') content = [[module.i, content, '']];
 if(content.locals) module.exports = content.locals;
 // add the styles to the DOM
-var update = __webpack_require__(269)("0ba707d9", content, false, {});
+var update = __webpack_require__(269)("8eed690e", content, false, {});
 // Hot Module Replacement
 if(false) {
  // When the styles change, update the <style> tags
@@ -72560,7 +72560,7 @@ exports = module.exports = __webpack_require__(13)(false);
 
 
 // module
-exports.push([module.i, "\n.list-group-item[data-v-9765b178] {    \r\n    padding: 10px 10px;    \r\n    font-style:italic\n}\n.list-group[data-v-9765b178] {\r\n    margin-bottom: 5px;\n}\r\n\r\n", ""]);
+exports.push([module.i, "\n.list-group-item[data-v-9765b178] {\n    padding: 10px 10px;\n    font-style: italic\n}\n.list-group[data-v-9765b178] {\n    margin-bottom: 5px;\n}\n", ""]);
 
 // exports
 
@@ -72956,8 +72956,13 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
             messages: []
         };
     },
+
+
+    props: ["events"],
+
     mounted: function mounted() {
         this.getUserConnection();
+        this.getEvents();
     },
 
 
@@ -72968,10 +72973,18 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
             window.Echo.channel("events").listen("ClientEvent", function (_ref) {
                 var message = _ref.message;
 
-                if (_this.messages.length > 4) {
+                if (_this.messages.length > 19) {
                     _this.messages.splice(_this.messages.length - 1, 1);
                 }
                 _this.messages.unshift(message);
+            });
+        },
+        getEvents: function getEvents() {
+            var _this2 = this;
+
+            var messages = JSON.parse(this.events);
+            messages.forEach(function (element) {
+                _this2.messages.push(element[0]);
             });
         }
     }
@@ -72985,17 +72998,21 @@ var render = function() {
   var _vm = this
   var _h = _vm.$createElement
   var _c = _vm._self._c || _h
-  return _c("div", [
-    _c(
-      "ul",
-      { staticClass: "list-group" },
-      _vm._l(_vm.messages, function(message, i) {
-        return _c("li", { key: i, staticClass: "list-group-item" }, [
-          _vm._v(_vm._s(message))
-        ])
-      })
-    )
-  ])
+  return _c(
+    "div",
+    { staticStyle: { "overflow-y": "scroll", height: "500px" } },
+    [
+      _c(
+        "ul",
+        { staticClass: "list-group" },
+        _vm._l(_vm.messages, function(message, i) {
+          return _c("li", { key: i, staticClass: "list-group-item" }, [
+            _vm._v(_vm._s(message))
+          ])
+        })
+      )
+    ]
+  )
 }
 var staticRenderFns = []
 render._withStripped = true

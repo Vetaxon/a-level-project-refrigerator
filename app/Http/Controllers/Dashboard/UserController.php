@@ -3,9 +3,11 @@
 namespace App\Http\Controllers\Dashboard;
 
 use App\Http\Requests\UserStoreRequest;
+use App\Mail\RegisterMail;
 use App\Recipe;
 use App\User;
 use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Mail;
 
 class UserController extends Controller
 {
@@ -68,10 +70,10 @@ class UserController extends Controller
     public function store(UserStoreRequest $request)
     {
         $password = str_random(6); //send email with password to user
-
+        $message = "Сongratulations on your registration in \"refrigerator\" project. To obtain moderator rights, ask them from the administrator.";
         $request->merge(['password' => bcrypt($password)]);
         $user = User::create($request->all());
-
+        Mail::to($user)->send(new RegisterMail($user, $message, $password));
         return back()->withStatus("Created a new user $user->name");
     }
 

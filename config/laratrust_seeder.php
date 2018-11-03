@@ -1,28 +1,46 @@
 <?php
 
 return [
+    'default_superadministrator' => [
+        'name' => env('DEFAULT_SUPERADMINISTRATOR_NAME', 'Username'),
+        'email' => env('DEFAULT_SUPERADMINISTRATOR_EMAIL', 'default.superadministrator@email.com'),
+        'password' => env('DEFAULT_SUPERADMINISTRATOR_PASSWORD', '11111111'),
+    ],
     'role_structure' => [
         'superadministrator' => [
-            'rules' => 'c,r,u,d',
-            'users' => 'c,r,u,d',
-            'ingredients' => 'c,r,u,d',
-            'recipes' => 'c,r,u,d',
-            'analytics' => 'c,r,u,d',
+            'role_to_module' => [
+                'administrators' => 'c,r,u,d',
+                'rules' => 'c,r,u,d',
+                'users' => 'c,r,u,d',
+                'ingredients' => 'c,r,u,d',
+                'recipes' => 'c,r,u,d',
+                'analytics' => 'c,r,u,d',
+            ],
+            'display_name'=>env('LARATRUST_SUPERADMINISTRATOR_DISPLAY_NAME', 'superadministrator_display_name'),
+            'description'=>env('LARATRUST_SUPERADMINISTRATOR_DESCRIPTION', 'superadministrator_description'),
         ],
         'administrator' => [
-            'rules' => 'c,r,u,d',
-            'users' => 'c,r,u,d',
-            'ingredients' => 'c,r,u,d',
-            'recipes' => 'c,r,u,d',
-            'analytics' => 'c,r,u,d',
+            'role_to_module' => [
+                'rules' => 'c,r,u,d',
+                'users' => 'c,r,u,d',
+                'ingredients' => 'c,r,u,d',
+                'recipes' => 'c,r,u,d',
+                'analytics' => 'c,r,u,d',
+            ],
+            'display_name'=>env('LARATRUST_ADMINISTRATOR_DISPLAY_NAME', 'administrator_display_name'),
+            'description'=>env('LARATRUST_ADMINISTRATOR_DESCRIPTION', 'administrator_description'),
         ],
         'moderator' => [
-            'rules' => 'c,r,u,d',
-            'users' => 'c,r,u,d',
-            'ingredients' => 'c,r,u,d',
-            'recipes' => 'c,r,u,d',
-            'analytics' => 'c,r,u,d',
+            'role_to_module' => [
+                'users' => 'c,r,u,d',
+                'ingredients' => 'c,r,u,d',
+                'recipes' => 'c,r,u,d',
+                'analytics' => 'c,r,u,d',
+            ],
+            'display_name'=>env('LARATRUST_MODERATOR_DISPLAY_NAME', 'moderator_display_name'),
+            'description'=>env('LARATRUST_MODERATOR_DESCRIPTION', 'moderator_description'),
         ],
+
     ],
     'permission_structure' => [],
     'permissions_map' => [
@@ -30,5 +48,8 @@ return [
         'r' => 'read',
         'u' => 'update',
         'd' => 'delete'
-    ]
+    ],
+    'non_removable_role' => [
+        'role_name' => env('LARATRUST_NON_REMOVABLE_ROLE', 'non_removable_role')
+    ],
 ];

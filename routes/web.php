@@ -31,7 +31,7 @@ Route::group(['middleware' => 'auth:web', 'prefix' => 'dashboard', 'as' => 'dash
 
     Route::group(['prefix' => 'users', 'as' => 'user.'], function () {
 
-        Route::get('/', 'Dashboard\UserController@index')->name('index');
+        Route::get('/', ['middleware' => 'role:superadministrator|administrator|moderator', 'uses' => 'Dashboard\UserController@index'])->name('index');
 
         Route::get('/new', 'Dashboard\UserController@storeUserForm')->name('new');
         Route::post('/store', 'Dashboard\UserController@store')->name('store');
@@ -43,25 +43,21 @@ Route::group(['middleware' => 'auth:web', 'prefix' => 'dashboard', 'as' => 'dash
         Route::get('/{user}/ingredients', 'Dashboard\UserController@showIngredientsByUser')->name('ingredients');
         Route::get('/{user}/recipes', 'Dashboard\UserController@showRecipesByUser')->name('recipes');
         Route::get('/{user}/refrigerator', 'Dashboard\UserController@showRefrigeratorsByUser')->name('refrigerators');
-
-
     });
 
     Route::resource('recipes', 'Dashboard\RecipeController');
     Route::post('recipes/{recipe}/ingredient', 'Dashboard\RecipeController@addIngredient')->name('recipes.add.ingredient');
     Route::delete('recipes/{recipe}/{ingredient}', 'Dashboard\RecipeController@deleteIngredient')->name('recipes.delete.ingredient');
 
-
     Route::resource('/ingredients', 'Dashboard\IngredientController', ['except' => [
         'edit', 'show'
     ]]);
 
+    Route::prefix('roles')->name('roles')->group(function () {
+        Route::get('/index', 'Dashboard\UserRolesController@index')->middleware(['role:superadministrator|administrator|moderator'])->name('.index');
+        Route::put('/update/{user}', 'Dashboard\UserRolesController@update')->middleware(['role:superadministrator|administrator'])->name('.update');
+    });
 
-
-    Route::get('/rules', 'Dashboard\RuleController@index')->name('rules');
-
-    Route::get('/analytics', 'Dashboard\AnalyticController@index')->name('analytics');
+    Route::get('/analytics', ['middleware' => ['role:superadministrator|administrator|moderator'], 'uses' => 'Dashboard\AnalyticController@index'])->name('analytics');
 
 });
-
-

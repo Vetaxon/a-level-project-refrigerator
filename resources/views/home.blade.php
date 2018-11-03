@@ -34,7 +34,7 @@
                         <p>EVENTS</p>
                     </div>
                     <div id="app">
-                    <event-message></event-message>
+                    <event-message events="{{$events}}"></event-message>
                     </div>
                 </div>
 

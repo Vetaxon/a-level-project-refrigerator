@@ -78,3 +78,7 @@ Route::group(['middleware' => 'auth:api', 'prefix' => 'refrigerator'], function 
     Route::get('recipes', 'API\RefrigeratorRecipeController@index');
 
 });
+
+Route::group(['middleware' => 'auth:web', 'prefix' => 'dashboard'], function(){
+    Route::get('events', 'API\DashboardController@getEvents');
+});

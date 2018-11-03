@@ -171,6 +171,7 @@ return [
         Barryvdh\Cors\ServiceProvider::class,
         Intervention\Image\ImageServiceProvider::class,
         Rap2hpoutre\LaravelLogViewer\LaravelLogViewerServiceProvider::class,
+        App\Providers\ComposerServiceProvider::class,
         /*
          * Application Service Providers...
          */

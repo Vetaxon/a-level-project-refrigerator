@@ -13181,7 +13181,7 @@ window.io = __webpack_require__(122);
 
 window.Echo = new __WEBPACK_IMPORTED_MODULE_0_laravel_echo___default.a({
     broadcaster: "socket.io",
-    host: window.location.hostname + ':6002'
+    host: window.location.origin + ":6001"
 });
 
 // window.Pusher = require('pusher-js');

@@ -8,7 +8,7 @@
                     @role('superadministrator|administrator|moderator')
                     <div class="panel-heading"><a
                                 style="font-weight: {{ request()->route()->getName() === 'dashboard.roles' ? 'bold' : '' }}"
-                                href="{{route('dashboard.rules')}}">Rules</a></div>
+                                href="{{route('dashboard.roles.index')}}">Roles</a></div>
                     @endrole
                     @role('superadministrator|administrator|moderator')
                     <div class="panel-heading"><a

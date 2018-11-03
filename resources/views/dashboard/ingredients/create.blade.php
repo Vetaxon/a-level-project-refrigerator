@@ -2,7 +2,10 @@
 @section('dashboard')
     <div class="panel panel-default">
         <div class="panel-heading">
-            <a class="text-primary" href="{{route('dashboard.ingredients.create')}}">Create new ingredient</a>
+            <div class="panel-heading">
+                <span style="font-weight: bold">NEW INGREDIENT</span>
+                <a href="{{ route('dashboard.ingredients.index') }}" class="pull-right">Go back</a>
+            </div>
         </div>
         @if (session('status'))
             <div class="alert alert-success">

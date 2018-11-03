@@ -2,7 +2,7 @@
 
 namespace App\Providers;
 
-use Illuminate\Support\Facades\DB;
+use App\Repositories\LogRepository;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
@@ -14,21 +14,8 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot()
     {
-        DB::listen(function ($query) {
+//        LogRepository::queryLog();
 
-            $query_binding = '';
-            foreach ($query->bindings as $binding) {
-                $query_binding .= $binding . ', ';
-            }
-
-            $log = [
-                'sql' => $query->sql,
-                'bindings' => $query_binding,
-                'time' => $query->time
-            ];
-
-            info('sqlstate', $log);
-        });
     }
 
     /**

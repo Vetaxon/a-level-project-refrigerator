@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers\API;
 
+use App\Events\ClientEvent;
+use App\Events\Messages\EventMessages;
 use App\Http\Requests\UpdateAuthRequest;
 use App\Mail\RegisterMail;
 use App\User;
@@ -17,7 +19,6 @@ class AuthController extends Controller
     /**
      * Create a new AuthController instance.
      *
-     * @return void
      */
     public function __construct()
     {
@@ -35,16 +36,18 @@ class AuthController extends Controller
     public function register(RegisterRequest $request)
     {
         $message = 'Сongratulations on your registration in "refrigerator" project';
-        try {
-            $user = User::create([
-                'name' => $request->name,
-                'email' => $request->email,
-                'password' => bcrypt($request->password),
-            ]);
-            Mail::to($user)->queue(new RegisterMail($user, $message));
-        } catch (\Exception $exception) {
-            return response()->json(['error' => $exception->getMessage()], $exception->getCode());
-        }
+
+        $user = User::create([
+            'name' => $request->name,
+            'email' => $request->email,
+            'password' => bcrypt($request->password),
+        ]);
+
+        Mail::to($user)->queue(new RegisterMail($user, $message));
+
+        $message = EventMessages::userRegistered($user);
+        activity()->withProperties($message)->log('messages');
+        ClientEvent::dispatch($message);
 
         $credentials = collect($request)->only(['email', 'password'])->toArray();
 
@@ -66,15 +69,10 @@ class AuthController extends Controller
 
     public function update(UpdateAuthRequest $request)
     {
-        try {
-            if ($user = auth()->user()->update($request->only(['name', 'email']))) {
-                return $this->user();
-            }
-            return response()->json(['error' => 'Updating is failed'], 422);
-
-        } catch (\Exception $exception) {
-            return response()->json(['error' => $exception->getMessage()], $exception->getCode());
+        if ($user = auth()->user()->update($request->all())) {
+            return $this->user();
         }
+        return response()->json(['error' => 'Updating is failed'], 422);
     }
 
     /**
@@ -85,20 +83,11 @@ class AuthController extends Controller
 
     public function changePassword(UpdateAuthRequest $request)
     {
-        try {
-
-            $user = auth()->user();
-
-            if (Hash::check($request->old_password, $user->password)) {
-                $user->update(['password' => bcrypt($request->password)]);
-                return response()->json(['message' => 'Password has been updated']);
-            }
-
-            return response()->json(['error' => 'Invalid old password'], 422);
-
-        } catch (\Exception $exception) {
-            return response()->json(['error' => $exception->getMessage()], $exception->getCode());
+        if ($user = auth()->user()->update(['password' => bcrypt($request->password)])) {
+            return response()->json(['message' => 'Password updated']);
         }
+        return response()->json(['error' => 'Updating is failed'], 422);
+
     }
 
 
@@ -108,16 +97,10 @@ class AuthController extends Controller
 
     public function destroy()
     {
-        try {
-            if (User::find(auth()->user()->id)->delete()) {
-                return response()->json(['message' => 'User has been deleted']);
-            }
-
-            return response()->json(['error' => 'Deleting user is failed'], 422);
-
-        } catch (\Exception $exception) {
-            return response()->json(['error' => $exception->getMessage()], $exception->getCode());
+        if (User::find(auth()->user()->id)->delete()) {
+            return response()->json(['message' => 'User has been deleted']);
         }
+        return response()->json(['error' => 'Deleting user is failed'], 422);
     }
 
 
@@ -129,7 +112,6 @@ class AuthController extends Controller
      */
     public function login(LoginRequest $request)
     {
-
         if (!$token = auth()->attempt($request->only(['email', 'password']))) {
             return response()->json(['error' => 'Invalid credentials'], 401);
         }
@@ -149,11 +131,7 @@ class AuthController extends Controller
      */
     public function user()
     {
-        try {
-            return response()->json(auth()->user());
-        } catch (\Exception $exception) {
-            return response()->json(['error' => $exception->getMessage()], $exception->getCode());
-        }
+        return response()->json(auth()->user());
     }
 
 
@@ -164,11 +142,7 @@ class AuthController extends Controller
      */
     public function logout()
     {
-        try {
-            auth()->logout();
-        } catch (\Exception $exception) {
-            return response()->json(['error' => $exception->getMessage()], $exception->getCode());
-        }
+        auth()->logout();
 
         return response()->json(['message' => 'Successfully logged out']);
     }
@@ -181,11 +155,7 @@ class AuthController extends Controller
      */
     public function refresh()
     {
-        try {
-            return $this->respondWithToken(auth()->refresh(), $this->user());
-        } catch (\Exception $exception) {
-            return response()->json(['error' => $exception->getMessage()], $exception->getCode());
-        }
+        return $this->respondWithToken(auth()->refresh(), $this->user());
     }
 
 
@@ -198,16 +168,11 @@ class AuthController extends Controller
      */
     protected function respondWithToken($token, $user)
     {
-        try {
-            return response()->json([
-                'user' => $user,
-                'access_token' => $token,
-                'token_type' => 'bearer',
-                'expires_in' => auth()->factory()->getTTL() * 60
-            ]);
-
-        } catch (\Exception $exception) {
-            return response()->json(['error' => $exception->getMessage()], $exception->getCode());
-        }
+        return response()->json([
+            'user' => $user,
+            'access_token' => $token,
+            'token_type' => 'bearer',
+            'expires_in' => auth()->factory()->getTTL() * 60
+        ]);
     }
 }

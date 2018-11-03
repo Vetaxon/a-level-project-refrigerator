@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers\API;
 
+use App\Events\ClientEvent;
+use App\Events\Messages\EventMessages;
 use App\Ingredient;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\IngredientRequest;
@@ -21,14 +23,7 @@ class IngredientController extends Controller
      */
     public function index()
     {
-        try {
-
-            return response()->json(['ingredients' => Ingredient::getAllUsersIngredient(auth()->id())->get()]);
-
-        } catch (\Exception $exception) {
-
-            return response()->json(['error' => $exception->getMessage()], 422);
-        }
+        return response()->json(['ingredients' => Ingredient::getAllUsersIngredient(auth()->id())->get()]);
     }
 
 
@@ -43,16 +38,16 @@ class IngredientController extends Controller
         $newIngredient['name'] = mb_convert_case($request->name, MB_CASE_TITLE, "UTF-8");
         $newIngredient ['user_id'] = auth()->user()->id;
 
-        try {
-            return response()->json([
-                'message' => 'Ingredient ' . $request->name . ' has been stored',
-                'ingredient' => Ingredient::create($newIngredient)->only($this->getParameters)
-            ]);
+        $ingredient = Ingredient::create($newIngredient);
 
-        } catch (\Exception $exception) {
-            return response()->json(['error' => $exception->getMessage()], 422);
-        }
+        $message = EventMessages::userAddIngredient($ingredient);
+        activity()->withProperties($message)->log('messages');
+        ClientEvent::dispatch($message);
 
+        return response()->json([
+            'message' => 'Ingredient ' . $ingredient->name . ' has been stored',
+            'ingredient' => $ingredient->only($this->getParameters)
+        ]);
     }
 
 
@@ -64,12 +59,7 @@ class IngredientController extends Controller
      */
     public function show($id)
     {
-        try {
-            $ingredient = Ingredient::getUsersIngredientById($id, auth()->id());
-        } catch (\Exception $exception) {
-
-            return response()->json(['error' => $exception->getMessage()], 422);
-        }
+        $ingredient = Ingredient::getUsersIngredientById($id, auth()->id());
 
         if ($ingredient) {
             return response()->json(['ingredient' => $ingredient->only($this->getParameters)]);
@@ -88,20 +78,12 @@ class IngredientController extends Controller
      */
     public function update(IngredientRequest $request, $id)
     {
-        $ingredient = $ingredient = auth()->user()->ingredients()->find($id);
-
-        if (!$ingredient) {
+        if (!$ingredient = auth()->user()->ingredients()->find($id)) {
             return response()->json(['error' => 'Ingredient was not found for current user'], 422);
         }
 
-        try {
-
-            $updatedIngredient['name'] = mb_convert_case($request->name, MB_CASE_TITLE, "UTF-8");
-            $ingredient->fill($updatedIngredient)->save();
-
-        } catch (\Exception $exception) {
-            return response()->json(['error' => $exception->getMessage()], 422);
-        }
+        $updatedIngredient['name'] = mb_convert_case($request->name, MB_CASE_TITLE, "UTF-8");
+        $ingredient->fill($updatedIngredient)->save();
 
         if ($updatedIngredient) {
             return $this->show($id);
@@ -117,19 +99,10 @@ class IngredientController extends Controller
      */
     public function destroy($id)
     {
-        $ingredient = auth()->user()->ingredients()->find($id);
-
-        if (!$ingredient) {
+        if (!$ingredient = auth()->user()->ingredients()->find($id)) {
             return response()->json(['error' => 'Ingredient was not found for current user'], 422);
         }
-
-        try {
-            $ingredient->delete();
-
-        } catch (\Exception $exception) {
-
-            return response()->json(['error' => $exception->getMessage()], 422);
-        }
+        $ingredient->delete();
 
         return response()->json(['message' => 'Ingredient ' . $ingredient->name . ' has been deleted']);
     }

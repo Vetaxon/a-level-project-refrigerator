@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\Dashboard;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
+use Spatie\Activitylog\Models\Activity;
 
 class HomeController extends Controller
 {
@@ -25,5 +25,10 @@ class HomeController extends Controller
     public function index()
     {
         return view('home');
+    }
+
+    public function modelLogs()
+    {
+        
     }
 }

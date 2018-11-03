@@ -4,7 +4,8 @@
 
     <div class="panel panel-default">
         <div class="panel-heading">
-            <a class="text-primary" href="{{route('dashboard.ingredients.create')}}">Create new ingredient</a>
+            <span style="font-weight: bold">INGREDIENTS</span>
+            <a href="{{ route('dashboard.ingredients.create') }}" class="pull-right">Create new ingredient</a>
         </div>
 
         @if (session('status'))

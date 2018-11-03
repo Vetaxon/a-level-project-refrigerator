@@ -3,7 +3,7 @@
 @section('dashboard')
     <div class="panel panel-default">
         <div class="panel-heading">
-            <span>Edit a recipe</span>
+            <span style="font-weight: bold">EDIT RECIPE</span>
             <a href="{{ route('dashboard.recipes.show', ['recipe' => $recipe->id]) }}" class="pull-right">Edit
                 ingredients</a>
         </div>

@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers\API;
 
+use App\Events\ClientEvent;
+use App\Events\Messages\EventMessages;
 use App\Http\Requests\StoreRefrigeratorRequest;
 use App\Http\Requests\UpdateRefrigeratorRequest;
 use App\Ingredient;
@@ -36,7 +38,13 @@ class RefrigeratorController extends Controller
         $ingredient = Ingredient::find($request->ingredient_id);
 
         if ($user->owns($ingredient) || $ingredient->user_id === null) {
+
             $user->refrigeratorIngredients()->attach($ingredient, ['amount' => $request->amount]);
+
+            $message = EventMessages::userAddIngredInRefrig($ingredient);
+            activity()->withProperties($message)->log('messages');
+            ClientEvent::dispatch($message);
+
             return $this->show($ingredient);
         }
         return response()->json(['error' => 'The ingredient is not available for current user!'], 403);

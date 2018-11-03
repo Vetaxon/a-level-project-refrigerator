@@ -43,15 +43,22 @@ Route::group(['middleware' => 'auth:web', 'prefix' => 'dashboard', 'as' => 'dash
         Route::get('/{user}/ingredients', 'Dashboard\UserController@showIngredientsByUser')->name('ingredients');
         Route::get('/{user}/recipes', 'Dashboard\UserController@showRecipesByUser')->name('recipes');
         Route::get('/{user}/refrigerator', 'Dashboard\UserController@showRefrigeratorsByUser')->name('refrigerators');
+        Route::get('/{user}/delete', 'Dashboard\UserController@deleteUser')->name('delete');
+
     });
 
     Route::resource('recipes', 'Dashboard\RecipeController');
     Route::post('recipes/{recipe}/ingredient', 'Dashboard\RecipeController@addIngredient')->name('recipes.add.ingredient');
     Route::delete('recipes/{recipe}/{ingredient}', 'Dashboard\RecipeController@deleteIngredient')->name('recipes.delete.ingredient');
 
+
     Route::resource('/ingredients', 'Dashboard\IngredientController', ['except' => [
         'edit', 'show'
     ]]);
+
+    Route::get('logs', '\Rap2hpoutre\LaravelLogViewer\LogViewerController@index')->name('logs');
+
+    Route::get('/analytics', 'Dashboard\AnalyticController@index')->name('analytics');
 
     Route::prefix('roles')->name('roles')->group(function () {
         Route::get('/index', 'Dashboard\UserRolesController@index')->middleware(['role:superadministrator|administrator|moderator'])->name('.index');

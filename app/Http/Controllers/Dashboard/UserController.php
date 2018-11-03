@@ -17,7 +17,7 @@ class UserController extends Controller
     public function index()
     {
         return view('dashboard.users.index')
-            ->withUsers(User::getAllUsersWithCounts()->get());
+            ->withUsers(User::getAllUsersWithCounts()->paginate(20));
     }
 
     /**Show all ingredients for user
@@ -112,6 +112,19 @@ class UserController extends Controller
                 ->withStatus("User email has been updated to $user->email")
                 ->withUser($user);
         }
+
+    }
+
+
+    /**Delete the specified user
+     * @param User $user
+     * @return mixed
+     * @throws \Exception
+     */
+    public function deleteUser(User $user)
+    {
+        $user->delete();
+        return back()->withStatus("User $user->name has been deleted");
 
     }
 }

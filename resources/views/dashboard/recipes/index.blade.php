@@ -4,7 +4,7 @@
 
     <div class="panel panel-default">
         <div class="panel-heading" style="">
-            <span>Recipes</span>
+            <span style="font-weight: bold">RECIPES</span>
             <a href="{{ route('dashboard.recipes.create') }}" class="card-link pull-right">Create a new recipe</a>
         </div>
 
@@ -17,7 +17,7 @@
                             <h5 class="card-title"><a
                                         href="{{ route('dashboard.recipes.show', ['recipe' => $recipe->id]) }}">{{$recipe->name}}
                                     .</a></h5>
-                            <p class="card-text">{{$recipe->text}}.</p>
+                            <p class="card-text">{{$recipe->text}}</p>
                         </div>
 
                         <ul class="list-group">

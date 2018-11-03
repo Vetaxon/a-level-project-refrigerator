@@ -69,18 +69,26 @@
                         @endif
                     </td>
                     <td>
-                        <p>in development</p>
+                        @if(count($user->roles) > 0)
+                            @foreach($user->roles as $role)
+                                {{ $role->name }} <br>
+                            @endforeach
+                        @endif
                     </td>
                     <td>
+                        @if(auth()->user()->hasRole('administrator|superadministrator'))
                         <button type="submit" class="btn btn-link" form="delete_{{$user->id}}"><span>delete</span>
                         </button>
+                        @endif
                     </td>
                 </tr>
                 {{-- This is hidden form for destroy user --}}
+                @if(auth()->user()->hasRole('administrator|superadministrator'))
                 <form id="delete_{{$user->id}}" method="GET"
                       action="{{route('dashboard.user.delete', ['user' => $user->id])}}">
                     {{ csrf_field() }}
                 </form>
+                @endif
             @endforeach()
             </tbody>
         </table>

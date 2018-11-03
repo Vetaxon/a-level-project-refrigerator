@@ -17,12 +17,12 @@
                 color: #636b6f;
                 font-family: 'Raleway', sans-serif;
                 font-weight: 100;
-                height: 100vh;
+                height: 50vh;
                 margin: 0;
             }
 
             .full-height {
-                height: 100vh;
+                height: 50vh;
             }
 
             .flex-center {
@@ -77,13 +77,14 @@
                 </div>
             @endif
 
-            <div class="content">
+            <div class="container-fluid content">
                 <div class="title m-b-md">
                     Refrigerator A-Level
                 </div>
 
                 <div class="links">
                     <a href="http://gitlab.a-level.com.ua/Vitalii_Ivanov/refrigerator">Documentation</a>
+                    <a href="http://refrigerator.fedyok24.fe.a-level.com.ua/">Refrigerator client</a>
                     <a href="https://a-level.com.ua">A-Level</a>
                 </div>
             </div>

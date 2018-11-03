@@ -126,6 +126,9 @@ class User extends Authenticatable implements JWTSubject
             }])
             ->with(['socialites' => function ($query) {
                 return $query->selectRaw('*');
+            }])
+            ->with(['roles' => function ($query) {
+                return $query->selectRaw('name');
             }]);
     }
 

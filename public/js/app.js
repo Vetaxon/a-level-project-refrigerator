@@ -1450,7 +1450,7 @@ function load() {
 
   // If debug isn't set in LS, and we're in Electron, try to load $DEBUG
   if (!r && typeof process !== 'undefined' && 'env' in process) {
-    r = Object({"MIX_PUSHER_APP_KEY":"","MIX_PUSHER_APP_CLUSTER":"mt1","NODE_ENV":"development"}).DEBUG;
+    r = Object({"MIX_PUSHER_APP_CLUSTER":"mt1","MIX_PUSHER_APP_KEY":"","NODE_ENV":"development"}).DEBUG;
   }
 
   return r;
@@ -13140,9 +13140,9 @@ __webpack_require__(97);
  */
 
 try {
-  window.$ = window.jQuery = __webpack_require__(100);
+    window.$ = window.jQuery = __webpack_require__(100);
 
-  __webpack_require__(101);
+    __webpack_require__(101);
 } catch (e) {}
 
 /**
@@ -13164,9 +13164,9 @@ window.axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
 var token = document.head.querySelector('meta[name="csrf-token"]');
 
 if (token) {
-  window.axios.defaults.headers.common['X-CSRF-TOKEN'] = token.content;
+    window.axios.defaults.headers.common['X-CSRF-TOKEN'] = token.content;
 } else {
-  console.error('CSRF token not found: https://laravel.com/docs/csrf#csrf-x-csrf-token');
+    console.error('CSRF token not found: https://laravel.com/docs/csrf#csrf-x-csrf-token');
 }
 
 /**
@@ -13180,8 +13180,8 @@ if (token) {
 window.io = __webpack_require__(122);
 
 window.Echo = new __WEBPACK_IMPORTED_MODULE_0_laravel_echo___default.a({
-  broadcaster: "socket.io",
-  host: window.location.hostname + ':6002'
+    broadcaster: "socket.io",
+    host: "http://refrigerator-alevel.tk:6001"
 });
 
 // window.Pusher = require('pusher-js');
@@ -72536,7 +72536,7 @@ var content = __webpack_require__(268);
 if(typeof content === 'string') content = [[module.i, content, '']];
 if(content.locals) module.exports = content.locals;
 // add the styles to the DOM
-var update = __webpack_require__(269)("8eed690e", content, false, {});
+var update = __webpack_require__(269)("0ba707d9", content, false, {});
 // Hot Module Replacement
 if(false) {
  // When the styles change, update the <style> tags

@@ -172,6 +172,8 @@ return [
         Intervention\Image\ImageServiceProvider::class,
         Rap2hpoutre\LaravelLogViewer\LaravelLogViewerServiceProvider::class,
         App\Providers\ComposerServiceProvider::class,
+        Laravel\Scout\ScoutServiceProvider::class,
+        ScoutElastic\ScoutElasticServiceProvider::class,
         /*
          * Application Service Providers...
          */

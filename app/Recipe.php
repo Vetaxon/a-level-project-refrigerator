@@ -2,13 +2,63 @@
 
 namespace App;
 
-use Illuminate\Support\Facades\DB;
+use App\ElasticSearch\Index\RefrigeratorIndexConfigurator;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
+use ScoutElastic\Searchable;
 
 class Recipe extends Model
 {
+    use Searchable;
+
+    protected $indexConfigurator = RefrigeratorIndexConfigurator::class;
+
+    protected $searchRules = [
+        //
+    ];
+    protected $mapping = [
+        'properties' => [
+            'name' => [
+                'type' => 'string',
+                'analyzer' => 'russian',
+                'boost' => 3,
+            ],
+            'text' => [
+                'type' => 'string',
+                'analyzer' => 'russian',
+                'boost' => 1,
+            ],
+            'user_id' => [
+                'type' => 'string',
+                'index' => 'not_analyzed',
+            ],
+            'picture' => [
+                'type' => 'string',
+                'index' => 'not_analyzed',
+            ],
+            'ingredients' => [
+                'type' => 'string'
+            ]
+        ]
+    ];
+
+//    public function toSearchableArray()
+//    {
+//        $array = $this->with([
+//            'ingredients' => function ($query) {                
+//                return $query->select(['id', 'name', 'amount']);
+//            }])
+//            ->get()
+//            ->map(function ($iterable){
+//                if($iterable-)
+//            });
+//        
+//        info($array);
+//
+//        return $array;
+//    }
+
     protected $fillable = [
         'name', 'text', 'user_id', 'picture'
     ];

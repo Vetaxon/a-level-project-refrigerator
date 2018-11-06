@@ -21,6 +21,8 @@ class RecipeController extends Controller
     protected $pathPublicPictures = 'storage/recipes/';
 
     protected $pictureFitSize = 380;
+    
+    const PAGINATE = 5;
 
 
     /**

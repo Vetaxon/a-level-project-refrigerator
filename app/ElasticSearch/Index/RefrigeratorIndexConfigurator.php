@@ -44,7 +44,7 @@ class RefrigeratorIndexConfigurator extends IndexConfigurator
                     ],
                 ],
 
-            "number_of_shards" => 10,
+            "number_of_shards" => 50,
             "number_of_replicas" => 1
 
         ];

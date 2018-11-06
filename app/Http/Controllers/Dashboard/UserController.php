@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Dashboard;
 use App\Http\Requests\UserStoreRequest;
 use App\Mail\RegisterMail;
 use App\Recipe;
+use App\Repositories\RecipeRepository;
 use App\User;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Mail;
@@ -127,4 +128,16 @@ class UserController extends Controller
         return back()->withStatus("User $user->name has been deleted");
 
     }
+
+
+    public function recipesForUserByIngredients(User $user)
+    {
+        $search_ingredients = collect($user->refrigeratorIngredients()->get())->implode('name', ', ');
+
+        return view('dashboard.recipes.index')
+            ->withRecipes(RecipeRepository::searchRecipeForUser($search_ingredients, $user->id))
+            ->withUser($user)
+            ->withPaginate(false);
+    }
+
 }

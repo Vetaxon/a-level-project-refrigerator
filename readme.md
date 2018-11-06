@@ -13,6 +13,11 @@
 <li>php artisan storage:link</li>
 <li>php artisan queue:work</li>
 <li>php artisan self-diagnosis</li>
+<li>php artisan elastic:create-index App\\ElasticSearch\\Index\\RefrigeratorIndexConfigurator</li>
+<li>php artisan elastic:update-mapping App\\Recipe</li>
+<li>php artisan scout:import "App\Recipe"</li>
+<li>curl -XGET localhost:9200/refrigerator/_search?pretty=true&q=*:*</li>
+<li>curl -XGET localhost:9200/refrigerator/?v</li>
 </ul>
 
 <p>Do not forget to add into .gitignore: .env  .idea/ vendor/ .gitignore  and other custom files or dirs.</p>

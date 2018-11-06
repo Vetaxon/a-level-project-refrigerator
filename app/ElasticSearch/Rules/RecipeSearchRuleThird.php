@@ -4,7 +4,7 @@ namespace App\ElasticSearch\Rules;
 
 use ScoutElastic\SearchRule;
 
-class RecipeSearchRule extends SearchRule
+class RecipeSearchRuleThird extends SearchRule
 {
     /**
      * @inheritdoc
@@ -15,7 +15,10 @@ class RecipeSearchRule extends SearchRule
             'fields' => [
                 'name' => [
                     'type' => 'plain',
-                ]
+                ],
+                'text' => [
+                    'type' => 'plain',
+                ],
             ]
         ];
     }
@@ -27,12 +30,10 @@ class RecipeSearchRule extends SearchRule
     {
         return [
             'must' => [
-                'match' => [
-                    'name' => [
-                        'query' => $this->builder->query,
-                        'analyzer' => 'russian',
-                        'minimum_should_match' => '100%'
-                    ],
+                'multi_match' => [
+                    'query' => $this->builder->query,
+                    'analyzer' => 'russian',
+                    'fields' => ['name', 'text'],                    
                 ],
             ]
         ];

@@ -7,7 +7,6 @@
             <span style="font-weight: bold">INGREDIENTS IN THE REFRIGERATOR OF USER {{$user->name}}</span>
             <a href="{{ route('dashboard.user.index') }}" class="pull-right">Go back</a>
         </div>
-
         <table class="table table-bordered" class="table table-bordered"
                style="text-align: center; vertical-align: inherit; font-size: small">
             <thead>
@@ -28,5 +27,8 @@
             @endforeach()
             </tbody>
         </table>
+    </div>
+    <div class="container">
+        <a href="{{ route('dashboard.user.recipes.refrigerator', ['user' => $user]) }}" class="btn btn-success">See matched recipes</a>
     </div>
 @endsection

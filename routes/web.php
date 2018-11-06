@@ -44,13 +44,14 @@ Route::group(['middleware' => 'auth:web', 'prefix' => 'dashboard', 'as' => 'dash
         Route::get('/{user}/recipes', 'Dashboard\UserController@showRecipesByUser')->name('recipes');
         Route::get('/{user}/refrigerator', 'Dashboard\UserController@showRefrigeratorsByUser')->name('refrigerators');
         Route::get('/{user}/delete', 'Dashboard\UserController@deleteUser')->name('delete');
+        Route::get('{user}/recipes/refrigerator/', 'Dashboard\UserController@recipesForUserByIngredients')->name('recipes.refrigerator');
 
     });
 
     Route::resource('recipes', 'Dashboard\RecipeController');
     Route::post('recipes/{recipe}/ingredient', 'Dashboard\RecipeController@addIngredient')->name('recipes.add.ingredient');
     Route::post('recipes/search', 'Dashboard\RecipeController@searchRecipe')->name('recipes.search');
-    Route::delete('recipes/{recipe}/{ingredient}', 'Dashboard\RecipeController@deleteIngredient')->name('recipes.delete.ingredient');
+    Route::delete('recipes/{recipe}/{ingredient}', 'Dashboard\RecipeController@deleteIngredient')->name('recipes.delete.ingredient');    
 
 
     Route::resource('/ingredients', 'Dashboard\IngredientController', ['except' => [

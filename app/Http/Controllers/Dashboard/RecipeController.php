@@ -8,6 +8,7 @@ use App\Http\Requests\WebRecipeRequest;
 use App\Ingredient;
 use App\Recipe;
 use App\Repositories\RecipeRepository;
+use App\User;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Storage;
@@ -159,14 +160,13 @@ class RecipeController extends Controller
     /**
      * @param RecipeSearchRequest $request
      */
-    protected function searchRecipe(RecipeSearchRequest $request)
+    public function searchRecipe(RecipeSearchRequest $request)
     {
         return view('dashboard.recipes.index')
-            ->withRecipes(RecipeRepository::searchRecipeNullUser($request->search))
+            ->withRecipes(RecipeRepository::searchRecipeForUser($request->search, auth()->id()))
             ->withPaginate(false);
     }
-
-
+    
     /**Load a new picture in storage
      * @param Request $request
      * @return string of picture's url

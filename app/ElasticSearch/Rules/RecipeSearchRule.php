@@ -11,7 +11,13 @@ class RecipeSearchRule extends SearchRule
      */
     public function buildHighlightPayload()
     {
-        //
+        return [
+            'fields' => [
+                'name' => [
+                    'type' => 'plain',
+                ]
+            ]
+        ];
     }
 
     /**
@@ -19,6 +25,16 @@ class RecipeSearchRule extends SearchRule
      */
     public function buildQueryPayload()
     {
-        //
+        return [
+            'must' => [
+                'match' => [
+                    'name' => [
+                        'query' => $this->builder->query,
+                        'analyzer' => 'russian',
+                        'minimum_should_match' => '100%'
+                    ],
+                ],
+            ]
+        ];
     }
 }

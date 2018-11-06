@@ -3,9 +3,11 @@
 namespace App\Http\Controllers\Dashboard;
 
 use App\Http\Requests\IngredientNullRecipeRequest;
+use App\Http\Requests\RecipeSearchRequest;
 use App\Http\Requests\WebRecipeRequest;
 use App\Ingredient;
 use App\Recipe;
+use App\Repositories\RecipeRepository;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Storage;
@@ -20,6 +22,7 @@ class RecipeController extends Controller
 
     protected $pictureFitSize = 380;
 
+
     /**
      * Display a listing of recipes.
      *
@@ -28,7 +31,7 @@ class RecipeController extends Controller
     public function index()
     {
         return view('dashboard.recipes.index')
-            ->withRecipes(Recipe::getAllRecipesForUser(null)->paginate(5));
+            ->withRecipes(Recipe::getAllRecipesForUser(null)->paginate(self::PAGINATE));
     }
 
     /**
@@ -149,6 +152,16 @@ class RecipeController extends Controller
         $picture_store = preg_replace("~$server_name~", '', $recipe->picture);
 
         Storage::disk('public')->delete($picture_store);
+    }
+
+    /**
+     * @param RecipeSearchRequest $request
+     */
+    protected function searchRecipe(RecipeSearchRequest $request)
+    {
+        return view('dashboard.recipes.index')
+            ->withRecipes(RecipeRepository::searchRecipeNullUser($request->search))
+            ->withPaginate(false);
     }
 
 

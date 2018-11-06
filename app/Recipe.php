@@ -13,10 +13,7 @@ class Recipe extends Model
     use Searchable;
 
     protected $indexConfigurator = RefrigeratorIndexConfigurator::class;
-
-    protected $searchRules = [
-        //
-    ];
+    
     protected $mapping = [
         'properties' => [
             'name' => [
@@ -30,38 +27,34 @@ class Recipe extends Model
                 'boost' => 1,
             ],
             'user_id' => [
-                'type' => 'string',
-                'index' => 'not_analyzed',
-            ],
-            'picture' => [
-                'type' => 'string',
-                'index' => 'not_analyzed',
+               'type' => 'integer'
             ],
             'ingredients' => [
-                'type' => 'string'
+                "type" => "nested",
+                'properties' => [                    
+                    'name' => [
+                        'type' => 'string',
+                        'analyzer' => 'russian',
+                        'boost' => 1,
+                    ],
+                    
+                ]
             ]
         ]
     ];
 
-//    public function toSearchableArray()
-//    {
-//        $array = $this->with([
-//            'ingredients' => function ($query) {                
-//                return $query->select(['id', 'name', 'amount']);
-//            }])
-//            ->get()
-//            ->map(function ($iterable){
-//                if($iterable-)
-//            });
-//        
-//        info($array);
-//
-//        return $array;
-//    }
+    public function toSearchableArray()
+    {
+        $array = $this->toArray();
+        $array['ingredients'] = $this->ingredients()->select('name')->get()->toArray();
+        return $array;
+    }
 
     protected $fillable = [
         'name', 'text', 'user_id', 'picture'
     ];
+
+   protected $hidden = [ ];
 
     protected static $selectParams = ['id', 'name', 'text', 'picture', 'user_id'];
 

@@ -49,6 +49,7 @@ Route::group(['middleware' => 'auth:web', 'prefix' => 'dashboard', 'as' => 'dash
 
     Route::resource('recipes', 'Dashboard\RecipeController');
     Route::post('recipes/{recipe}/ingredient', 'Dashboard\RecipeController@addIngredient')->name('recipes.add.ingredient');
+    Route::post('recipes/search', 'Dashboard\RecipeController@searchRecipe')->name('recipes.search');
     Route::delete('recipes/{recipe}/{ingredient}', 'Dashboard\RecipeController@deleteIngredient')->name('recipes.delete.ingredient');
 
 

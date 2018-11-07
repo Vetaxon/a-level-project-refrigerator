@@ -8,23 +8,20 @@ use App\Http\Requests\WebRecipeRequest;
 use App\Ingredient;
 use App\Recipe;
 use App\Repositories\RecipeRepository;
-use App\User;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Storage;
 use Intervention\Image\Facades\Image;
+use App\Contracts\SavePictureContract;
 
 class RecipeController extends Controller
 {
+    protected $savePicture;
 
-    protected $pathStorePictures = 'app/public/recipes/';
-
-    protected $pathPublicPictures = 'storage/recipes/';
-
-    protected $pictureFitSize = 380;
-    
-    const PAGINATE = 5;
-
+    public function __construct(SavePictureContract $savePictureContract)
+    {
+        $this->savePicture = $savePictureContract;
+    }
 
     /**
      * Display a listing of recipes.
@@ -34,7 +31,7 @@ class RecipeController extends Controller
     public function index()
     {
         return view('dashboard.recipes.index')
-            ->withRecipes(Recipe::getAllRecipesForUser(null)->paginate(self::PAGINATE));
+            ->withRecipes(Recipe::getAllRecipesForUser(null)->paginate(5));
     }
 
     /**
@@ -51,15 +48,19 @@ class RecipeController extends Controller
      * Store a newly created recipe in storage.
      *
      * @param WebRecipeRequest $request
+     * @param Recipe $recipe
      * @return \Illuminate\Http\Response
+     * @internal param SavePictureContract $savePicture
      */
-    public function store(WebRecipeRequest $request)
+    public function store(WebRecipeRequest $request, Recipe $recipe)
     {
         if ($file = $request->file('picture')) {
-            $request->picture = $this->addPictureIntervention($file);
+            $request->picture = $this->savePicture->save($request);
         }
 
-        return $this->show(Recipe::createRecipe($request));
+        $recipe->fill($request->all())->save();
+
+        return $this->show($recipe);
     }
 
     /**
@@ -92,6 +93,7 @@ class RecipeController extends Controller
     public function addIngredient(Recipe $recipe, IngredientNullRecipeRequest $request)
     {
         Recipe::storeOneIngredientForRecipe($recipe, $request->all());
+        $recipe->save();
 
         return $this->show($recipe);
     }
@@ -104,6 +106,7 @@ class RecipeController extends Controller
     public function deleteIngredient(Recipe $recipe, Ingredient $ingredient)
     {
         $recipe->ingredients()->detach($ingredient);
+        $recipe->save();
         return $this->show($recipe);
     }
 
@@ -116,17 +119,15 @@ class RecipeController extends Controller
      */
     public function update(WebRecipeRequest $request, Recipe $recipe)
     {
-        $recipe->name = $request->name;
-        $recipe->text = $request->text;
-
         if ($file = $request->file('picture')) {
             if ($recipe->picture != null) {
-                $this->deletePicture($recipe);
+                $this->savePicture->delete($recipe->picture);
             }
-            $recipe->picture = $this->addPictureIntervention($file);
+            $request->picture = $this->savePicture->save($request);
         }
 
-        $recipe->save();
+        $recipe->fill($request->all())->save();
+
         return back()->with('status', "Recipe $recipe->name has been updated");
     }
 
@@ -140,22 +141,22 @@ class RecipeController extends Controller
     public function destroy(Recipe $recipe)
     {
         $recipe->delete();
-        $this->deletePicture($recipe);
+        $this->savePicture->delete($recipe->picture);
         return back();
     }
 
-    /**
-     * Remove the picture of specified recipe
-     * return void
-     * @param Recipe $recipe
-     */
-    protected function deletePicture(Recipe $recipe)
-    {
-        $server_name = request()->server->get('HTTP_ORIGIN') . '/storage/';
-        $picture_store = preg_replace("~$server_name~", '', $recipe->picture);
-
-        Storage::disk('public')->delete($picture_store);
-    }
+//    /**
+//     * Remove the picture of specified recipe
+//     * return void
+//     * @param Recipe $recipe
+//     */
+//    protected function deletePicture(Recipe $recipe)
+//    {
+//        $server_name = request()->server->get('HTTP_ORIGIN') . '/storage/';
+//        $picture_store = preg_replace("~$server_name~", '', $recipe->picture);
+//
+//        Storage::disk('public')->delete($picture_store);
+//    }
 
     /**
      * @param RecipeSearchRequest $request
@@ -166,40 +167,40 @@ class RecipeController extends Controller
             ->withRecipes(RecipeRepository::searchRecipeNullUser($request->search))
             ->withPaginate(false);
     }
-    
-    /**Load a new picture in storage
-     * @param Request $request
-     * @return string of picture's url
-     */
-    protected function addPicture(Request $request)
-    {
-        return asset('storage/' . $request->file('picture')
-                ->store('recipes', 'public'));
-    }
 
-    /**Load a new picture in storage within fit throw Intervention
-     * @param $file
-     * @return string
-     */
-    protected function addPictureIntervention($file)
-    {
-        $filename = str_random(30) . '.' . $file->getClientOriginalExtension();
-
-        if (!file_exists($this->getStoragePicturePath()))
-            mkdir($this->getStoragePicturePath(), 0777, true);
-
-        Image::make($file)
-            ->fit($this->pictureFitSize, $this->pictureFitSize)
-            ->save($this->getStoragePicturePath() . $filename);
-
-        return asset($this->pathPublicPictures . $filename);
-    }
-
-    /**
-     * @return string
-     */
-    protected function getStoragePicturePath()
-    {
-        return storage_path($this->pathStorePictures);
-    }
+//    /**Load a new picture in storage
+//     * @param Request $request
+//     * @return string of picture's url
+//     */
+//    protected function addPicture(Request $request)
+//    {
+//        return asset('storage/' . $request->file('picture')
+//                ->store('recipes', 'public'));
+//    }
+//
+//    /**Load a new picture in storage within fit throw Intervention
+//     * @param $file
+//     * @return string
+//     */
+//    protected function addPictureIntervention($file)
+//    {
+//        $filename = str_random(30) . '.' . $file->getClientOriginalExtension();
+//
+//        if (!file_exists($this->getStoragePicturePath()))
+//            mkdir($this->getStoragePicturePath(), 0777, true);
+//
+//        Image::make($file)
+//            ->fit($this->pictureFitSize, $this->pictureFitSize)
+//            ->save($this->getStoragePicturePath() . $filename);
+//
+//        return asset($this->pathPublicPictures . $filename);
+//    }
+//
+//    /**
+//     * @return string
+//     */
+//    protected function getStoragePicturePath()
+//    {
+//        return storage_path($this->pathStorePictures);
+//    }
 }

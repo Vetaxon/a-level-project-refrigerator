@@ -182,7 +182,7 @@ class Recipe extends Model
      */
     public static function createRecipe($request, $user_id = null)
     {
-        return self::create([
+        return static::create([
             'name' => $request->name,
             'text' => $request->text,
             'picture' => $request->picture,

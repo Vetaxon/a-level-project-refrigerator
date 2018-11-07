@@ -163,7 +163,7 @@ class RecipeController extends Controller
     public function searchRecipe(RecipeSearchRequest $request)
     {
         return view('dashboard.recipes.index')
-            ->withRecipes(RecipeRepository::searchRecipeForUser($request->search, auth()->id()))
+            ->withRecipes(RecipeRepository::searchRecipeNullUser($request->search))
             ->withPaginate(false);
     }
     

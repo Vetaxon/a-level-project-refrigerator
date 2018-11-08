@@ -8,20 +8,11 @@ use App\Http\Requests\WebRecipeRequest;
 use App\Ingredient;
 use App\Recipe;
 use App\Repositories\RecipeRepository;
-use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
-use Illuminate\Support\Facades\Storage;
-use Intervention\Image\Facades\Image;
-use App\Contracts\SavePictureContract;
+use App\Services\Contracts\PictureContract;
 
 class RecipeController extends Controller
 {
-    protected $savePicture;
-
-    public function __construct(SavePictureContract $savePictureContract)
-    {
-        $this->savePicture = $savePictureContract;
-    }
 
     /**
      * Display a listing of recipes.
@@ -30,8 +21,7 @@ class RecipeController extends Controller
      */
     public function index()
     {
-        return view('dashboard.recipes.index')
-            ->withRecipes(Recipe::getAllRecipesForUser(null)->paginate(5));
+        return view('dashboard.recipes.index')->withRecipes(Recipe::getAllRecipesForUser(null)->paginate(5));
     }
 
     /**
@@ -49,16 +39,16 @@ class RecipeController extends Controller
      *
      * @param WebRecipeRequest $request
      * @param Recipe $recipe
+     * @param PictureContract $pictureContract
      * @return \Illuminate\Http\Response
-     * @internal param SavePictureContract $savePicture
      */
-    public function store(WebRecipeRequest $request, Recipe $recipe)
+    public function store(WebRecipeRequest $request, Recipe $recipe, PictureContract $pictureContract)
     {
-        if ($file = $request->file('picture')) {
-            $request->picture = $this->savePicture->save($request);
-        }
+        $recipeAttributes = $request->only(['name', 'text']);
 
-        $recipe->fill($request->all())->save();
+        $recipeAttributes['picture'] = $request->file('picture') ? $pictureContract->save($request->file('picture')) : null;
+
+        $recipe->fill($recipeAttributes)->save();
 
         return $this->show($recipe);
     }
@@ -115,18 +105,19 @@ class RecipeController extends Controller
      *
      * @param WebRecipeRequest $request
      * @param Recipe $recipe
+     * @param PictureContract $pictureContract
      * @return \Illuminate\Http\Response
      */
-    public function update(WebRecipeRequest $request, Recipe $recipe)
+    public function update(WebRecipeRequest $request, Recipe $recipe, PictureContract $pictureContract)
     {
         if ($file = $request->file('picture')) {
             if ($recipe->picture != null) {
-                $this->savePicture->delete($recipe->picture);
+                $pictureContract->delete($recipe->picture);
             }
-            $request->picture = $this->savePicture->save($request);
+            $recipe->picture = $pictureContract->save($file);
         }
 
-        $recipe->fill($request->all())->save();
+        $recipe->fill($request->only('name', 'text'))->save();
 
         return back()->with('status', "Recipe $recipe->name has been updated");
     }
@@ -135,28 +126,15 @@ class RecipeController extends Controller
      * Remove the specified recipe from storage with old picture.
      *
      * @param Recipe $recipe
+     * @param PictureContract $pictureContract
      * @return \Illuminate\Http\Response
-     * @throws \Exception
      */
-    public function destroy(Recipe $recipe)
+    public function destroy(Recipe $recipe, PictureContract $pictureContract)
     {
         $recipe->delete();
-        $this->savePicture->delete($recipe->picture);
+        $pictureContract->delete($recipe->picture);
         return back();
     }
-
-//    /**
-//     * Remove the picture of specified recipe
-//     * return void
-//     * @param Recipe $recipe
-//     */
-//    protected function deletePicture(Recipe $recipe)
-//    {
-//        $server_name = request()->server->get('HTTP_ORIGIN') . '/storage/';
-//        $picture_store = preg_replace("~$server_name~", '', $recipe->picture);
-//
-//        Storage::disk('public')->delete($picture_store);
-//    }
 
     /**
      * @param RecipeSearchRequest $request
@@ -167,40 +145,7 @@ class RecipeController extends Controller
             ->withRecipes(RecipeRepository::searchRecipeNullUser($request->search))
             ->withPaginate(false);
     }
+    
+    
 
-//    /**Load a new picture in storage
-//     * @param Request $request
-//     * @return string of picture's url
-//     */
-//    protected function addPicture(Request $request)
-//    {
-//        return asset('storage/' . $request->file('picture')
-//                ->store('recipes', 'public'));
-//    }
-//
-//    /**Load a new picture in storage within fit throw Intervention
-//     * @param $file
-//     * @return string
-//     */
-//    protected function addPictureIntervention($file)
-//    {
-//        $filename = str_random(30) . '.' . $file->getClientOriginalExtension();
-//
-//        if (!file_exists($this->getStoragePicturePath()))
-//            mkdir($this->getStoragePicturePath(), 0777, true);
-//
-//        Image::make($file)
-//            ->fit($this->pictureFitSize, $this->pictureFitSize)
-//            ->save($this->getStoragePicturePath() . $filename);
-//
-//        return asset($this->pathPublicPictures . $filename);
-//    }
-//
-//    /**
-//     * @return string
-//     */
-//    protected function getStoragePicturePath()
-//    {
-//        return storage_path($this->pathStorePictures);
-//    }
 }

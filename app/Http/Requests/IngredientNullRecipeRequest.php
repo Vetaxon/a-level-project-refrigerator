@@ -3,6 +3,7 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class IngredientNullRecipeRequest extends FormRequest
 {
@@ -29,6 +30,9 @@ class IngredientNullRecipeRequest extends FormRequest
                 'string',
                 'max:255',
                 'min:3',
+                Rule::unique('recipes')->where(function ($query) {
+                    $query->where('user_id', null);
+                }),
             ],
             'amount' => [
                 'required',

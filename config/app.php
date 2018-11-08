@@ -174,7 +174,6 @@ return [
         App\Providers\ComposerServiceProvider::class,
         Laravel\Scout\ScoutServiceProvider::class,
         ScoutElastic\ScoutElasticServiceProvider::class,
-        App\Providers\CustomServicesProvider::class,
         /*
          * Application Service Providers...
          */

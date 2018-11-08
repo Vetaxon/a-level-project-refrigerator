@@ -28,20 +28,23 @@ class RecipeController extends Controller
      * Store a newly created recipe for user in storage.
      *
      * @param RecipeRequest $request
+     * @param Recipe $newRecipe
      * @return Response \Illuminate\Http\JsonResponse
      */
-    public function store(RecipeRequest $request)
+    public function store(RecipeRequest $request, Recipe $newRecipe)
     {
-        $newRecipe = Recipe::createRecipe($request, auth()->id());
+        Recipe::storeIngredientsForRecipe($newRecipe, $request->ingredients, auth()->id());
+        
+        $newRecipe->fill($request->all())->save();
+        
+        $message = EventMessages::userAddRecipe($newRecipe);
+        
+        activity()->withProperties($message)->log('messages');
+        
+        ClientEvent::dispatch($message);
 
-        if (Recipe::storeIngredientsForRecipe($newRecipe, $request->ingredients, auth()->id())) {
+        return $this->show($newRecipe->id);
 
-            $message = EventMessages::userAddRecipe($newRecipe);
-            activity()->withProperties($message)->log('messages');
-            ClientEvent::dispatch($message);
-
-            return $this->show($newRecipe->id);
-        }
     }
 
     /**
@@ -52,11 +55,9 @@ class RecipeController extends Controller
      */
     public function show($id)
     {
-        if ($recipe = Recipe::getRecipeByIdForUser($id, auth()->id())) {
-            return response()->json(['recipe' => $recipe]);
-        }
-
-        return response()->json(['error' => 'Recipe was not found for current user'], 422);
+        $recipe = Recipe::getRecipeByIdForUser($id, auth()->id());
+        
+        return $recipe ? response()->json(['recipe' => $recipe]) : $this->messageRecipeNotFound();            
     }
 
 
@@ -70,28 +71,19 @@ class RecipeController extends Controller
     public function update(RecipeRequest $request, Recipe $recipe)
     {
         if (!auth()->user()->owns($recipe)) {
-            return response()->json(['error' => 'Recipe was not found for current user'], 422);
+            return $this->messageRecipeNorFound();
         }
-
-        if ($request->has('name') and $recipe->name != $request->name) {
-            $recipe->fill(['name' => $request->name]);
+             
+        $recipe->fill($request->all());
+        
+        if ($request->ingredients) {
+            $recipe->ingredients()->detach();
+            Recipe::storeIngredientsForRecipe($recipe, $request->ingredients, auth()->id());
         }
-
-        if ($request->has('text')) {
-            $recipe->fill(['text' => $request->text]);
-        }
-
+        
         $recipe->save();
-
-        if (!$request->ingredients) {
-            return $this->show($recipe->id);
-        }
-
-        $recipe->ingredients()->detach();
-
-        if (Recipe::storeIngredientsForRecipe($recipe, $request->ingredients, auth()->id())) {
-            return $this->show($recipe->id);
-        }
+        
+        return $this->show($recipe->id);      
 
     }
 
@@ -104,12 +96,17 @@ class RecipeController extends Controller
     public function destroy(Recipe $recipe)
     {
         if (!auth()->user()->owns($recipe)) {
-            return response()->json(['error' => 'Recipe was not found for current user'], 422);
+            return $this->messageRecipeNorFound();
         }
 
         if ($recipe->delete()) {
             return response()->json(['message' => 'Recipe ' . $recipe->name . ' has been deleted']);
         }
+    }
+    
+    protected function messageRecipeNotFound()
+    {
+        return response()->json(['error' => 'Recipe was not found for current user'], 422);
     }
 
 

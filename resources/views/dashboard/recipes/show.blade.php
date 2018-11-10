@@ -53,6 +53,7 @@
                     <form class="form-horizontal" method="POST"
                           action="{{ route('dashboard.recipes.add.ingredient', ['recipe' => $recipe->id]) }}">
                         {{ csrf_field() }}
+                        {{ method_field('POST') }}
                         <div class="col-md-6">
                             <input id="name" type="text" class="form-control" name="name"
                                    placeholder="Ingredient"
@@ -66,6 +67,11 @@
                                 <span class="help-block">
                                         <strong>{{ $errors->first('ingredient_id') }}</strong>
                                     </span>
+                            @endif
+                            @if (session('status'))
+                                <span class="help-block" style="color: #1e7e34">
+                                    <strong>{{ session('status') }}</strong>
+                                </span>
                             @endif
                         </div>
                         <div class="col-md-4">

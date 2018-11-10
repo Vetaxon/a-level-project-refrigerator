@@ -95,7 +95,7 @@ class RecipeController extends Controller
         $store->storeOneIngredientForRecipe($recipe, $request->all());
         $recipe->save();
 
-        return $this->show($recipe);
+        return back()->with('status', "Ingredient has been successfully added to the recipe.");
     }
 
     /**Delete the specified ingredient with amount from the specified recipe
@@ -107,7 +107,7 @@ class RecipeController extends Controller
     {
         $recipe->ingredients()->detach($ingredient);
         $recipe->save();
-        return $this->show($recipe);
+        return back()->with('status', "$ingredient->name has been deleted from the recipe.");
     }
 
     /**

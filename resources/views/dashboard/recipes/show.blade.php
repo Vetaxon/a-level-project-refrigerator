@@ -15,7 +15,7 @@
 
                     <div class="card-body">
                         <h5 class="card-title">{{$recipe->name}}.</h5>
-                        <p class="card-text">{{$recipe->text}}.</p>
+                        <p class="card-text">{!! $recipe->text !!}.</p>
                     </div>
 
                     <ul class="list-group">

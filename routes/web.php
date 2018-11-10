@@ -29,9 +29,9 @@ Route::get('/home', 'Dashboard\HomeController@index')->name('home');
 
 Route::group(['middleware' => 'auth:web', 'prefix' => 'dashboard', 'as' => 'dashboard.'], function () {
 
-    Route::group(['prefix' => 'users', 'as' => 'user.'], function () {
+    Route::group(['prefix' => 'users', 'middleware' => 'role:superadministrator|administrator|moderator', 'as' => 'user.'], function () {
 
-        Route::get('/', ['middleware' => 'role:superadministrator|administrator|moderator', 'uses' => 'Dashboard\UserController@index'])->name('index');
+        Route::get('/', ['uses' => 'Dashboard\UserController@index'])->name('index');
 
         Route::get('/new', 'Dashboard\UserController@storeUserForm')->name('new');
         Route::post('/store', 'Dashboard\UserController@store')->name('store');
@@ -58,11 +58,11 @@ Route::group(['middleware' => 'auth:web', 'prefix' => 'dashboard', 'as' => 'dash
         'edit', 'show'
     ]]);
 
-    Route::get('logs', '\Rap2hpoutre\LaravelLogViewer\LogViewerController@index')->name('logs');
+    Route::get('logs', ['middleware' => ['role:superadministrator|administrator'], 'uses' => '\Rap2hpoutre\LaravelLogViewer\LogViewerController@index'])->name('logs');
 
-    Route::get('/analytics', 'Dashboard\AnalyticController@index')->name('analytics');
+    Route::get('/analytics', ['middleware' => 'role:superadministrator|administrator|moderator', 'uses' => 'Dashboard\AnalyticController@index'])->name('analytics');
 
-    Route::prefix('roles')->name('roles')->group(function () {
+    Route::group(['prefix' => 'roles', 'as' => 'roles'], function () {
         Route::get('/index', 'Dashboard\UserRolesController@index')->middleware(['role:superadministrator|administrator|moderator'])->name('.index');
         Route::put('/update/{user}', 'Dashboard\UserRolesController@update')->middleware(['role:superadministrator|administrator'])->name('.update');
     });

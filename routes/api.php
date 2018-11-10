@@ -27,15 +27,13 @@ Route::group(['middleware' => 'api', 'prefix' => 'auth'], function () {
     Route::put('user/password', 'API\AuthController@changePassword')->name('change.password');
     Route::get('logout', 'API\AuthController@logout');
     Route::post('refresh', 'API\AuthController@refresh');
-
-
 });
 
 /*
  * API Route group for ALL! private user's and public ingredients
  */
 
-Route::group(['middleware' => 'auth:api'], function () {
+Route::group(['middleware' => ['auth:api', 'role:superadministrator|administrator|moderator|client']], function () {
 
     Route::get('ingredients', 'API\IngredientController@index');
     Route::get('ingredients/{ingredient}', 'API\IngredientController@show')->where('id', '[0-9]+');
@@ -50,7 +48,7 @@ Route::group(['middleware' => 'auth:api'], function () {
  * API Route group for ALL! private user's and public recipes
  */
 
-Route::group(['middleware' => 'auth:api'], function () {
+Route::group(['middleware' => ['auth:api', 'role:superadministrator|administrator|moderator|client']], function () {
 
     Route::get('recipes', 'API\RecipeController@index');
     Route::get('recipes/{recipes}', 'API\RecipeController@show')->where('id', '[0-9]+');
@@ -65,7 +63,7 @@ Route::group(['middleware' => 'auth:api'], function () {
  * API Route group for user's ingredients in refrigerator
  */
 
-Route::group(['middleware' => 'auth:api', 'prefix' => 'refrigerator'], function () {
+Route::group(['middleware' => ['auth:api', 'role:superadministrator|administrator|moderator|client'], 'prefix' => 'refrigerator'], function () {
 
     Route::get('ingredients', 'API\RefrigeratorController@index');
     Route::get('ingredients/{ingredient}', 'API\RefrigeratorController@show');
@@ -73,12 +71,7 @@ Route::group(['middleware' => 'auth:api', 'prefix' => 'refrigerator'], function 
     Route::put('ingredients/{ingredient}', 'API\RefrigeratorController@update');
     Route::delete('ingredients/{ingredient}', 'API\RefrigeratorController@destroy');
 
-
     // API Route for recommended recipes for user according to ingredients and its values  in refrigerator
     Route::get('recipes', 'API\RefrigeratorRecipeController@index');
 
-});
-
-Route::group(['middleware' => 'auth:web', 'prefix' => 'dashboard'], function(){
-    Route::get('events', 'API\DashboardController@getEvents');
 });

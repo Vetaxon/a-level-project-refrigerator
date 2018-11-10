@@ -5,8 +5,10 @@
     <div class="panel panel-default">
         <div class="panel-heading" style="">
             <span style="font-weight: bold">A RECIPE</span>
+            @role('superadministrator|administrator|moderator')
             <a href="{{ route('dashboard.recipes.edit', ['recipe' => $recipe->id]) }}"
                class="card-link pull-right">Edit recipe</a>
+            @endrole
         </div>
 
         <div class="row" style="padding: 10px">
@@ -25,8 +27,10 @@
                                 <span>{{$ingredient->name}} - {{$ingredient->amount}}.</span>
                             </div>
                             <div class="col-md-4">
+                                @role('superadministrator|administrator|moderator')
                                 <button type="submit" class="btn btn-link" form="delete_{{$ingredient->id}}">Delete
                                 </button>
+                                @endrole
                             </div>
 
                             <div>
@@ -50,10 +54,10 @@
 
             <div class="row">
                 <div class="col-md-12" style="padding-top: 30px">
+                    @role('superadministrator|administrator|moderator')
                     <form class="form-horizontal" method="POST"
                           action="{{ route('dashboard.recipes.add.ingredient', ['recipe' => $recipe->id]) }}">
                         {{ csrf_field() }}
-                        {{ method_field('POST') }}
                         <div class="col-md-6">
                             <input id="name" type="text" class="form-control" name="name"
                                    placeholder="Ingredient"
@@ -90,6 +94,7 @@
                         </div>
 
                     </form>
+                    @endrole
                 </div>
             </div>
 

@@ -40,7 +40,24 @@ return [
             'display_name'=>env('LARATRUST_MODERATOR_DISPLAY_NAME', 'moderator_display_name'),
             'description'=>env('LARATRUST_MODERATOR_DESCRIPTION', 'moderator_description'),
         ],
-
+        'client' => [
+            'role_to_module' => [
+                'users' => 'r',
+                'ingredients' => 'r',
+                'recipes' => 'r',
+            ],
+            'display_name'=>env('LARATRUST_CLIENT_DISPLAY_NAME', 'client_display_name'),
+            'description'=>env('LARATRUST_CLIENT_DESCRIPTION', 'client_description'),
+        ],
+        'guest' => [
+            'role_to_module' => [
+                'users' => 'r',
+                'ingredients' => 'r',
+                'recipes' => 'r',
+            ],
+            'display_name'=>env('LARATRUST_GUEST_DISPLAY_NAME', 'guest_display_name'),
+            'description'=>env('LARATRUST_GUEST_DESCRIPTION', 'guest_description'),
+        ],
     ],
     'permission_structure' => [],
     'permissions_map' => [

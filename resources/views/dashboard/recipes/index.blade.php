@@ -29,8 +29,10 @@
                     @endif
                 </div>
                 <div class="col-md-3">
+                    @role('superadministrator|administrator|moderator')
                     <a href="{{ route('dashboard.recipes.create') }}" class="card-link pull-right">Create a new
                         recipe</a>
+                    @endrole
                 </div>
                     @else
                     <div class="col-md-10">
@@ -60,8 +62,10 @@
                             @endforeach
                         </ul>
                         <div>
+                            @role('superadministrator|administrator|moderator')
                             <a href="{{route('dashboard.recipes.edit', ['$recipe' => $recipe->id])}}">EDIT</a>
                             <button type="submit" class="btn btn-link" form="delete_{{$recipe->id}}">DELETE</button>
+                            @endrole
                         </div>
 
                         <div>

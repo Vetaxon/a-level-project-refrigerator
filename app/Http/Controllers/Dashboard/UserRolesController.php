@@ -18,7 +18,10 @@ class UserRolesController extends Controller
      */
     public function index()
     {
-        return view('dashboard.userRoles')->with(['users' => User::All(), 'roles' => Role::All()]);
+        $users = User::whereHas('roles', function ($query) {
+            $query->whereIn('roles.name', ['superadministrator', 'administrator', 'moderator', 'guest']);
+        })->get();
+        return view('dashboard.userRoles')->with(['users' => $users, 'roles' => Role::where('name', '!=', 'client')->get()]);
     }
 
     /**

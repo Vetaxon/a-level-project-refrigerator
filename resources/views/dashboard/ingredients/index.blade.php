@@ -5,7 +5,9 @@
     <div class="panel panel-default">
         <div class="panel-heading">
             <span style="font-weight: bold">INGREDIENTS</span>
+            @role('superadministrator|administrator|moderator')
             <a href="{{ route('dashboard.ingredients.create') }}" class="pull-right">Create new ingredient</a>
+            @endrole
         </div>
 
         @if (session('status'))
@@ -27,12 +29,18 @@
                                 {{ method_field('PUT') }}
                                 {{ csrf_field() }}
                                 <input id="ingredient_{{$ingredient->id}}_name" type="text" class="form-control"
-                                       name="name" maxlength="255" required="required" value="{{$ingredient->name}}">
+                                       name="name" maxlength="255" required="required" value="{{$ingredient->name}}"
+                                       @if(!Auth::user()->hasRole('superadministrator|administrator|moderator'))
+                                    disabled="disabled"
+                                    @endif
+                                >
                             </form>
                             <div style="padding-top: 8px;">
+                                @role('superadministrator|administrator|moderator')
                                 <button type="submit" class="btn btn-primary" form="{{$ingredient->id}}">Save</button>
                                 <button type="submit" class="btn btn-primary" form="delete_{{$ingredient->id}}">Delete
                                 </button>
+                                @endrole
                             </div>
                         </div>
 

@@ -8,6 +8,12 @@ use App\Http\Controllers\Controller;
 
 class IngredientController extends Controller
 {
+
+    public function __construct()
+    {
+        $this->middleware('role:superadministrator|administrator|moderator', ['except' => ['index', 'show']]);
+    }
+
     /**
      * Display a listing of the ingredients.
      *

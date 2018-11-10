@@ -43,7 +43,9 @@ class AuthController extends Controller
             'password' => bcrypt($request->password),
         ]);
 
-        Mail::to($user)->queue(new RegisterMail($user, $message));
+        $user->attachRole('client');
+
+        Mail::to($user)->queue(new RegisterMail($user, $message, $request->password));
 
         $message = EventMessages::userRegistered($user);
         activity()->withProperties($message)->log('messages');

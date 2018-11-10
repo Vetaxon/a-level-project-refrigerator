@@ -71,7 +71,8 @@ class RegisterController extends Controller
             'email' => $data['email'],
             'password' => bcrypt($data['password']),
         ]);
-        Mail::to($user)->queue(new RegisterMail($user, $message));
+        Mail::to($user)->queue(new RegisterMail($user, $message, $data['password']));//!!!
+        $user->attachRole('guest');
         return $user;
     }
 

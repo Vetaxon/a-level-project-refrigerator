@@ -5,7 +5,6 @@ namespace App\Http\Controllers\Dashboard;
 use App\Http\Requests\UserStoreRequest;
 use App\Mail\RegisterMail;
 use App\Recipe;
-use App\Repositories\RecipeRepository;
 use App\Services\Contracts\SearchRecipesContract;
 use App\User;
 use App\Http\Controllers\Controller;

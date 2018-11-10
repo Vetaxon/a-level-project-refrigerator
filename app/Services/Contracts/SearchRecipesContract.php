@@ -8,6 +8,7 @@
 
 namespace App\Services\Contracts;
 
+use App\User;
 use Illuminate\Database\Eloquent\Collection;
 
 interface SearchRecipesContract
@@ -19,11 +20,10 @@ interface SearchRecipesContract
     public function searchRecipeNullUser(string $search);
 
     /**Search recipes for specified user
-     * @param string $search
-     * @param int $user_id
+     * @param User $user
      * @return Collection
      */
-    public function searchRecipeForUser(string $search, int $user_id);
+    public function searchRecipeForUser(User $user);
 
 
 }

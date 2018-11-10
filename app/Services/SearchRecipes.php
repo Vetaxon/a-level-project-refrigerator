@@ -14,6 +14,7 @@ use App\ElasticSearch\Rules\RecipeSearchRuleSecond;
 use App\ElasticSearch\Rules\RecipeSearchRuleThird;
 use App\Repositories\RecipeRepository;
 use App\Services\Contracts\SearchRecipesContract;
+use App\User;
 use Illuminate\Database\Eloquent\Collection;
 
 class SearchRecipes implements SearchRecipesContract
@@ -47,15 +48,16 @@ class SearchRecipes implements SearchRecipesContract
     }
 
     /**Search recipes for specified user
-     * @param string $search
-     * @param int $user_id
+     * @param User $user
      * @return Collection
      */
-    public function searchRecipeForUser(string $search, int $user_id)
+    public function searchRecipeForUser(User $user)
     {
+        $search = collect($user->refrigeratorIngredients()->get())->implode('name', ', ');
+
         $rule = RecipeSearchRuleForUser::class;
 
-        $recipes = $this->recipeRepository->searchRecipeUserId($search, $rule, $user_id);
+        $recipes = $this->recipeRepository->searchRecipeUserId($search, $rule, $user->id);
 
         return $recipes->count() > 5 ? $recipes : $recipes->merge($this->recipeRepository->searchRecipesUserNull($search, $rule));
     }

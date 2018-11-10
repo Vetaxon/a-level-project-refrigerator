@@ -39,7 +39,6 @@ class UserController extends Controller
      */
     public function showRefrigeratorsByUser(User $user)
     {
-
         return view('dashboard.users.refrigerator')
             ->withUser($user)
             ->withRefrigerator($user->refrigeratorIngredients()->get());
@@ -112,7 +111,6 @@ class UserController extends Controller
                 ->withStatus("User email has been updated to $user->email")
                 ->withUser($user);
         }
-
     }
 
 
@@ -125,16 +123,13 @@ class UserController extends Controller
     {
         $user->delete();
         return back()->withStatus("User $user->name has been deleted");
-
     }
 
 
     public function recipesForUserByIngredients(User $user, SearchRecipesContract $searchRecipes)
     {
-        $search_ingredients = collect($user->refrigeratorIngredients()->get())->implode('name', ', ');
-
         return view('dashboard.recipes.index')
-            ->withRecipes($searchRecipes->searchRecipeForUser($search_ingredients, $user->id))
+            ->withRecipes($searchRecipes->searchRecipeForUser($user))
             ->withUser($user)
             ->withPaginate(false);
     }

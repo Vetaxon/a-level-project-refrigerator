@@ -29,10 +29,7 @@ class IngredientNullRecipeRequest extends FormRequest
                 'required',
                 'string',
                 'max:255',
-                'min:3',
-                Rule::unique('recipes')->where(function ($query) {
-                    $query->where('user_id', null);
-                }),
+                'min:3'
             ],
             'amount' => [
                 'required',

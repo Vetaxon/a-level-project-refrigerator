@@ -62,6 +62,11 @@
                                         <strong>{{ $errors->first('name') }}</strong>
                                     </span>
                             @endif
+                            @if ($errors->has('ingredient_id'))
+                                <span class="help-block">
+                                        <strong>{{ $errors->first('ingredient_id') }}</strong>
+                                    </span>
+                            @endif
                         </div>
                         <div class="col-md-4">
                             <input id="amount" type="text" class="form-control" name="amount" placeholder="Amount"

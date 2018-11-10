@@ -4,7 +4,9 @@ namespace App\Providers;
 
 use App\Repositories\LogRepository;
 use App\Services\Contracts\PictureContract;
+use App\Services\Contracts\SearchRecipesContract;
 use App\Services\PictureIntervention;
+use App\Services\SearchRecipes;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
@@ -28,5 +30,6 @@ class AppServiceProvider extends ServiceProvider
     {
 //        info([SavePictureContract::class, SavePictureIntervention::class]);
         $this->app->bind(PictureContract::class, PictureIntervention::class);
+        $this->app->bind(SearchRecipesContract::class, SearchRecipes::class);
     }
 }

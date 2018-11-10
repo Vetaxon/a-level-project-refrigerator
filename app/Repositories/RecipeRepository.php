@@ -2,76 +2,120 @@
 
 namespace App\Repositories;
 
-use App\ElasticSearch\Rules\RecipeSearchRuleFirst;
-use App\ElasticSearch\Rules\RecipeSearchRuleForUser;
-use App\ElasticSearch\Rules\RecipeSearchRuleSecond;
-use App\ElasticSearch\Rules\RecipeSearchRuleThird;
 use App\Recipe;
 
 class RecipeRepository
 {
-    public static function searchRecipeNullUser(string $search)
+    protected $model;
+    
+    protected $selectParams = ['id', 'name', 'text', 'picture', 'user_id'];
+    
+    protected $selectIngredients = ['id', 'name', 'amount'];
+
+    public function __construct()
     {
-        $recipe = Recipe::search($search)->with([
+        $this->model = new Recipe();
+    }
+    
+    public function getModel()
+    {
+        return $this->model;
+    }
+    
+    /**
+     * @return Recipe|\Illuminate\Database\Eloquent\Builder
+     */
+    public function getAllRecipesForUser($user_id = null)
+    {
+        return $this->model->with([
             'ingredients' => function ($query) {
-                return $query->select(['id', 'name', 'amount']);
+                return $query->select($this->selectIngredients);
             }])
-            ->rule(RecipeSearchRuleFirst::class)
-            ->whereNotExists('user_id')
-            ->get();
-
-        if(collect($recipe)->isNotEmpty()){
-            return $recipe;
-        }
-
-        $recipe = Recipe::search($search)->with([
-            'ingredients' => function ($query) {
-                return $query->select(['id', 'name', 'amount']);
-            }])
-            ->rule(RecipeSearchRuleSecond::class)
-            ->whereNotExists('user_id')
-            ->get();
-
-        if(collect($recipe)->isNotEmpty()){
-            return $recipe;
-        }
-
-        $recipe = Recipe::search($search)->with([
-            'ingredients' => function ($query) {
-                return $query->select(['id', 'name', 'amount']);
-            }])
-            ->rule(RecipeSearchRuleThird::class)
-            ->whereNotExists('user_id')
-            ->get();
-
-        return $recipe;
+            ->select($this->selectParams)
+            ->where('recipes.user_id', null)
+            ->orWhere('recipes.user_id', $user_id)
+            ->orderByDesc('created_at');
     }
 
-    public static function searchRecipeForUser(string $search, int $user_id)
+    /**Get a recipe by id if it is available for user
+     *
+     * @param $id
+     * @param null $user_id
+     * @return \Illuminate\Database\Eloquent\Model|null|object|static
+     */
+    public function getRecipeByIdForUser($id, $user_id = null)
     {
-        $recipe_user =  collect(Recipe::search($search)->with([
+        return $this->model->with([
             'ingredients' => function ($query) {
-                return $query->select(['id', 'name', 'amount']);
+                return $query->select($this->selectIngredients);
             }])
-            ->rule(RecipeSearchRuleForUser::class)
+            ->select($this->selectParams)
+            ->where('id', $id)
+            ->where(function ($query) use ($user_id) {
+                return $query->whereNull('user_id')
+                    ->orWhere('user_id', $user_id);
+            })->first();
+    }
+
+    /**Get recipes by multiple ids
+     * @param $ids
+     * @return Recipe|\Illuminate\Database\Eloquent\Builder
+     */
+    public function getRecipesByMultipleIds($ids)
+    {
+        return $this->model->with([
+            'ingredients' => function ($query) {
+                return $query->select($this->selectIngredients);
+            }])
+            ->select($this->selectParams)
+            ->whereIn('recipes.id', $ids);
+    }
+
+    /**
+     * @param $user_id
+     * @return Recipe|\Illuminate\Database\Eloquent\Builder
+     */
+    public function getRecipeWithIngredientsByUser($user_id)
+    {
+        return $this->model->with([
+            'ingredients' => function ($query) {
+                return $query->select($this->selectIngredients);
+            }])
+            ->select($this->selectParams)
+            ->where('recipes.user_id', $user_id);
+    }
+
+    /**
+     * @param string $search
+     * @param $searchRuleClass
+     * @return \Illuminate\Support\Collection
+     */
+    public function searchRecipesUserNull(string $search, $searchRuleClass)
+    {
+        return $this->model->search($search)->with([
+            'ingredients' => function ($query) {
+                return $query->select($this->selectIngredients);
+            }])
+            ->rule($searchRuleClass)
+            ->whereNotExists('user_id')
+            ->get();
+    }
+
+    /**
+     * @param string $search
+     * @param $searchRuleClass
+     * @param $user_id
+     * @return \Illuminate\Support\Collection
+     */
+    public function searchRecipeUserId(string $search, $searchRuleClass, $user_id)
+    {
+        return $this->model->search($search)->with([
+            'ingredients' => function ($query) {
+                return $query->select($this->selectIngredients);
+            }])
+            ->rule($searchRuleClass)
             ->where('user_id', $user_id)
-            ->get());
-
-        if($recipe_user->count() > 5){
-            return $recipe_user;
-        }
-
-        $recipe_null =  Recipe::search($search)->with([
-            'ingredients' => function ($query) {
-                return $query->select(['id', 'name', 'amount']);
-            }])
-            ->rule(RecipeSearchRuleForUser::class)
-            ->whereNotExists('user_id')
             ->get();
-        
-        return $recipe_null;
-        
     }
-
 
 }

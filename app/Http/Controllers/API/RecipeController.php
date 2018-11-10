@@ -7,35 +7,49 @@ use App\Events\Messages\EventMessages;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\RecipeRequest;
 use App\Recipe;
-use Illuminate\Http\Response;
+use App\Repositories\RecipeRepository;
+use App\Services\StoreIngredientsForRecipe;
 
 class RecipeController extends Controller
 {
 
     const PAGINATE_NUM = 9;
 
+    protected $recipeRepo;
+
     /**
      * Display all recipes that belongs to user or default(null) user.
      *
-     * @return \Illuminate\Http\JsonResponse
+     * @param RecipeRepository $recipeRepository
      */
+
+    public function __construct(RecipeRepository $recipeRepository)
+    {
+        $this->recipeRepo = $recipeRepository;
+    }
+
     public function index()
     {
-        return response()->json(Recipe::getAllRecipesForUser(auth()->id())->paginate(self::PAGINATE_NUM));
+        return response()->json($this->recipeRepo->getAllRecipesForUser(auth()->id())
+            ->paginate(self::PAGINATE_NUM));
+//        return response()->json(Recipe::getAllRecipesForUser(auth()->id())->paginate(self::PAGINATE_NUM));
     }
 
     /**
      * Store a newly created recipe for user in storage.
      *
      * @param RecipeRequest $request
-     * @param Recipe $newRecipe
+     * @param StoreIngredientsForRecipe $store
      * @return Response \Illuminate\Http\JsonResponse
+     * @internal param Recipe $newRecipe
      */
-    public function store(RecipeRequest $request, Recipe $newRecipe)
-    {
-        Recipe::storeIngredientsForRecipe($newRecipe, $request->ingredients, auth()->id());
+    public function store(RecipeRequest $request, StoreIngredientsForRecipe $store)
+    {        
+        $newRecipe = auth()->user()->recipes()->create($request->all());
+
+        $store->storeMultipleIngredientForRecipe($newRecipe, $request->ingredients, auth()->id());
         
-        $newRecipe->fill($request->all())->save();
+        $newRecipe->save();
         
         $message = EventMessages::userAddRecipe($newRecipe);
         
@@ -55,7 +69,7 @@ class RecipeController extends Controller
      */
     public function show($id)
     {
-        $recipe = Recipe::getRecipeByIdForUser($id, auth()->id());
+        $recipe = $this->recipeRepo->getRecipeByIdForUser($id, auth()->id());
         
         return $recipe ? response()->json(['recipe' => $recipe]) : $this->messageRecipeNotFound();            
     }
@@ -66,9 +80,10 @@ class RecipeController extends Controller
      *
      * @param RecipeRequest $request
      * @param Recipe $recipe
+     * @param StoreIngredientsForRecipe $store
      * @return Response \Illuminate\Http\JsonResponse
      */
-    public function update(RecipeRequest $request, Recipe $recipe)
+    public function update(RecipeRequest $request, Recipe $recipe, StoreIngredientsForRecipe $store)
     {
         if (!auth()->user()->owns($recipe)) {
             return $this->messageRecipeNorFound();
@@ -76,9 +91,9 @@ class RecipeController extends Controller
              
         $recipe->fill($request->all());
         
-        if ($request->ingredients) {
+        if (isset($request->ingredients)) {
             $recipe->ingredients()->detach();
-            Recipe::storeIngredientsForRecipe($recipe, $request->ingredients, auth()->id());
+            $store->storeMultipleIngredientForRecipe($recipe, $request->ingredients, auth()->id());
         }
         
         $recipe->save();

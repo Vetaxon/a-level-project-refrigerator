@@ -6,6 +6,7 @@ use App\Http\Requests\UserStoreRequest;
 use App\Mail\RegisterMail;
 use App\Recipe;
 use App\Repositories\RecipeRepository;
+use App\Services\Contracts\SearchRecipesContract;
 use App\User;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Mail;
@@ -99,7 +100,6 @@ class UserController extends Controller
     public function update(UserStoreRequest $request, User $user)
     {
         if ($request->has('name')) {
-
             $user->update(['name' => $request->name]);
             return back()
                 ->withStatus("User name has been updated to $user->name")
@@ -107,7 +107,6 @@ class UserController extends Controller
         }
 
         if ($request->has('email')) {
-
             $user->update(['email' => $request->email]);
             return back()
                 ->withStatus("User email has been updated to $user->email")
@@ -130,12 +129,12 @@ class UserController extends Controller
     }
 
 
-    public function recipesForUserByIngredients(User $user)
+    public function recipesForUserByIngredients(User $user, SearchRecipesContract $searchRecipes)
     {
         $search_ingredients = collect($user->refrigeratorIngredients()->get())->implode('name', ', ');
 
         return view('dashboard.recipes.index')
-            ->withRecipes(RecipeRepository::searchRecipeForUser($search_ingredients, $user->id))
+            ->withRecipes($searchRecipes->searchRecipeForUser($search_ingredients, $user->id))
             ->withUser($user)
             ->withPaginate(false);
     }

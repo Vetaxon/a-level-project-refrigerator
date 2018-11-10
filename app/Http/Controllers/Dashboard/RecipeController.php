@@ -10,9 +10,17 @@ use App\Recipe;
 use App\Repositories\RecipeRepository;
 use App\Http\Controllers\Controller;
 use App\Services\Contracts\PictureContract;
+use App\Services\Contracts\SearchRecipesContract;
+use App\Services\StoreIngredientsForRecipe;
 
 class RecipeController extends Controller
 {
+    protected $recipeRepo;
+
+    public function __construct(RecipeRepository $repository)
+    {
+        $this->recipeRepo = $repository;
+    }
 
     /**
      * Display a listing of recipes.
@@ -21,7 +29,8 @@ class RecipeController extends Controller
      */
     public function index()
     {
-        return view('dashboard.recipes.index')->withRecipes(Recipe::getAllRecipesForUser(null)->paginate(5));
+        return view('dashboard.recipes.index')
+            ->withRecipes($this->recipeRepo->getAllRecipesForUser(null)->paginate(5));
     }
 
     /**
@@ -38,19 +47,19 @@ class RecipeController extends Controller
      * Store a newly created recipe in storage.
      *
      * @param WebRecipeRequest $request
-     * @param Recipe $recipe
      * @param PictureContract $pictureContract
      * @return \Illuminate\Http\Response
+     * @internal param Recipe $recipe
      */
-    public function store(WebRecipeRequest $request, Recipe $recipe, PictureContract $pictureContract)
+    public function store(WebRecipeRequest $request, PictureContract $pictureContract)
     {
         $recipeAttributes = $request->only(['name', 'text']);
 
         $recipeAttributes['picture'] = $request->file('picture') ? $pictureContract->save($request->file('picture')) : null;
 
-        $recipe->fill($recipeAttributes)->save();
+        $this->recipeRepo->getModel()->fill($recipeAttributes)->save();
 
-        return $this->show($recipe);
+        return $this->show($this->recipeRepo->getModel());
     }
 
     /**
@@ -61,7 +70,7 @@ class RecipeController extends Controller
      */
     public function show(Recipe $recipe)
     {
-        return view('dashboard.recipes.show')->withRecipe(Recipe::getRecipeByIdForUser($recipe->id));
+        return view('dashboard.recipes.show')->withRecipe($this->recipeRepo->getRecipeByIdForUser($recipe->id));
     }
 
     /**
@@ -78,11 +87,12 @@ class RecipeController extends Controller
     /**Add an ingredient with amount to the specified recipe
      * @param Recipe $recipe
      * @param IngredientNullRecipeRequest $request
+     * @param StoreIngredientsForRecipe $store
      * @return \Illuminate\Http\Response
      */
-    public function addIngredient(Recipe $recipe, IngredientNullRecipeRequest $request)
+    public function addIngredient(Recipe $recipe, IngredientNullRecipeRequest $request, StoreIngredientsForRecipe $store)
     {
-        Recipe::storeOneIngredientForRecipe($recipe, $request->all());
+        $store->storeOneIngredientForRecipe($recipe, $request->all());
         $recipe->save();
 
         return $this->show($recipe);
@@ -139,10 +149,10 @@ class RecipeController extends Controller
     /**
      * @param RecipeSearchRequest $request
      */
-    public function searchRecipe(RecipeSearchRequest $request)
+    public function searchRecipe(RecipeSearchRequest $request, SearchRecipesContract $searchRecipes)
     {
         return view('dashboard.recipes.index')
-            ->withRecipes(RecipeRepository::searchRecipeNullUser($request->search))
+            ->withRecipes($searchRecipes->searchRecipeNullUser($request->search))
             ->withPaginate(false);
     }
     

@@ -60,6 +60,27 @@ class UserServices
     }
 
     /**
+     * @param $request
+     * @return mixed
+     */
+    public function createUserApi($request)
+    {
+        $message = 'Congratulations on your registration in "refrigerator" project';
+
+        $user = User::create([
+            'name' => $request->name,
+            'email' => $request->email,
+            'password' => bcrypt($request->password),
+        ]);
+
+        $user->attachRole('client');
+
+        Mail::to($user)->queue(new RegisterMail($user, $message, $request->password));
+
+        return $user;
+    }
+
+    /**
      * @param $user
      * @param $userSocialId
      * @param $social
@@ -81,6 +102,5 @@ class UserServices
         return  "Congratulations on your registration in \"refrigerator\" project. To obtain moderator rights, ask them from the administrator.";
 
     }
-
 
 }

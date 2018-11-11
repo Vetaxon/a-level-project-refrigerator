@@ -138,6 +138,7 @@ class RecipeController extends Controller
      * @param Recipe $recipe
      * @param PictureContract $pictureContract
      * @return \Illuminate\Http\Response
+     * @throws \Exception
      */
     public function destroy(Recipe $recipe, PictureContract $pictureContract)
     {
@@ -148,6 +149,7 @@ class RecipeController extends Controller
 
     /**
      * @param RecipeSearchRequest $request
+     * @return
      */
     public function searchRecipe(RecipeSearchRequest $request, SearchRecipesContract $searchRecipes)
     {

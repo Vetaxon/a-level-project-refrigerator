@@ -3,10 +3,9 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
-use App\Mail\RegisterMail;
+use App\Services\UserServices;
 use Illuminate\Foundation\Auth\AuthenticatesUsers;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Mail;
 use Socialite;
 use App\User;
 
@@ -68,25 +67,19 @@ class LoginController extends Controller
     /**
      * Obtain the user information from Social Logged in.
      * @param $social
+     * @param UserServices $userServices
      * @return Response
      */
 
-    public function handleProviderCallback($social)
+    public function handleProviderCallback($social, UserServices $userServices)
     {
         $userSocial = Socialite::driver($social)->user();
 
         $userFind = User::where('email', $userSocial->getEmail())->first();
 
-        $user = $userFind ? $userFind : User::createNewUserSocialite($userSocial, $social);
+        $user = $userFind ? $userFind : $userServices->createUserThrowSocialite($userSocial);
 
-        $userProviders = $user->socialites()->pluck('provider')->toArray();
-
-        if(!in_array($social, $userProviders)){
-            User::createUserSocialite($user,  $userSocial, $social);
-        }
-
-        $message = 'Сongratulations on your registration in "refrigerator" project. Еo obtain moderator rights, ask them from the administrator.';
-        Mail::to($user)->queue(new RegisterMail($user, $message));
+        $userServices->checkUserSocial($user, $social, $userSocial);
 
         $this->guard()->login($user, true);
 

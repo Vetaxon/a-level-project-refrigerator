@@ -86,7 +86,7 @@ class RecipeController extends Controller
     public function update(RecipeRequest $request, Recipe $recipe, StoreIngredientsForRecipe $store)
     {
         if (!auth()->user()->owns($recipe)) {
-            return $this->messageRecipeNorFound();
+            return $this->messageRecipeNotFound();
         }
              
         $recipe->fill($request->all());
@@ -107,11 +107,12 @@ class RecipeController extends Controller
      *
      * @param Recipe $recipe
      * @return Response \Illuminate\Http\JsonResponse
+     * @throws \Exception
      */
     public function destroy(Recipe $recipe)
     {
         if (!auth()->user()->owns($recipe)) {
-            return $this->messageRecipeNorFound();
+            return $this->messageRecipeNotFound();
         }
 
         if ($recipe->delete()) {

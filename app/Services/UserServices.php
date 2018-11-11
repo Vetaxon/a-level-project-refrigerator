@@ -25,7 +25,7 @@ class UserServices
 
         $user = User::create($userParams);
 
-        Mail::to($user)->send(new RegisterMail($user, $this->getMessageEmail(), $password));
+        Mail::to($user)->queue(new RegisterMail($user, $this->getMessageEmail(), $password));
 
         return $user;
     }
@@ -40,7 +40,7 @@ class UserServices
 
         $user = User::create($userParams);
 
-        Mail::to($user)->send(new RegisterMail($user, $this->getMessageEmail()));
+        Mail::to($user)->queue(new RegisterMail($user, $this->getMessageEmail()));
 
         return $user;
     }

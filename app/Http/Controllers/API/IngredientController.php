@@ -7,23 +7,34 @@ use App\Events\Messages\EventMessages;
 use App\Ingredient;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\IngredientRequest;
+use App\Repositories\IngredientRepository;
+use App\Services\StoreIngredientsForRecipe;
 
 class IngredientController extends Controller
 {
+    protected $ingredientRepo;
 
     protected $getParameters = ['id', 'name', 'user_id'];
+
+    /**
+     * IngredientController constructor.
+     * @param IngredientRepository $ingredientRepository
+     */
+    public function __construct(IngredientRepository $ingredientRepository)
+    {
+        $this->ingredientRepo = $ingredientRepository;
+    }
 
 
     /**
      * Display all ingredients that belongs to user with default(null) ingredients.
-     *
      * @return \Illuminate\Http\JsonResponse
-     *
-     *
      */
     public function index()
     {
-        return response()->json(['ingredients' => Ingredient::getAllUsersIngredient(auth()->id())->get()]);
+        return response()->json([
+            'ingredients' => $this->ingredientRepo->getAllUsersIngredient(auth()->id())->get(),
+        ]);
     }
 
 
@@ -31,17 +42,17 @@ class IngredientController extends Controller
      * Store a newly created ingredient by auth user.
      *
      * @param IngredientRequest $request
+     * @param StoreIngredientsForRecipe $store
      * @return \Illuminate\Http\JsonResponse
      */
-    public function store(IngredientRequest $request)
+    public function store(IngredientRequest $request, StoreIngredientsForRecipe $store)
     {
-        $newIngredient['name'] = mb_convert_case($request->name, MB_CASE_TITLE, "UTF-8");
-        $newIngredient ['user_id'] = auth()->user()->id;
-
-        $ingredient = Ingredient::create($newIngredient);
+        $ingredient = $store->storeIngredient($request, auth()->id());
 
         $message = EventMessages::userAddIngredient($ingredient);
+
         activity()->withProperties($message)->log('messages');
+
         ClientEvent::dispatch($message);
 
         return response()->json([
@@ -59,13 +70,12 @@ class IngredientController extends Controller
      */
     public function show($id)
     {
-        $ingredient = Ingredient::getUsersIngredientById($id, auth()->id());
-
-        if ($ingredient) {
-            return response()->json(['ingredient' => $ingredient->only($this->getParameters)]);
+        if (!$ingredient = $this->ingredientRepo->getUsersIngredientById($id, auth()->id())) {
+            return $this->messageIngredientNotFound();
         }
 
-        return response()->json(['error' => 'Ingredient was not found for current user'], 422);
+        return response()->json(['ingredient' => $ingredient->only($this->getParameters)]);
+
     }
 
 
@@ -74,20 +84,19 @@ class IngredientController extends Controller
      *
      * @param IngredientRequest $request
      * @param  int $id
+     * @param StoreIngredientsForRecipe $store
      * @return \Illuminate\Http\JsonResponse
      */
-    public function update(IngredientRequest $request, $id)
+    public function update(IngredientRequest $request, $id, StoreIngredientsForRecipe $store)
     {
         if (!$ingredient = auth()->user()->ingredients()->find($id)) {
-            return response()->json(['error' => 'Ingredient was not found for current user'], 422);
+            return $this->messageIngredientNotFound();
         }
 
-        $updatedIngredient['name'] = mb_convert_case($request->name, MB_CASE_TITLE, "UTF-8");
-        $ingredient->fill($updatedIngredient)->save();
+        $ingredient->update(['name' => $store->ingredientNameConvertCase($request->name)]);
 
-        if ($updatedIngredient) {
-            return $this->show($id);
-        }
+        return $this->show($id);
+
     }
 
 
@@ -100,11 +109,20 @@ class IngredientController extends Controller
     public function destroy($id)
     {
         if (!$ingredient = auth()->user()->ingredients()->find($id)) {
-            return response()->json(['error' => 'Ingredient was not found for current user'], 422);
+            return $this->messageIngredientNotFound();
         }
+
         $ingredient->delete();
 
         return response()->json(['message' => 'Ingredient ' . $ingredient->name . ' has been deleted']);
+    }
+
+    /**
+     * @return \Illuminate\Http\JsonResponse
+     */
+    protected function messageIngredientNotFound()
+    {
+        return response()->json(['error' => 'Ingredient was not found for current user'], 422);
     }
 
 }

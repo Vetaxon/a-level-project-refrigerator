@@ -32,31 +32,6 @@ class Ingredient extends Model
             ->withPivot('updated_at');
     }
 
-    /**
-     * @param null $user_id
-     * @return mixed
-     */
-    public static function getAllUsersIngredient($user_id = null)
-    {
-        return self::where('user_id', null)
-            ->orWhere('user_id', $user_id)
-            ->orderByDesc('created_at');
-    }
-
-    /**
-     * Return ingredient by id of it is available for user
-     * @param $id
-     * @return bool|\Illuminate\Support\Collection
-     */
-    public static function getUsersIngredientById($id, $user_id = null)
-    {
-        return self::where('id', $id)
-            ->where(function ($query) use ($user_id) {
-                return $query->whereNull('user_id')
-                    ->orWhere('user_id', $user_id);
-            })->first();
-    }
-
 
     /**Get Ingredient id by name for user
      * @param $ingredient

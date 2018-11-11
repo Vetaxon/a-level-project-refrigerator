@@ -5,13 +5,18 @@ namespace App\Http\Controllers\Dashboard;
 use App\Http\Requests\IngredientRequest;
 use App\Ingredient;
 use App\Http\Controllers\Controller;
+use App\Repositories\IngredientRepository;
+use App\Services\StoreIngredientsForRecipe;
 
 class IngredientController extends Controller
 {
+    protected $ingredientRepo;
 
-    public function __construct()
+    public function __construct(IngredientRepository $ingredientRepository)
     {
         $this->middleware('role:superadministrator|administrator|moderator', ['except' => ['index', 'show']]);
+
+        $this->ingredientRepo = $ingredientRepository;
     }
 
     /**
@@ -22,7 +27,7 @@ class IngredientController extends Controller
     public function index()
     {
         return view('dashboard.ingredients.index')
-            ->withIngredients(Ingredient::getAllUsersIngredient()->paginate(5));
+            ->withIngredients($this->ingredientRepo->getAllUsersIngredient(null)->paginate(5));
     }
 
 
@@ -40,11 +45,12 @@ class IngredientController extends Controller
      * Store a newly created ingredient in storage.
      *
      * @param IngredientRequest $request
+     * @param StoreIngredientsForRecipe $store
      * @return \Illuminate\Http\Response
      */
-    public function store(IngredientRequest $request)
+    public function store(IngredientRequest $request, StoreIngredientsForRecipe $store)
     {
-        $ingredient = Ingredient::create(['name' => mb_convert_case($request->name, MB_CASE_TITLE, "UTF-8")]);
+        $ingredient = $store->storeIngredient($request, null);
 
         return back()->with('status', "Created new ingredient $ingredient->name");
     }
@@ -76,11 +82,12 @@ class IngredientController extends Controller
      *
      * @param IngredientRequest $request
      * @param Ingredient $ingredient
+     * @param StoreIngredientsForRecipe $store
      * @return \Illuminate\Http\Response
      */
-    public function update(IngredientRequest $request, Ingredient $ingredient)
+    public function update(IngredientRequest $request, Ingredient $ingredient, StoreIngredientsForRecipe $store)
     {
-        $ingredient->update(['name' => mb_convert_case($request->name, MB_CASE_TITLE, "UTF-8")]);
+        $ingredient->update(['name' => $store->ingredientNameConvertCase($request->name)]);
 
         return back()->with('status', "Ingredient ($ingredient->name) updated");
     }
@@ -93,8 +100,10 @@ class IngredientController extends Controller
      */
     public function destroy($id)
     {
-        $ingredient = Ingredient::getUsersIngredientById($id);
+        $ingredient = $this->ingredientRepo->getUsersIngredientById($id);
+
         $ingredient->delete();
+
         return back()->with('status', "Ingredient id= $id ($ingredient->name) deleted!");
     }
 }

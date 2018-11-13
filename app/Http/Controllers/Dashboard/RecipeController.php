@@ -93,6 +93,7 @@ class RecipeController extends Controller
     public function addIngredient(Recipe $recipe, IngredientNullRecipeRequest $request, StoreIngredientsForRecipe $store)
     {
         $store->storeOneIngredientForRecipe($recipe, $request->all());
+
         $recipe->save();
 
         return back()->with('status', "Ingredient has been successfully added to the recipe.");
@@ -106,7 +107,9 @@ class RecipeController extends Controller
     public function deleteIngredient(Recipe $recipe, Ingredient $ingredient)
     {
         $recipe->ingredients()->detach($ingredient);
+
         $recipe->save();
+
         return back()->with('status', "$ingredient->name has been deleted from the recipe.");
     }
 
@@ -138,16 +141,20 @@ class RecipeController extends Controller
      * @param Recipe $recipe
      * @param PictureContract $pictureContract
      * @return \Illuminate\Http\Response
+     * @throws \Exception
      */
     public function destroy(Recipe $recipe, PictureContract $pictureContract)
     {
         $recipe->delete();
+
         $pictureContract->delete($recipe->picture);
+
         return back();
     }
 
     /**
      * @param RecipeSearchRequest $request
+     * @return
      */
     public function searchRecipe(RecipeSearchRequest $request, SearchRecipesContract $searchRecipes)
     {

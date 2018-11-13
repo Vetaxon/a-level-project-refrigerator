@@ -3,22 +3,29 @@
 namespace App\Http\Controllers\Dashboard;
 
 use App\Http\Requests\UserStoreRequest;
-use App\Mail\RegisterMail;
-use App\Recipe;
+use App\Repositories\RecipeRepository;
+use App\Repositories\UserRepository;
 use App\Services\Contracts\SearchRecipesContract;
+use App\Services\UserServices;
 use App\User;
 use App\Http\Controllers\Controller;
-use Illuminate\Support\Facades\Mail;
 
 class UserController extends Controller
 {
+    protected $user;
+
+    public function __construct(UserRepository $user)
+    {
+        $this->user = $user;
+    }
+
     /**Show all users with details
      * @return mixed
      */
     public function index()
     {
         return view('dashboard.users.index')
-            ->withUsers(User::getAllUsersWithCounts()->paginate(20));
+            ->withUsers($this->user->getAllUsersWithCounts()->paginate(20));
     }
 
     /**Show all ingredients for user
@@ -46,13 +53,14 @@ class UserController extends Controller
 
     /**Show all user's recipes
      * @param User $user
+     * @param RecipeRepository $recipeRepository
      * @return mixed
      */
-    public function showRecipesByUser(User $user)
+    public function showRecipesByUser(User $user, RecipeRepository $recipeRepository)
     {
         return view('dashboard.users.recipes')
             ->withUser($user)
-            ->withRecipes(Recipe::getRecipeWithIngredientsByUser($user->id)->get());
+            ->withRecipes($recipeRepository->getRecipeWithIngredientsByUser($user->id)->get());
     }
 
     /**Show form to create a new user
@@ -65,15 +73,13 @@ class UserController extends Controller
 
     /**Store a new user
      * @param UserStoreRequest $request
+     * @param UserServices $userServices
      * @return mixed
      */
-    public function store(UserStoreRequest $request)
+    public function store(UserStoreRequest $request, UserServices $userServices)
     {
-        $password = str_random(6); //send email with password to user
-        $message = "Сongratulations on your registration in \"refrigerator\" project. To obtain moderator rights, ask them from the administrator.";
-        $request->merge(['password' => bcrypt($password)]);
-        $user = User::create($request->all());
-        Mail::to($user)->send(new RegisterMail($user, $message, $password));
+        $user = $userServices->createUserFromDashboard($request);
+
         return back()->withStatus("Created a new user $user->name");
     }
 

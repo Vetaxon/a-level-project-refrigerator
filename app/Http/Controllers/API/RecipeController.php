@@ -12,7 +12,6 @@ use App\Services\StoreIngredientsForRecipe;
 
 class RecipeController extends Controller
 {
-
     const PAGINATE_NUM = 9;
 
     protected $recipeRepo;
@@ -28,11 +27,13 @@ class RecipeController extends Controller
         $this->recipeRepo = $recipeRepository;
     }
 
+    /**Return all recipes available for user
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function index()
     {
         return response()->json($this->recipeRepo->getAllRecipesForUser(auth()->id())
             ->paginate(self::PAGINATE_NUM));
-//        return response()->json(Recipe::getAllRecipesForUser(auth()->id())->paginate(self::PAGINATE_NUM));
     }
 
     /**
@@ -40,21 +41,21 @@ class RecipeController extends Controller
      *
      * @param RecipeRequest $request
      * @param StoreIngredientsForRecipe $store
-     * @return Response \Illuminate\Http\JsonResponse
+     * @return mixed
      * @internal param Recipe $newRecipe
      */
     public function store(RecipeRequest $request, StoreIngredientsForRecipe $store)
-    {        
+    {
         $newRecipe = auth()->user()->recipes()->create($request->all());
 
         $store->storeMultipleIngredientForRecipe($newRecipe, $request->ingredients, auth()->id());
-        
+
         $newRecipe->save();
-        
+
         $message = EventMessages::userAddRecipe($newRecipe);
-        
+
         activity()->withProperties($message)->log('messages');
-        
+
         ClientEvent::dispatch($message);
 
         return $this->show($newRecipe->id);
@@ -65,13 +66,13 @@ class RecipeController extends Controller
      * Display the specified recipe if it is available for user.
      *
      * @param  int $id
-     * @return Response \Illuminate\Http\JsonResponse
+     * @return mixed
      */
     public function show($id)
     {
         $recipe = $this->recipeRepo->getRecipeByIdForUser($id, auth()->id());
-        
-        return $recipe ? response()->json(['recipe' => $recipe]) : $this->messageRecipeNotFound();            
+
+        return $recipe ? response()->json(['recipe' => $recipe]) : $this->messageRecipeNotFound();
     }
 
 
@@ -81,24 +82,24 @@ class RecipeController extends Controller
      * @param RecipeRequest $request
      * @param Recipe $recipe
      * @param StoreIngredientsForRecipe $store
-     * @return Response \Illuminate\Http\JsonResponse
+     * @return mixed
      */
     public function update(RecipeRequest $request, Recipe $recipe, StoreIngredientsForRecipe $store)
     {
         if (!auth()->user()->owns($recipe)) {
-            return $this->messageRecipeNorFound();
+            return $this->messageRecipeNotFound();
         }
-             
+
         $recipe->fill($request->all());
-        
+
         if (isset($request->ingredients)) {
             $recipe->ingredients()->detach();
             $store->storeMultipleIngredientForRecipe($recipe, $request->ingredients, auth()->id());
         }
-        
+
         $recipe->save();
-        
-        return $this->show($recipe->id);      
+
+        return $this->show($recipe->id);
 
     }
 
@@ -106,19 +107,23 @@ class RecipeController extends Controller
      * Remove the specified user's recipe from storage.
      *
      * @param Recipe $recipe
-     * @return Response \Illuminate\Http\JsonResponse
+     * @return mixed
+     * @throws \Exception
      */
     public function destroy(Recipe $recipe)
     {
         if (!auth()->user()->owns($recipe)) {
-            return $this->messageRecipeNorFound();
+            return $this->messageRecipeNotFound();
         }
 
         if ($recipe->delete()) {
             return response()->json(['message' => 'Recipe ' . $recipe->name . ' has been deleted']);
         }
     }
-    
+
+    /**
+     * @return \Illuminate\Http\JsonResponse
+     */
     protected function messageRecipeNotFound()
     {
         return response()->json(['error' => 'Recipe was not found for current user'], 422);

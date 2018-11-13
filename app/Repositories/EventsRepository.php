@@ -6,7 +6,7 @@ use Spatie\Activitylog\Models\Activity;
 
 class EventsRepository
 {
-    public static function getLastEvents()
+    public function getLastEvents()
     {
         return Activity::where('description', 'messages')
             ->orderBy('id', 'desc')
@@ -14,7 +14,7 @@ class EventsRepository
             ->get(['properties'])
             ->map(function ($activity) {
                 return  [$activity->properties[0]];
-            })->toJson();
+            });
     }
 
 }

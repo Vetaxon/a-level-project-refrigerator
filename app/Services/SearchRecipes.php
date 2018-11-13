@@ -28,7 +28,7 @@ class SearchRecipes implements SearchRecipesContract
 
     /**Search recipes for null user
      * @param string $search
-     * @return Collection
+     * @return \Illuminate\Support\Collection
      */
     public function searchRecipeNullUser(string $search)
     {
@@ -49,7 +49,7 @@ class SearchRecipes implements SearchRecipesContract
 
     /**Search recipes for specified user
      * @param User $user
-     * @return Collection
+     * @return \Illuminate\Support\Collection
      */
     public function searchRecipeForUser(User $user)
     {

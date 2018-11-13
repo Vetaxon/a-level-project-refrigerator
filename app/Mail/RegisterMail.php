@@ -19,9 +19,11 @@ class RegisterMail extends Mailable
     /**
      * Create a new message instance.
      *
-     * @return void
+     * @param User $user
+     * @param string $mailMessage
+     * @param string $password
      */
-    public function __construct(User $user, string $mailMessage = '', string $password = '')
+    public function __construct(User $user, string $mailMessage = '', $password = null)
     {
         $this->user = $user;
         $this->mailMessage = $mailMessage;
@@ -37,6 +39,8 @@ class RegisterMail extends Mailable
     {
         return $this->from('postmaster@sandboxa62384ba47bc4c8fbf2023fe04dbe3bb.mailgun.org')
             ->view('emails.register')
-            ->with(['user' => $this->user]); //, 'password' => $this->password]);
+            ->with(['user' => $this->user])
+            ->with(['password' => $this->password])
+            ->with(['mailMessage' => $this->mailMessage]);
     }
 }

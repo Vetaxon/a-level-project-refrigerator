@@ -8,6 +8,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\RecipeRequest;
 use App\Recipe;
 use App\Repositories\RecipeRepository;
+use App\Services\Contracts\MessageLogEvent;
 use App\Services\StoreIngredientsForRecipe;
 
 class RecipeController extends Controller
@@ -41,22 +42,19 @@ class RecipeController extends Controller
      *
      * @param RecipeRequest $request
      * @param StoreIngredientsForRecipe $store
+     * @param MessageLogEvent $event
      * @return mixed
      * @internal param Recipe $newRecipe
      */
-    public function store(RecipeRequest $request, StoreIngredientsForRecipe $store)
+    public function store(RecipeRequest $request, StoreIngredientsForRecipe $store, MessageLogEvent $event)
     {
         $newRecipe = auth()->user()->recipes()->create($request->all());
 
         $store->storeMultipleIngredientForRecipe($newRecipe, $request->ingredients, auth()->id());
 
         $newRecipe->save();
-
-        $message = EventMessages::userAddRecipe($newRecipe);
-
-        activity()->withProperties($message)->log('messages');
-
-        ClientEvent::dispatch($message);
+        
+        $event->send(EventMessages::userAddRecipe($newRecipe));
 
         return $this->show($newRecipe->id);
 

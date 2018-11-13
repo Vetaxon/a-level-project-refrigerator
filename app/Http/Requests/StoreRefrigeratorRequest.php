@@ -26,7 +26,7 @@ class StoreRefrigeratorRequest extends FormRequest
     {
         return [
             'amount' => 'required|string',
-            'ingredient_id' => 'required|integer|min:1|exists:ingredients,id',
+            'ingredient_id' => 'required|integer|min:1|exists:ingredients,id|unique_with:refrigerators,user_id',
         ];
     }
 }

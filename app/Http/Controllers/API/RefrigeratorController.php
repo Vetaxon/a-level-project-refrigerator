@@ -8,6 +8,7 @@ use App\Http\Requests\StoreRefrigeratorRequest;
 use App\Http\Requests\UpdateRefrigeratorRequest;
 use App\Ingredient;
 use App\Http\Controllers\Controller;
+use App\Services\Contracts\MessageLogEvent;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
 
@@ -28,22 +29,22 @@ class RefrigeratorController extends Controller
      * Store ingredient in user's refrigerator.
      *
      * @param StoreRefrigeratorRequest $request
+     * @param MessageLogEvent $event
      * @return \Illuminate\Http\Response
      */
-    public function store(StoreRefrigeratorRequest $request)
+    public function store(StoreRefrigeratorRequest $request, MessageLogEvent $event)
     {
         $request->merge(['user_id' => Auth::user()->id]);
-        Validator::make($request->all(), ['ingredient_id' => 'unique_with:refrigerators,user_id',])->validate();
+
         $user = Auth::user();
+
         $ingredient = Ingredient::find($request->ingredient_id);
 
         if ($user->owns($ingredient) || $ingredient->user_id === null) {
 
-            $user->refrigeratorIngredients()->attach($ingredient, ['amount' => $request->amount]);
+            $event->send(EventMessages::userAddIngredInRefrig($ingredient));
 
-            $message = EventMessages::userAddIngredInRefrig($ingredient);
-            activity()->withProperties($message)->log('messages');
-            ClientEvent::dispatch($message);
+            $user->refrigeratorIngredients()->attach($ingredient, ['amount' => $request->amount]);
 
             return $this->show($ingredient);
         }

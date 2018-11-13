@@ -8,6 +8,7 @@ use App\Ingredient;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\IngredientRequest;
 use App\Repositories\IngredientRepository;
+use App\Services\Contracts\MessageLogEvent;
 use App\Services\StoreIngredientsForRecipe;
 
 class IngredientController extends Controller
@@ -43,18 +44,15 @@ class IngredientController extends Controller
      *
      * @param IngredientRequest $request
      * @param StoreIngredientsForRecipe $store
+     * @param MessageLogEvent $event
      * @return \Illuminate\Http\JsonResponse
      */
-    public function store(IngredientRequest $request, StoreIngredientsForRecipe $store)
+    public function store(IngredientRequest $request, StoreIngredientsForRecipe $store, MessageLogEvent $event)
     {
         $ingredient = $store->storeIngredient($request, auth()->id());
 
-        $message = EventMessages::userAddIngredient($ingredient);
-
-        activity()->withProperties($message)->log('messages');
-
-        ClientEvent::dispatch($message);
-
+        $event->send(EventMessages::userAddIngredient($ingredient));
+        
         return response()->json([
             'message' => 'Ingredient ' . $ingredient->name . ' has been stored',
             'ingredient' => $ingredient->only($this->getParameters)

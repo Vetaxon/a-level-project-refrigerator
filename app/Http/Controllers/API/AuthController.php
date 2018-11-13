@@ -5,6 +5,7 @@ namespace App\Http\Controllers\API;
 use App\Events\ClientEvent;
 use App\Events\Messages\EventMessages;
 use App\Http\Requests\UpdateAuthRequest;
+use App\Services\Contracts\MessageLogEvent;
 use App\Services\UserServices;
 use App\User;
 use App\Http\Requests\LoginRequest;
@@ -29,18 +30,15 @@ class AuthController extends Controller
      *
      * @param RegisterRequest $request
      * @param UserServices $userServices
+     * @param MessageLogEvent $event
      * @return \Illuminate\Http\JsonResponse
      */
 
-    public function register(RegisterRequest $request, UserServices $userServices)
+    public function register(RegisterRequest $request, UserServices $userServices, MessageLogEvent $event)
     {
         $user = $userServices->createUserApi($request);
-
-        $message = EventMessages::userRegistered($user);
-
-        activity()->withProperties($message)->log('messages');
-
-        ClientEvent::dispatch($message);
+        
+        $event->send(EventMessages::userRegistered($user));
 
         $credentials = collect($request)->only(['email', 'password'])->toArray();
 

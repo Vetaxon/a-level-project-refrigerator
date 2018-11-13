@@ -6,6 +6,7 @@ use App\Events\ClientEvent;
 use App\Events\Messages\EventMessages;
 use App\Recipe;
 use App\Http\Controllers\Controller;
+use App\Services\SearchRecipesWithModel;
 
 class RefrigeratorRecipeController extends Controller
 {
@@ -16,55 +17,60 @@ class RefrigeratorRecipeController extends Controller
     /**
      * Get all recommended recipes for user according to refrigerator's ingredients.
      *
+     * @param SearchRecipesWithModel $searchRecipes
      * @return Response \Illuminate\Http\JsonResponse
      */
-    public function index()
+    public function index(SearchRecipesWithModel $searchRecipes)
     {
-        $refrigerator = auth()->user()->refrigeratorIngredients()->get()->toArray();
-        $recipes = Recipe::getAllRecipesForUser(auth()->id())->get()->toArray();
+//        $refrigerator = auth()->user()->refrigeratorIngredients()->get()->toArray();
+//        $recipes = Recipe::getAllRecipesForUser(auth()->id())->get()->toArray();
+//
+//        $recommendedRecipesIds = $this->getRecommendedRecipesdIds($recipes, $refrigerator);
+//
+//        $recommendedRecipes = Recipe::getRecipesByMultipleIds($recommendedRecipesIds)
+//            ->paginate(self::PAGINATE_RECIPES);
 
-        $recommendedRecipesIds = $this->getRecommendedRecipesdIds($recipes, $refrigerator);
+        $recommendedRecipes = $searchRecipes->searchRecipeForUser(auth()->user())->paginatete();
 
-        $recommendedRecipes = Recipe::getRecipesByMultipleIds($recommendedRecipesIds)
-            ->paginate(self::PAGINATE_RECIPES);
-
-        $message = EventMessages::userGetRecommendedRecipes(count($recommendedRecipesIds));
+        $message = EventMessages::userGetRecommendedRecipes(count($recommendedRecipes));
+        
         activity()->withProperties($message)->log('messages');
+        
         ClientEvent::dispatch($message);
 
         return response()->json($recommendedRecipes);
     }
 
 
-    /**
-     * Get get id's array of all recommended recipes for user due to ingredients in refrigerator
-     * @param $recipes - all recipes available for user
-     * @param $refrigerator - user's ingredients in a refrigerator
-     * @return array
-     */
-    protected function getRecommendedRecipesdIds($recipes, $refrigerator)
-    {
-        $recommendedRecipesIds = [];
-
-        foreach ($recipes as $recipe) {
-
-            $recipeIngredientCount = count($recipe['ingredients']);
-            $ingredientMatches = 0;
-
-            foreach ($recipe['ingredients'] as $recipeIngredient) {
-                foreach ($refrigerator as $refrigeratorIngredient) {
-                    if ($recipeIngredient['id'] == $refrigeratorIngredient['id']) {
-                        $ingredientMatches++;
-                    }
-                }
-            }
-
-            if ($recipeIngredientCount == $ingredientMatches) {
-                $recommendedRecipesIds[] = $recipe['id'];
-            }
-        }
-
-        return $recommendedRecipesIds;
-    }
+//    /**
+//     * Get get id's array of all recommended recipes for user due to ingredients in refrigerator
+//     * @param $recipes - all recipes available for user
+//     * @param $refrigerator - user's ingredients in a refrigerator
+//     * @return array
+//     */
+//    protected function getRecommendedRecipesdIds($recipes, $refrigerator)
+//    {
+//        $recommendedRecipesIds = [];
+//
+//        foreach ($recipes as $recipe) {
+//
+//            $recipeIngredientCount = count($recipe['ingredients']);
+//            $ingredientMatches = 0;
+//
+//            foreach ($recipe['ingredients'] as $recipeIngredient) {
+//                foreach ($refrigerator as $refrigeratorIngredient) {
+//                    if ($recipeIngredient['id'] == $refrigeratorIngredient['id']) {
+//                        $ingredientMatches++;
+//                    }
+//                }
+//            }
+//
+//            if ($recipeIngredientCount == $ingredientMatches) {
+//                $recommendedRecipesIds[] = $recipe['id'];
+//            }
+//        }
+//
+//        return $recommendedRecipesIds;
+//    }
 
 }

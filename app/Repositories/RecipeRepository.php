@@ -7,21 +7,21 @@ use App\Recipe;
 class RecipeRepository
 {
     protected $model;
-    
+
     protected $selectParams = ['id', 'name', 'text', 'picture', 'user_id'];
-    
+
     protected $selectIngredients = ['id', 'name', 'amount'];
 
     public function __construct()
     {
         $this->model = new Recipe();
     }
-    
+
     public function getModel()
     {
         return $this->model;
     }
-    
+
     /**
      * @return Recipe|\Illuminate\Database\Eloquent\Builder
      */
@@ -117,5 +117,23 @@ class RecipeRepository
             ->where('user_id', $user_id)
             ->get();
     }
+
+    /**
+     * @param string $search
+     * @return $this
+     */
+    public function searchRecipesUserNullWithModel(string $search)
+    {
+        return $this->model->with([
+            'ingredients' => function ($query) {
+                return $query->select($this->selectIngredients);
+            }])
+            ->select($this->selectParams)
+            ->whereNull('user_id')
+            ->where('recipes.name', 'like', '%' . $search . '%')
+            ->orderByDesc('created_at')
+            ->get();
+    }
+
 
 }

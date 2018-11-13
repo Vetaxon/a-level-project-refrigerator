@@ -7,6 +7,7 @@ use App\Services\Contracts\PictureContract;
 use App\Services\Contracts\SearchRecipesContract;
 use App\Services\PictureIntervention;
 use App\Services\SearchRecipes;
+use App\Services\SearchRecipesWithModel;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
@@ -18,7 +19,7 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot()
     {
-//        LogRepository::queryLog();
+        LogRepository::queryLog();
     }
 
     /**
@@ -28,7 +29,6 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register()
     {
-//        info([SavePictureContract::class, SavePictureIntervention::class]);
         $this->app->bind(PictureContract::class, PictureIntervention::class);
         $this->app->bind(SearchRecipesContract::class, SearchRecipes::class);
     }

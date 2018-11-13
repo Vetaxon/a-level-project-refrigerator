@@ -15,6 +15,12 @@ use Illuminate\Database\Eloquent\Collection;
 
 class SearchRecipesWithModel implements SearchRecipesContract
 {
+    protected  $recipeRepo;
+    
+    public function __construct(RecipeRepository $recipeRepository)
+    {
+        $this->recipeRepo = $recipeRepository;
+    }
 
     /**Search recipes for null user
      * @param string $search
@@ -22,7 +28,7 @@ class SearchRecipesWithModel implements SearchRecipesContract
      */
     public function searchRecipeNullUser(string $search)
     {
-        // TODO: Implement searchRecipeNullUser() method.
+        return $this->recipeRepo->searchRecipesUserNullWithModel($search);
     }
 
     /**Search recipes for specified user
@@ -31,16 +37,14 @@ class SearchRecipesWithModel implements SearchRecipesContract
      */
     public function searchRecipeForUser(User $user)
     {
-        $recipeRepo = new RecipeRepository();
-        
-        $refrigerator = $user->refrigeratorIngredients()->get()->toArray();
-        
-        $recipes = $recipeRepo->getAllRecipesForUser($user->id)->get()->toArray();
+        $refrigerator = $this->getUsersRefrigeratorIngredients($user);
+
+        $recipes = $this->recipeRepo->getAllRecipesForUser($user->id)->get()->toArray();
 
         $recommendedRecipesIds = $this->getRecommendedRecipesIds($recipes, $refrigerator);
-        
-        return $recipeRepo->getRecipesByMultipleIds($recommendedRecipesIds);
-        
+
+        return $this->recipeRepo->getRecipesByMultipleIds($recommendedRecipesIds)->get();
+
     }
 
     /**
@@ -59,9 +63,9 @@ class SearchRecipesWithModel implements SearchRecipesContract
             $ingredientMatches = 0;
 
             foreach ($recipe['ingredients'] as $recipeIngredient) {
-                
+
                 foreach ($refrigerator as $refrigeratorIngredient) {
-                    
+
                     if ($recipeIngredient['id'] == $refrigeratorIngredient['id']) {
                         $ingredientMatches++;
                     }
@@ -75,4 +79,14 @@ class SearchRecipesWithModel implements SearchRecipesContract
 
         return $recommendedRecipesIds;
     }
+
+    /**
+     * @param User $user
+     * @return mixed
+     */
+    protected function getUsersRefrigeratorIngredients(User $user)
+    {
+        return $user->refrigeratorIngredients()->get()->toArray();
+    }
+    
 }

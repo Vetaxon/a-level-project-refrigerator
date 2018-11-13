@@ -4,8 +4,8 @@ namespace App\Http\Controllers\API;
 
 use App\Events\ClientEvent;
 use App\Events\Messages\EventMessages;
-use App\Recipe;
 use App\Http\Controllers\Controller;
+use App\Services\Contracts\SearchRecipesContract;
 use App\Services\SearchRecipesWithModel;
 
 class RefrigeratorRecipeController extends Controller
@@ -17,20 +17,12 @@ class RefrigeratorRecipeController extends Controller
     /**
      * Get all recommended recipes for user according to refrigerator's ingredients.
      *
-     * @param SearchRecipesWithModel $searchRecipes
+     * @param SearchRecipesContract|SearchRecipesWithModel $searchRecipes
      * @return Response \Illuminate\Http\JsonResponse
      */
-    public function index(SearchRecipesWithModel $searchRecipes)
+    public function index(SearchRecipesContract $searchRecipes)
     {
-//        $refrigerator = auth()->user()->refrigeratorIngredients()->get()->toArray();
-//        $recipes = Recipe::getAllRecipesForUser(auth()->id())->get()->toArray();
-//
-//        $recommendedRecipesIds = $this->getRecommendedRecipesdIds($recipes, $refrigerator);
-//
-//        $recommendedRecipes = Recipe::getRecipesByMultipleIds($recommendedRecipesIds)
-//            ->paginate(self::PAGINATE_RECIPES);
-
-        $recommendedRecipes = $searchRecipes->searchRecipeForUser(auth()->user())->paginatete();
+        $recommendedRecipes = $searchRecipes->searchRecipeForUser(auth()->user());
 
         $message = EventMessages::userGetRecommendedRecipes(count($recommendedRecipes));
         
@@ -38,39 +30,7 @@ class RefrigeratorRecipeController extends Controller
         
         ClientEvent::dispatch($message);
 
-        return response()->json($recommendedRecipes);
+        return response()->json(['data' => $recommendedRecipes]);
     }
-
-
-//    /**
-//     * Get get id's array of all recommended recipes for user due to ingredients in refrigerator
-//     * @param $recipes - all recipes available for user
-//     * @param $refrigerator - user's ingredients in a refrigerator
-//     * @return array
-//     */
-//    protected function getRecommendedRecipesdIds($recipes, $refrigerator)
-//    {
-//        $recommendedRecipesIds = [];
-//
-//        foreach ($recipes as $recipe) {
-//
-//            $recipeIngredientCount = count($recipe['ingredients']);
-//            $ingredientMatches = 0;
-//
-//            foreach ($recipe['ingredients'] as $recipeIngredient) {
-//                foreach ($refrigerator as $refrigeratorIngredient) {
-//                    if ($recipeIngredient['id'] == $refrigeratorIngredient['id']) {
-//                        $ingredientMatches++;
-//                    }
-//                }
-//            }
-//
-//            if ($recipeIngredientCount == $ingredientMatches) {
-//                $recommendedRecipesIds[] = $recipe['id'];
-//            }
-//        }
-//
-//        return $recommendedRecipesIds;
-//    }
 
 }

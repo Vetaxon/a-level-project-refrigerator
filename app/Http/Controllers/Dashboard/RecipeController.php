@@ -154,6 +154,7 @@ class RecipeController extends Controller
 
     /**
      * @param RecipeSearchRequest $request
+     * @param SearchRecipesContract $searchRecipes
      * @return
      */
     public function searchRecipe(RecipeSearchRequest $request, SearchRecipesContract $searchRecipes)

@@ -24,7 +24,7 @@ class StoreIngredientsForRecipe
      * @param null $user_id
      * @return bool
      */
-    public function storeMultipleIngredientForRecipe($recipe, $ingredients, $user_id = null)
+    public function storeMultipleIngredientForRecipe(Recipe $recipe, $ingredients, $user_id = null)
     {
         foreach ($ingredients as $ingredient) {
             $validIngredient['name'] = key($ingredient);
@@ -41,7 +41,7 @@ class StoreIngredientsForRecipe
      * @param null $user_id
      * @return void
      */
-    public function storeOneIngredientForRecipe($recipe, $ingredient, $user_id = null)
+    public function storeOneIngredientForRecipe(Recipe $recipe, $ingredient, $user_id = null)
     {
         $ingredient['name'] = $this->ingredientNameConvertCase($ingredient['name']);
 
@@ -55,14 +55,6 @@ class StoreIngredientsForRecipe
 
             $this->addToRecipeExistedIngredient($recipe, $ingredient, $user_id);
         }
-    }
-
-    public function storeIngredient($request, $user_id = null)
-    {
-        return Ingredient::create([
-            'name' => $this->ingredientNameConvertCase($request->name),
-            'user_id' => $user_id,
-        ]);
     }
 
     /**
@@ -97,11 +89,38 @@ class StoreIngredientsForRecipe
      */
     protected function addToRecipeExistedIngredient(Recipe $recipe, array $ingredient, $user_id)
     {
-        $ingredientExistingId = Ingredient::getIngredientIdByName($ingredient, $user_id);
+        $ingredientExistingId = $this->getIngredientIdByName($ingredient, $user_id);
 
         $this->validateIngredient($recipe->id, $ingredientExistingId);
 
         $recipe->ingredients()->attach([$ingredientExistingId => ['amount' => $ingredient['amount']]]);
+    }
+
+    /**
+     * @param $request
+     * @param null $user_id
+     * @return mixed
+     */
+    public function storeIngredient($request, $user_id = null)
+    {
+        return Ingredient::create([
+            'name' => $this->ingredientNameConvertCase($request->name),
+            'user_id' => $user_id,
+        ]);
+    }
+
+    /**Get Ingredient id by name for user
+     * @param $ingredient
+     * @param null $user_id
+     * @return mixed
+     */
+    public function getIngredientIdByName($ingredient, $user_id = null)
+    {
+        return Ingredient::where('name', $ingredient['name'])
+            ->where(function ($query) use ($user_id) {
+                return $query->whereNull('user_id')
+                    ->orWhere('user_id', $user_id);
+            })->first()->id;
     }
 
     /**

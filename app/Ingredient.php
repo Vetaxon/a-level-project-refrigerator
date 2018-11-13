@@ -32,17 +32,4 @@ class Ingredient extends Model
             ->withPivot('updated_at');
     }
 
-
-    /**Get Ingredient id by name for user
-     * @param $ingredient
-     * @return mixed
-     */
-    public static function getIngredientIdByName($ingredient, $user_id = null)
-    {
-        return self::where('name', $ingredient['name'])
-            ->where(function ($query) use ($user_id) {
-                return $query->whereNull('user_id')
-                    ->orWhere('user_id', $user_id);
-            })->first()->id;
-    }
 }

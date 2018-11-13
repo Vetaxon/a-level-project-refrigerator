@@ -16,12 +16,9 @@ Route::get('/', function () {
     return view('welcome');
 });
 
-Route::get('/login/{social}', 'Auth\LoginController@socialLogin')
-    ->where('social', 'facebook|google|github');
+Route::get('/login/{social}', 'Auth\LoginController@socialLogin')->where('social', 'facebook|google|github');
 
-Route::get('/login/{social}/callback', 'Auth\LoginController@handleProviderCallback')
-    ->where('social', 'facebook|google|github');
-
+Route::get('/login/{social}/callback', 'Auth\LoginController@handleProviderCallback')->where('social', 'facebook|google|github');
 
 Auth::routes();
 
@@ -59,8 +56,6 @@ Route::group(['middleware' => 'auth:web', 'prefix' => 'dashboard', 'as' => 'dash
     ]]);
 
     Route::get('logs', ['middleware' => ['role:superadministrator|administrator'], 'uses' => '\Rap2hpoutre\LaravelLogViewer\LogViewerController@index'])->name('logs');
-
-    Route::get('/analytics', ['middleware' => 'role:superadministrator|administrator|moderator', 'uses' => 'Dashboard\AnalyticController@index'])->name('analytics');
 
     Route::group(['prefix' => 'roles', 'as' => 'roles'], function () {
         Route::get('/index', 'Dashboard\UserRolesController@index')->middleware(['role:superadministrator|administrator|moderator'])->name('.index');

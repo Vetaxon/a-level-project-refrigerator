@@ -10,12 +10,13 @@ class ComposerServiceProvider extends ServiceProvider
     /**
      * Bootstrap the application services.
      *
+     * @param EventsRepository $eventsRepository
      * @return void
      */
-    public function boot()
+    public function boot(EventsRepository $eventsRepository)
     {
-        view()->composer('home', function ($view) {
-            $view->withEvents(EventsRepository::getLastEvents());
+        view()->composer('home', function ($view) use ($eventsRepository) {
+            $view->withEvents($eventsRepository->getLastEvents()->toJson());
         });
     }
 

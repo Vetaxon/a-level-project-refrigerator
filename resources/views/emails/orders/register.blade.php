@@ -1,4 +1,4 @@
-@if($user != null && $mailMessage != null && $password != null)
+@if($user != null && $mailMessage != null)
 @component('mail::message')
 
 # Hello, {{$user->name}}!
@@ -7,7 +7,9 @@
 
 Your login is {{ $user->email }}<br>
 
+@if($password != null)
 Your password is <b>{{ $password }}</b>
+@endif
 
 @endcomponent
 @else

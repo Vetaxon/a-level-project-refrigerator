@@ -8,6 +8,7 @@
         "php": ">=7.0.0",
         "babenkoivan/scout-elasticsearch-driver": "^3.8",
         "barryvdh/laravel-cors": "^0.11.2",
+        "bestmomo/laravel-email-confirmation": "^1.1",
         "beyondcode/laravel-self-diagnosis": "^1.0",
         "doctrine/dbal": "^2.8",
         "felixkiss/uniquewith-validator": "^3.1",

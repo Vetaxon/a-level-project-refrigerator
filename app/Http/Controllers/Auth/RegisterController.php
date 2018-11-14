@@ -8,7 +8,8 @@ use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Validator;
-use Illuminate\Foundation\Auth\RegistersUsers;
+//use Illuminate\Foundation\Auth\RegistersUsers;
+use Bestmomo\LaravelEmailConfirmation\Traits\RegistersUsers;
 
 class RegisterController extends Controller
 {
@@ -65,13 +66,13 @@ class RegisterController extends Controller
      */
     protected function create(array $data)
     {
-        $message = 'Сongratulations on your registration in "refrigerator" project. Еo obtain moderator rights, ask them from the administrator.';
+        //$message = 'Сongratulations on your registration in "refrigerator" project. Еo obtain moderator rights, ask them from the administrator.';
         $user = User::create([
             'name' => $data['name'],
             'email' => $data['email'],
             'password' => bcrypt($data['password']),
         ]);
-        Mail::to($user)->queue(new RegisterMail($user, $message, $data['password']));//!!!
+        //Mail::to($user)->queue(new RegisterMail($user, $message, $data['password']));//!!!
         $user->attachRole('guest');
         return $user;
     }

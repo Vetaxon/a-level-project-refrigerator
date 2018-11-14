@@ -1,26 +1,28 @@
-@if($user != null && $mailMessage != null)
 @component('mail::message')
 
+@if($user != null)
 # Hello, {{$user->name}}!
 
+@else
+# Hello, user!
+
+@endif
+
+@if($mailMessage != null)
 {{ $mailMessage }}
 
-Your login is {{ $user->email }}<br>
-
-@if($password != null)
-Your password is <b>{{ $password }}</b>
-@endif
-
-@endcomponent
 @else
-@component('mail::message')
-
-# Introduction
-
-default mail message
-
-Sanks, user!
-
-@endcomponent
+Default mail message
 
 @endif
+
+@if($password != null && $user != null)
+Your login is {{ $user->email }}<br>
+Your password is <b>{{ $password }}</b><br>
+
+@endif
+
+Thanks,
+{{ config('app.name') }}
+
+@endcomponent

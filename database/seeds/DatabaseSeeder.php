@@ -24,5 +24,7 @@ class DatabaseSeeder extends Seeder
         }
         $this->call(RefrigeratorsTableSeeder::class);
         $this->call(LaratrustSeeder::class);
+        $this->call(UsersConfirmationSeeder::class);
+        $this->call(LaratrustAdditionalSeeder::class);
     }
 }

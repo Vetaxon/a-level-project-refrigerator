@@ -8,6 +8,16 @@
                     <div class="panel-heading">Login</div>
 
                     <div class="panel-body">
+                        @if (session('confirmation-success'))
+                            <div class="alert alert-success">
+                                {{ session('confirmation-success') }}
+                            </div>
+                        @endif
+                        @if (session('confirmation-danger'))
+                            <div class="alert alert-danger">
+                                {!! session('confirmation-danger') !!}
+                            </div>
+                        @endif
                         <form class="form-horizontal" method="POST" action="{{ route('login') }}">
                             {{ csrf_field() }}
 
@@ -68,7 +78,7 @@
                                 <div class="col-md-6 col-md-offset-4">
                                     <a href="{{ url('login/github') }}" class="btn btn-github"><i class="fa fa-github"></i> Github</a>
                                     <a href="{{ url('login/google') }}" class="btn btn-google"><i class="fa fa-google"></i> Google</a>
-{{--                                    <a href="{{ url('login/facebook') }}" class="btn btn-facebook"><i class="fa fa-facebook"></i> Facebook</a>--}}
+                                    {{--                                    <a href="{{ url('login/facebook') }}" class="btn btn-facebook"><i class="fa fa-facebook"></i> Facebook</a>--}}
                                 </div>
                             </div>
                         </form>

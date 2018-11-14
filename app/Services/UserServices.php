@@ -23,7 +23,11 @@ class UserServices
 
         $userParams['password'] = bcrypt($password);
 
+        $userParams['confirmed'] = 1;
+
         $user = User::create($userParams);
+
+        $user->attachRole('guest');
 
         Mail::to($user)->queue(new RegisterMail($user, $this->getMessageEmail(), $password));
 
@@ -36,9 +40,12 @@ class UserServices
             'email' => $userSocial->getEmail(),
             'name' => $userSocial->getName() ? $userSocial->getName() : $userSocial->getNickname(),
             'password' => bcrypt(str_random(70)),
+            'confirmed' => 1,
         ];
 
         $user = User::create($userParams);
+
+        $user->attachRole('guest');
 
         Mail::to($user)->queue(new RegisterMail($user, $this->getMessageEmail()));
 
@@ -65,7 +72,7 @@ class UserServices
      */
     public function createUserApi($request)
     {
-        $message = 'Congratulations on your registration in "refrigerator" project';
+        $message = 'Congratulations on your registration in "refrigerator" API';
 
         $user = User::create([
             'name' => $request->name,
@@ -75,7 +82,7 @@ class UserServices
 
         $user->attachRole('client');
 
-        Mail::to($user)->queue(new RegisterMail($user, $message, $request->password));
+        Mail::to($user)->queue(new RegisterMail($user, $message));
 
         return $user;
     }

@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "7304b4dc8d31fa379afd2fbc767e4547",
+    "content-hash": "efe0968434a842ff48f667302d18aefe",
     "packages": [
         {
             "name": "anahkiasen/underscore-php",
@@ -230,6 +230,52 @@
                 "laravel"
             ],
             "time": "2018-09-06T13:20:53+00:00"
+        },
+        {
+            "name": "bestmomo/laravel-email-confirmation",
+            "version": "V1.1.5",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/bestmomo/laravel-email-confirmation.git",
+                "reference": "ab5ba9c25fe37df8d45d3f71ef7fb09d919eca92"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/bestmomo/laravel-email-confirmation/zipball/ab5ba9c25fe37df8d45d3f71ef7fb09d919eca92",
+                "reference": "ab5ba9c25fe37df8d45d3f71ef7fb09d919eca92",
+                "shasum": ""
+            },
+            "require": {
+                "illuminate/support": "~5.4",
+                "php": ">=5.6.4"
+            },
+            "type": "library",
+            "extra": {
+                "laravel": {
+                    "providers": [
+                        "Bestmomo\\LaravelEmailConfirmation\\ServiceProvider"
+                    ]
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Bestmomo\\LaravelEmailConfirmation\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Bestmomo",
+                    "email": "grandheretique@free.fr",
+                    "homepage": "http://laravel.sillo.org"
+                }
+            ],
+            "description": "Email address confirmation with Laravel",
+            "homepage": "http://github.com/laravel-email-confirmation",
+            "time": "2018-07-31T16:49:27+00:00"
         },
         {
             "name": "beyondcode/laravel-self-diagnosis",

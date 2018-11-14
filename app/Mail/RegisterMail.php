@@ -37,7 +37,7 @@ class RegisterMail extends Mailable
      */
     public function build()
     {
-        return $this->from('postmaster@sandboxa62384ba47bc4c8fbf2023fe04dbe3bb.mailgun.org')
+        return $this->from(env('MAIL_USERNAME'))
             ->markdown('emails.orders.register')
             ->with(['user' => $this->user])
             ->with(['password' => $this->password])

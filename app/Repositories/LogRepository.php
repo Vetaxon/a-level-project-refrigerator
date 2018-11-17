@@ -12,6 +12,14 @@ use Illuminate\Support\Facades\DB;
 
 class LogRepository
 {
+    public static function queryPrint(){
+        DB::listen(function ($query) {
+            dump($query->sql);
+            //dump($query->bindings);
+            //dump($query->time);
+        });
+    }
+
     public static function queryLog()
     {
         DB::listen(function ($query) {

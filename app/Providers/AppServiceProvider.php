@@ -21,6 +21,7 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot()
     {
+        LogRepository::queryPrint();
         LogRepository::queryLog();
     }
 

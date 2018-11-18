@@ -10,6 +10,9 @@ use App\Services\LogEvent;
 use App\Services\PictureIntervention;
 use App\Services\SearchRecipes;
 use App\Services\SearchRecipesWithModel;
+use App\Services\UserRolesAssign;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
@@ -21,8 +24,14 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot()
     {
-        LogRepository::queryPrint();
+        //LogRepository::queryPrint();
         LogRepository::queryLog();
+
+        UserRolesAssign::userCanBeModified();
+        UserRolesAssign::printNotEditableRole();
+        UserRolesAssign::superadminHidden();
+        UserRolesAssign::disabledRole();
+        UserRolesAssign::checkedRole();
     }
 
     /**

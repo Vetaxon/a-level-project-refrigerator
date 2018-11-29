@@ -19,6 +19,7 @@ class RecipeController extends Controller
 
     public function __construct(RecipeRepository $repository)
     {
+        $this->middleware('role:superadministrator|administrator|moderator', ['except' => ['index', 'show', 'searchRecipe']]);
         $this->recipeRepo = $repository;
     }
 

@@ -25,7 +25,7 @@ Route::get('/home', 'Dashboard\HomeController@index')->name('home');
 
 Route::group(['middleware' => 'auth:web', 'prefix' => 'dashboard', 'as' => 'dashboard.'], function () {
 
-    Route::group(['prefix' => 'users', 'middleware' => 'role:superadministrator|administrator|moderator', 'as' => 'user.'], function () {
+    Route::group(['prefix' => 'users', 'middleware' => 'role:superadministrator|administrator', 'as' => 'user.'], function () {
 
         Route::get('/', ['uses' => 'Dashboard\UserController@index'])->name('index');
 
@@ -44,6 +44,7 @@ Route::group(['middleware' => 'auth:web', 'prefix' => 'dashboard', 'as' => 'dash
 
     });
 
+
     Route::resource('recipes', 'Dashboard\RecipeController');
     Route::post('recipes/{recipe}/ingredient', 'Dashboard\RecipeController@addIngredient')->name('recipes.add.ingredient');
     Route::post('recipes/search', 'Dashboard\RecipeController@searchRecipe')->name('recipes.search');
@@ -60,7 +61,4 @@ Route::group(['middleware' => 'auth:web', 'prefix' => 'dashboard', 'as' => 'dash
         Route::get('/index', 'Dashboard\UserRolesController@index')->middleware(['role:superadministrator|administrator|moderator'])->name('.index');
         Route::put('/update/{user}', 'Dashboard\UserRolesController@update')->middleware(['role:superadministrator|administrator'])->name('.update');
     });
-
-    Route::get('/analytics', ['middleware' => ['role:superadministrator|administrator|moderator'], 'uses' => 'Dashboard\AnalyticController@index'])->name('analytics');
-
 });

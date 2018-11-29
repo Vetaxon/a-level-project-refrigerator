@@ -70,11 +70,11 @@
 </head>
 <body>
 <div class="container-fluid">
-  <div class="row">
-    <div class="col sidebar mb-3">
-      <h1><i class="fa fa-calendar" aria-hidden="true"></i> Refrigerator Log Viewer</h1>
-        <p><a href="{{ route('home') }}" style="font-size: medium;">BACK HOME</a></p>
-      <div class="list-group div-scroll">
+   <div class="row">
+     <div class="col sidebar mb-3">
+       <h1><i class="fa fa-calendar" aria-hidden="true"></i> Refrigerator Log Viewer</h1>
+         <p><a href="{{ route('home') }}"  style="font-size: medium;">BACK HOME</a></p>
+       <div class="list-group div-scroll">
         @foreach($folders as $folder)
           <div class="list-group-item">
             <a href="?f={{ \Illuminate\Support\Facades\Crypt::encrypt($folder) }}">
